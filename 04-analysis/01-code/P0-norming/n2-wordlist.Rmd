@@ -1,0 +1,125 @@
+---
+title: "R Notebook"
+output: html_document
+---
+
+# Preamble
+## Packages
+```{r setup}
+# Load libraries and custom functions
+if (file.exists("project_functions.R")){
+  source("project_functions.R")
+  
+} else { # try one directory up
+  source("../project_functions.R")
+}
+```
+
+## Pipeline Structure
+```{r}
+# Fill in file structure info (e.g. using getwd())
+NAME <- 'n2-wordlist' ## Name of the R file (w/o file extension!)
+PHASE <- 'P0-norming' ## Name of the project phase (if relevant)
+PROJECT <- 'SpAAC' ## Name of project
+```
+
+```{r}
+# Get project directory path & subfolder status from working dir
+PROJECT_DIR <- str_extract(getwd(), paste0("^(.*?)",PROJECT,"/"))
+
+if (basename(getwd()) != PHASE) {SUBFOLDER <- basename(getwd())} else {SUBFOLDER <- NA}
+
+# Get pipeline path names
+if (dir.exists(file.path(PROJECT_DIR, '04-analysis', '02-pipeline'))){
+  if (is.na(SUBFOLDER)){
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, NAME)
+  } else {
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, SUBFOLDER, NAME)
+  }
+} else {
+  pipeline <- file.path('.', 'pipeline', PHASE, NAME)
+}
+
+# Create pipeline folders
+if (!dir.exists(pipeline)) {
+  dir.create(pipeline, recursive=TRUE)
+  for (folder in c('out', 'store', 'temp')){
+    dir.create(file.path(pipeline, folder))
+  }
+}
+```
+
+```{r}
+# Basic reference paths
+stim_data_path <- file.path(PROJECT_DIR, '02-materials', '02-stimuli', PHASE) 
+ext_data_path <- file.path(PROJECT_DIR, '03-data', '01-external', PHASE) 
+int_data_path <- file.path(PROJECT_DIR, '03-data', '02-internal', PHASE) 
+manual_analysis_path <- file.path(PROJECT_DIR, '04-analysis', '03-manual', PHASE) # 001-code / 003-manual
+```
+
+
+# .
+# Set-up
+# Read in Data
+SUBTLEX-US 
+```{r}
+subtlex_us <- readxl::read_xlsx(file.path(stim_data_path, "n2", "01-wordlist", "0_resources", "SUBTLEX-US frequency list with PoS and Zipf information.xlsx"))
+subtlex_us
+
+subtlex_us %>% filter(`Zipf-value`==min(`Zipf-value`))
+```
+
+Wordlist draft data from "Draft N2 Stims" sheet of SpAAC: Linguistic Stimuli
+```{r}
+wordlist_draft <- read_csv(file.path(stim_data_path, "n2", "01-wordlist", "0_exploratory", "1_records", "SpAAC Linguistic Stimuli - Draft N2 Stims.csv")) %>%
+  
+  # Select/reshape relevant columns
+  select(Condition, Number='#', Syllables, Prephone='Preceding Sound(s)', Target='Target - Mainstream Pronunciation', Competitor='Temporally- ambiguous Competitor') %>%
+  separate(col=Target, into = c("T_1", "T_2", "T_3", "T_4", "T_5", "T_6", "T_7", "T_8", "T_9", "T_10"), sep=";") %>%
+  separate(col=Competitor, into = c("C_1", "C_2", "C_3", "C_4", "C_5", "C_6", "C_7", "C_8", "C_9", "C_10"), sep=";") %>%
+  pivot_longer(cols=T_1:C_10, names_to = c("Word_Cond", NA), names_sep = "_", values_to = "Word")  %>%
+  mutate(Word=mgsub(str_trim(Word), c("(", ")"), c("", ""), fixed=T)) %>% # Trim whitespace, parentheses
+  # Drop no-words/ unfinished rows
+  filter(Word!="") %>%
+  drop_na(Word, Number, Syllables)
+wordlist_draft 
+```
+
+Search SUBTLEX-US for all words in list, then merge back into list.
+```{r}
+wordlist_freq <- 
+  wordlist_draft %>%
+  full_join(
+   subtlex_us %>%
+  select(Word,
+         All_PoS_SUBTLEX, All_freqs_SUBTLEX, # All PoS options, counts of each PoS option (dot separates options)
+         FREQcount, CDcount, 
+         Lg10WF, Lg10CD,
+         Zipf='Zipf-value') %>%
+  filter(Word %in% wordlist_draft$Word) 
+  )
+wordlist_freq
+# View(wordlist_freq)
+write_csv(wordlist_freq, file.path(pipeline, "temp", "N2_Stims_wordlist_freq.csv"))
+```
+
+# Explore Data
+Query SUBTLEX-US for small sets.
+```{r}
+subtlex_us %>%
+  select(Word,
+         All_PoS_SUBTLEX, All_freqs_SUBTLEX, # All PoS options, counts of each PoS option (dot separates options)
+         FREQcount, CDcount, 
+         #Lg10WF, Lg10CD, 
+         Zipf='Zipf-value') %>%
+  filter(grepl("^cattle", Word)) %>%
+  arrange(-Zipf)
+```
+```{r}
+wordlist_freq %>%  select(-Syllables, -Prephone) %>%
+  filter(Condition=="/ou/-backing") %>%  filter(Number==3)
+```
+```{r}
+wordlist_freq %>%  select(-Syllables, -Prephone) %>%
+  filter(Condition=="/ou/-backing") %>%  filter(Number==1) %>% filter(Word_Cond=="T")
+```
