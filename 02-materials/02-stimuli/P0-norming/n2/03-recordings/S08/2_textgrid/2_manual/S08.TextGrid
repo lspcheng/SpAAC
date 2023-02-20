@@ -19,7 +19,7 @@ item []:
         intervals [2]:
             xmin = 2.0198571428571204 
             xmax = 2.5398571428571204 
-            text = "" 
+            text = "1-1-1_dental" 
         intervals [3]:
             xmin = 2.5398571428571204 
             xmax = 3.5718571428571204 
@@ -51,7 +51,7 @@ item []:
         intervals [10]:
             xmin = 9.41185714285712 
             xmax = 9.98785714285712 
-            text = "" 
+            text = "1-1-2_dinners" 
         intervals [11]:
             xmin = 9.98785714285712 
             xmax = 11.05985714285712 
@@ -59,7 +59,7 @@ item []:
         intervals [12]:
             xmin = 11.05985714285712 
             xmax = 11.59585714285712 
-            text = "" 
+            text = "1-1-3_dental" 
         intervals [13]:
             xmin = 11.59585714285712 
             xmax = 13.89985714285712 
@@ -99,7 +99,7 @@ item []:
         intervals [22]:
             xmin = 21.71585714285712 
             xmax = 22.571857142857123 
-            text = "" 
+            text = "1-2-2_fringes" 
         intervals [23]:
             xmin = 22.571857142857123 
             xmax = 23.515857142857122 
@@ -107,7 +107,7 @@ item []:
         intervals [24]:
             xmin = 23.515857142857122 
             xmax = 24.355857142857122 
-            text = "" 
+            text = "1-2-3_friendless" 
         intervals [25]:
             xmin = 24.355857142857122 
             xmax = 26.435857142857124 
@@ -115,7 +115,7 @@ item []:
         intervals [26]:
             xmin = 26.435857142857124 
             xmax = 27.29985714285712 
-            text = "" 
+            text = "1-2-1_friendless" 
         intervals [27]:
             xmin = 27.29985714285712 
             xmax = 28.027857142857123 
@@ -123,7 +123,7 @@ item []:
         intervals [28]:
             xmin = 28.027857142857123 
             xmax = 28.835857142857122 
-            text = "" 
+            text = "1-2-2_fringes" 
         intervals [29]:
             xmin = 28.835857142857122 
             xmax = 29.667857142857123 
@@ -211,23 +211,23 @@ item []:
         intervals [50]:
             xmin = 51.62785714285712 
             xmax = 52.45185714285712 
-            text = "" 
+            text = "1-3-1_gemstone" 
         intervals [51]:
             xmin = 52.45185714285712 
             xmax = 53.22785714285712 
             text = "silent" 
         intervals [52]:
             xmin = 53.22785714285712 
-            xmax = 53.76385714285712 
-            text = "" 
+            xmax = 54.06273350231093 
+            text = "1-3-2_gymnasts" 
         intervals [53]:
-            xmin = 53.76385714285712 
+            xmin = 54.06273350231093 
             xmax = 54.88385714285712 
             text = "silent" 
         intervals [54]:
             xmin = 54.88385714285712 
             xmax = 55.61185714285712 
-            text = "" 
+            text = "1-3-3_gemstone" 
         intervals [55]:
             xmin = 55.61185714285712 
             xmax = 58.35585714285712 
@@ -246,12 +246,12 @@ item []:
             text = "" 
         intervals [59]:
             xmin = 61.17985714285712 
-            xmax = 62.24385714285712 
+            xmax = 62.11500596767987 
             text = "silent" 
         intervals [60]:
-            xmin = 62.24385714285712 
+            xmin = 62.11500596767987 
             xmax = 62.74785714285712 
-            text = "" 
+            text = "1-4-3_lemon" 
         intervals [61]:
             xmin = 62.74785714285712 
             xmax = 65.17185714285712 
@@ -259,17 +259,17 @@ item []:
         intervals [62]:
             xmin = 65.17185714285712 
             xmax = 65.77985714285713 
-            text = "" 
+            text = "1-4-1_lemon" 
         intervals [63]:
             xmin = 65.77985714285713 
-            xmax = 66.77985714285713 
+            xmax = 66.68519241594053 
             text = "silent" 
         intervals [64]:
-            xmin = 66.77985714285713 
-            xmax = 67.25985714285713 
-            text = "" 
+            xmin = 66.68519241594053 
+            xmax = 67.57292647423579 
+            text = "1-4-2_limits" 
         intervals [65]:
-            xmin = 67.25985714285713 
+            xmin = 67.57292647423579 
             xmax = 68.38785714285713 
             text = "silent" 
         intervals [66]:
@@ -2235,7 +2235,7 @@ item []:
         intervals [556]:
             xmin = 607.1718571428571 
             xmax = 607.7718571428571 
-            text = "" 
+            text = "4-1-1_coding" 
         intervals [557]:
             xmin = 607.7718571428571 
             xmax = 608.6598571428572 
@@ -2267,15 +2267,15 @@ item []:
         intervals [564]:
             xmin = 614.1478571428571 
             xmax = 614.7318571428572 
-            text = "" 
+            text = "4-1-2_coldest" 
         intervals [565]:
             xmin = 614.7318571428572 
-            xmax = 615.6678571428572 
+            xmax = 615.5733795818171 
             text = "silent" 
         intervals [566]:
-            xmin = 615.6678571428572 
+            xmin = 615.5733795818171 
             xmax = 616.2598571428572 
-            text = "" 
+            text = "4-1-3_coding" 
         intervals [567]:
             xmin = 616.2598571428572 
             xmax = 618.1558571428571 
@@ -2283,7 +2283,7 @@ item []:
         intervals [568]:
             xmin = 618.1558571428571 
             xmax = 618.7478571428571 
-            text = "" 
+            text = "4-1-1_coding" 
         intervals [569]:
             xmin = 618.7478571428571 
             xmax = 619.6358571428572 
@@ -5283,7 +5283,7 @@ item []:
         intervals [1318]:
             xmin = 1344.067857142857 
             xmax = 1344.7638571428572 
-            text = "" 
+            text = "8-4-1_restful" 
         intervals [1319]:
             xmin = 1344.7638571428572 
             xmax = 1345.7078571428572 
@@ -5291,7 +5291,7 @@ item []:
         intervals [1320]:
             xmin = 1345.7078571428572 
             xmax = 1346.219857142857 
-            text = "" 
+            text = "8-4-2_wrestled" 
         intervals [1321]:
             xmin = 1346.219857142857 
             xmax = 1347.2838571428572 
@@ -5299,7 +5299,7 @@ item []:
         intervals [1322]:
             xmin = 1347.2838571428572 
             xmax = 1347.9878571428571 
-            text = "" 
+            text = "8-4-3_restful" 
         intervals [1323]:
             xmin = 1347.9878571428571 
             xmax = 1350.0918571428572 
@@ -5355,7 +5355,7 @@ item []:
         intervals [1336]:
             xmin = 1362.3958571428573 
             xmax = 1363.403857142857 
-            text = "" 
+            text = "8-5-1_softball" 
         intervals [1337]:
             xmin = 1363.403857142857 
             xmax = 1364.219857142857 
@@ -5363,7 +5363,7 @@ item []:
         intervals [1338]:
             xmin = 1364.219857142857 
             xmax = 1365.1078571428573 
-            text = "" 
+            text = "8-5-2_sophomore" 
         intervals [1339]:
             xmin = 1365.1078571428573 
             xmax = 1365.971857142857 
@@ -5395,7 +5395,7 @@ item []:
         intervals [1346]:
             xmin = 1372.2438571428572 
             xmax = 1373.171857142857 
-            text = "" 
+            text = "8-5-3_softball" 
         intervals [1347]:
             xmin = 1373.171857142857 
             xmax = 1376.4198571428572 
