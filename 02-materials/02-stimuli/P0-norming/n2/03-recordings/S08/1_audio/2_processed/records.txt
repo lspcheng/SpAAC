@@ -1,5 +1,5 @@
 # Audacity settings
 
-noise reduction =
-sensitivity =
-frequency smoothing =
+noise reduction = 12
+sensitivity = 6
+frequency smoothing = 0
