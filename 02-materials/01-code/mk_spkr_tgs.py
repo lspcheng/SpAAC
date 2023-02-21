@@ -17,11 +17,14 @@ def main(args):
     tg_out_path = os.path.join(speaker_path, "2_textgrid", "1_original")
 
     wav_list = [f for f in os.listdir(os.path.join(audio_in_path)) if f.endswith('.wav')]
+    # print(wav_list)
 
-    print(wav_list)
+    n_wav = len(wav_list)
+    if n_wav == 0:
+        print("No processed audio file found. Exiting script.")
+        os._exit(0)
 
     # Get number of variables estimated for each file by num of files
-    n_wav = len(wav_list)
     n_var_per_wav = int(8 / n_wav)
 
     var_boundary_labels = ['PIN-PEN', 'FEEL-FILL', 'TH-stopping', 'OU-backing', 'U-fronting', 'AEN-raising', 'AE-backing', 'T-deletion']
