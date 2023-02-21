@@ -4,7 +4,7 @@ Object class = "TextGrid"
 xmin = 0 
 xmax = 2326.658095238095 
 tiers? <exists> 
-size = 1 
+size = 3 
 item []: 
     item [1]:
         class = "IntervalTier" 
@@ -7168,3 +7168,367 @@ item []:
             xmin = 2325.073047619048 
             xmax = 2326.658095238095 
             text = "silent" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 2326.658095238095 
+        intervals: size = 80 
+        intervals [1]:
+            xmin = 0 
+            xmax = 29.08322619047619 
+            text = "1-1_dental-dinners" 
+        intervals [2]:
+            xmin = 29.08322619047619 
+            xmax = 58.16645238095238 
+            text = "1-2_friendless-fringes" 
+        intervals [3]:
+            xmin = 58.16645238095238 
+            xmax = 87.24967857142857 
+            text = "1-3_gemstone-gymnasts" 
+        intervals [4]:
+            xmin = 87.24967857142857 
+            xmax = 116.33290476190476 
+            text = "1-4_lemon-limits" 
+        intervals [5]:
+            xmin = 116.33290476190476 
+            xmax = 145.41613095238094 
+            text = "1-5_spenders-spindly" 
+        intervals [6]:
+            xmin = 145.41613095238094 
+            xmax = 174.49935714285715 
+            text = "1-6_tendons-tinted" 
+        intervals [7]:
+            xmin = 174.49935714285715 
+            xmax = 203.58258333333333 
+            text = "1-7_venture-vintage" 
+        intervals [8]:
+            xmin = 203.58258333333333 
+            xmax = 232.66580952380951 
+            text = "1-8_generates-gingerbread" 
+        intervals [9]:
+            xmin = 232.66580952380951 
+            xmax = 261.7490357142857 
+            text = "1-9_sentiments-syndicate" 
+        intervals [10]:
+            xmin = 261.7490357142857 
+            xmax = 290.8322619047619 
+            text = "1-10_ventilates-vindicates" 
+        intervals [11]:
+            xmin = 290.8322619047619 
+            xmax = 319.91548809523806 
+            text = "2-1_fieldwork-filtered" 
+        intervals [12]:
+            xmin = 319.91548809523806 
+            xmax = 348.9987142857143 
+            text = "2-2_ceiling-silly" 
+        intervals [13]:
+            xmin = 348.9987142857143 
+            xmax = 378.0819404761905 
+            text = "2-3_healers-hilltop" 
+        intervals [14]:
+            xmin = 378.0819404761905 
+            xmax = 407.16516666666666 
+            text = "2-4_mealtime-mildew" 
+        intervals [15]:
+            xmin = 407.16516666666666 
+            xmax = 436.24839285714285 
+            text = "2-5_peeling-pillars" 
+        intervals [16]:
+            xmin = 436.24839285714285 
+            xmax = 465.33161904761903 
+            text = "2-6_wheelchair-willow" 
+        intervals [17]:
+            xmin = 465.33161904761903 
+            xmax = 494.4148452380952 
+            text = "2-7_wielding-wilted" 
+        intervals [18]:
+            xmin = 494.4148452380952 
+            xmax = 523.4980714285714 
+            text = "2-8_steelworks-stillbirths" 
+        intervals [19]:
+            xmin = 523.4980714285714 
+            xmax = 552.5812976190476 
+            text = "2-9_dealership-diligence" 
+        intervals [20]:
+            xmin = 552.5812976190476 
+            xmax = 581.6645238095238 
+            text = "2-10_wheelbarrow-willfully" 
+        intervals [21]:
+            xmin = 581.6645238095238 
+            xmax = 610.74775 
+            text = "3-1_featherweight-federals" 
+        intervals [22]:
+            xmin = 610.74775 
+            xmax = 639.8309761904761 
+            text = "3-2_leathery-lettering" 
+        intervals [23]:
+            xmin = 639.8309761904761 
+            xmax = 668.9142023809524 
+            text = "3-3_mothership-mutterings" 
+        intervals [24]:
+            xmin = 668.9142023809524 
+            xmax = 697.9974285714286 
+            text = "3-4_worthiest-wordiness" 
+        intervals [25]:
+            xmin = 697.9974285714286 
+            xmax = 727.0806547619047 
+            text = "3-5_otherness-uttering" 
+        intervals [26]:
+            xmin = 727.0806547619047 
+            xmax = 756.163880952381 
+            text = "3-6_heathers-header" 
+        intervals [27]:
+            xmin = 756.163880952381 
+            xmax = 785.2471071428571 
+            text = "3-7_lathers-laddered" 
+        intervals [28]:
+            xmin = 785.2471071428571 
+            xmax = 814.3303333333333 
+            text = "3-8_othered-udder" 
+        intervals [29]:
+            xmin = 814.3303333333333 
+            xmax = 843.4135595238095 
+            text = "3-9_fathered-fodder" 
+        intervals [30]:
+            xmin = 843.4135595238095 
+            xmax = 872.4967857142857 
+            text = "3-10_weathered-wetter" 
+        intervals [31]:
+            xmin = 872.4967857142857 
+            xmax = 901.5800119047618 
+            text = "4-1_coding-coldest" 
+        intervals [32]:
+            xmin = 901.5800119047618 
+            xmax = 930.6632380952381 
+            text = "4-2_goaded-golem" 
+        intervals [33]:
+            xmin = 930.6632380952381 
+            xmax = 959.7464642857143 
+            text = "4-3_hoses-wholesome" 
+        intervals [34]:
+            xmin = 959.7464642857143 
+            xmax = 988.8296904761904 
+            text = "4-4_modem-molten" 
+        intervals [35]:
+            xmin = 988.8296904761904 
+            xmax = 1017.9129166666667 
+            text = "4-5_posers-polling" 
+        intervals [36]:
+            xmin = 1017.9129166666667 
+            xmax = 1046.9961428571428 
+            text = "4-6_robot-roller" 
+        intervals [37]:
+            xmin = 1046.9961428571428 
+            xmax = 1076.079369047619 
+            text = "4-7_sojourn-soulmate" 
+        intervals [38]:
+            xmin = 1076.079369047619 
+            xmax = 1105.1625952380953 
+            text = "4-8_soda-soldiers" 
+        intervals [39]:
+            xmin = 1105.1625952380953 
+            xmax = 1134.2458214285714 
+            text = "4-9_podium-polaroid" 
+        intervals [40]:
+            xmin = 1134.2458214285714 
+            xmax = 1163.3290476190475 
+            text = "4-10_soberness-soulfully" 
+        intervals [41]:
+            xmin = 1163.3290476190475 
+            xmax = 1192.4122738095239 
+            text = "5-1_kudo-keeling" 
+        intervals [42]:
+            xmin = 1192.4122738095239 
+            xmax = 1221.4955 
+            text = "5-2_moody-meanest" 
+        intervals [43]:
+            xmin = 1221.4955 
+            xmax = 1250.5787261904761 
+            text = "5-3_noodle-needless" 
+        intervals [44]:
+            xmin = 1250.5787261904761 
+            xmax = 1279.6619523809522 
+            text = "5-4_rudeness-realist" 
+        intervals [45]:
+            xmin = 1279.6619523809522 
+            xmax = 1308.7451785714286 
+            text = "5-5_brooding-breather" 
+        intervals [46]:
+            xmin = 1308.7451785714286 
+            xmax = 1337.8284047619047 
+            text = "5-6_prudish-preening" 
+        intervals [47]:
+            xmin = 1337.8284047619047 
+            xmax = 1366.9116309523808 
+            text = "5-7_students-stealing" 
+        intervals [48]:
+            xmin = 1366.9116309523808 
+            xmax = 1395.9948571428572 
+            text = "5-8_scooted-schemer" 
+        intervals [49]:
+            xmin = 1395.9948571428572 
+            xmax = 1425.0780833333333 
+            text = "5-9_soothingly-seediest" 
+        intervals [50]:
+            xmin = 1425.0780833333333 
+            xmax = 1454.1613095238095 
+            text = "5-10_studious-steamroller" 
+        intervals [51]:
+            xmin = 1454.1613095238095 
+            xmax = 1483.2445357142856 
+            text = "6-1_candied-keenly" 
+        intervals [52]:
+            xmin = 1483.2445357142856 
+            xmax = 1512.327761904762 
+            text = "6-2_channeled-chinos" 
+        intervals [53]:
+            xmin = 1512.327761904762 
+            xmax = 1541.410988095238 
+            text = "6-3_dancer-dealer" 
+        intervals [54]:
+            xmin = 1541.410988095238 
+            xmax = 1570.4942142857142 
+            text = "6-4_fancy-feelings" 
+        intervals [55]:
+            xmin = 1570.4942142857142 
+            xmax = 1599.5774404761903 
+            text = "6-5_tantrums-teething" 
+        intervals [56]:
+            xmin = 1599.5774404761903 
+            xmax = 1628.6606666666667 
+            text = "6-6_vanish-venus" 
+        intervals [57]:
+            xmin = 1628.6606666666667 
+            xmax = 1657.7438928571428 
+            text = "6-7_manager-media" 
+        intervals [58]:
+            xmin = 1657.7438928571428 
+            xmax = 1686.827119047619 
+            text = "6-8_randomness-readership" 
+        intervals [59]:
+            xmin = 1686.827119047619 
+            xmax = 1715.9103452380953 
+            text = "6-9_banditry-beadier" 
+        intervals [60]:
+            xmin = 1715.9103452380953 
+            xmax = 1744.9935714285714 
+            text = "6-10_sanity-scenery" 
+        intervals [61]:
+            xmin = 1744.9935714285714 
+            xmax = 1774.0767976190475 
+            text = "7-1_battles-balance" 
+        intervals [62]:
+            xmin = 1774.0767976190475 
+            xmax = 1803.1600238095236 
+            text = "7-2_madden-mallard" 
+        intervals [63]:
+            xmin = 1803.1600238095236 
+            xmax = 1832.24325 
+            text = "7-3_padding-palate" 
+        intervals [64]:
+            xmin = 1832.24325 
+            xmax = 1861.3264761904761 
+            text = "7-4_saddest-salads" 
+        intervals [65]:
+            xmin = 1861.3264761904761 
+            xmax = 1890.4097023809522 
+            text = "7-5_shattered-shallow" 
+        intervals [66]:
+            xmin = 1890.4097023809522 
+            xmax = 1919.4929285714286 
+            text = "7-6_tatters-tallow" 
+        intervals [67]:
+            xmin = 1919.4929285714286 
+            xmax = 1948.5761547619047 
+            text = "7-7_battery-balcony" 
+        intervals [68]:
+            xmin = 1948.5761547619047 
+            xmax = 1977.6593809523808 
+            text = "7-8_gatherings-galleries" 
+        intervals [69]:
+            xmin = 1977.6593809523808 
+            xmax = 2006.742607142857 
+            text = "7-9_tattletales-tallying" 
+        intervals [70]:
+            xmin = 2006.742607142857 
+            xmax = 2035.8258333333333 
+            text = "7-10_chattering-challenges" 
+        intervals [71]:
+            xmin = 2035.8258333333333 
+            xmax = 2064.9090595238094 
+            text = "8-1_coastguard-cosign" 
+        intervals [72]:
+            xmin = 2064.9090595238094 
+            xmax = 2093.9922857142856 
+            text = "8-2_fastball-fastened" 
+        intervals [73]:
+            xmin = 2093.9922857142856 
+            xmax = 2123.0755119047617 
+            text = "8-3_lastly-lasso" 
+        intervals [74]:
+            xmin = 2123.0755119047617 
+            xmax = 2152.158738095238 
+            text = "8-4_restful-wrestled" 
+        intervals [75]:
+            xmin = 2152.158738095238 
+            xmax = 2181.2419642857144 
+            text = "8-5_softball-sophomore" 
+        intervals [76]:
+            xmin = 2181.2419642857144 
+            xmax = 2210.3251904761905 
+            text = "8-6_vastly-vassal" 
+        intervals [77]:
+            xmin = 2210.3251904761905 
+            xmax = 2239.4084166666667 
+            text = "8-7_waistline-wayside" 
+        intervals [78]:
+            xmin = 2239.4084166666667 
+            xmax = 2268.491642857143 
+            text = "8-8_restlessness-rescuer" 
+        intervals [79]:
+            xmin = 2268.491642857143 
+            xmax = 2297.574869047619 
+            text = "8-9_wistfulness-whispery" 
+        intervals [80]:
+            xmin = 2297.574869047619 
+            xmax = 2326.658095238095 
+            text = "8-10_wristwatches-riskiest" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 2326.658095238095 
+        intervals: size = 8 
+        intervals [1]:
+            xmin = 0 
+            xmax = 290.8322619047619 
+            text = "PIN-PEN" 
+        intervals [2]:
+            xmin = 290.8322619047619 
+            xmax = 581.6645238095238 
+            text = "FEEL-FILL" 
+        intervals [3]:
+            xmin = 581.6645238095238 
+            xmax = 872.4967857142856 
+            text = "TH-stopping" 
+        intervals [4]:
+            xmin = 872.4967857142856 
+            xmax = 1163.3290476190475 
+            text = "OU-backing" 
+        intervals [5]:
+            xmin = 1163.3290476190475 
+            xmax = 1454.1613095238095 
+            text = "U-fronting" 
+        intervals [6]:
+            xmin = 1454.1613095238095 
+            xmax = 1744.9935714285712 
+            text = "AEN-raising" 
+        intervals [7]:
+            xmin = 1744.9935714285712 
+            xmax = 2035.825833333333 
+            text = "AE-backing" 
+        intervals [8]:
+            xmin = 2035.825833333333 
+            xmax = 2326.658095238095 
+            text = "T-deletion" 
