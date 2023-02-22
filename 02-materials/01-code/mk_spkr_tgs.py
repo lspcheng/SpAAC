@@ -13,7 +13,10 @@ def main(args):
 
     speaker_path = os.path.join("..", "02-stimuli", "P0-norming", "n2", "03-recordings", args.speaker)
 
-    audio_in_path = os.path.join(speaker_path, "1_audio", "2_processed")
+    if args.originaldir:
+        audio_in_path = os.path.join(speaker_path, "1_audio", "1_original")
+    else:
+        audio_in_path = os.path.join(speaker_path, "1_audio", "2_processed")
     tg_out_path = os.path.join(speaker_path, "2_textgrid", "1_original")
 
     wav_list = [f for f in os.listdir(os.path.join(audio_in_path)) if f.endswith('.wav')]
@@ -98,6 +101,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threshold', default="-50", type=int, help='silence threshold (dB); default=-50')
     parser.add_argument('-i', '--silentint', default="0.2", type=float, help='minimum silent interval (s); default=0.2')
     parser.add_argument('-o', '--soundingint', default="0.3", type=float, help='minimum sounding interval (s); default=0.3')
+    parser.add_argument('-d', '--originaldir', action='store_true', help='use audio from 1_original for checking')
 
     args = parser.parse_args()
 
