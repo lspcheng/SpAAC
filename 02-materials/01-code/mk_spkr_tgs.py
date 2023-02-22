@@ -20,17 +20,19 @@ def main(args):
     tg_out_path = os.path.join(speaker_path, "2_textgrid", "1_original")
 
     wav_list = [f for f in os.listdir(os.path.join(audio_in_path)) if f.endswith('.wav')]
-    # print(wav_list)
+
+    if args.verbose:
+        print(wav_list)
 
     n_wav = len(wav_list)
     if n_wav == 0:
-        print("No processed audio file found. Exiting script.")
+        print("\nNo processed audio file found. Exiting script.")
         os._exit(0)
 
-    # Get number of variables estimated for each file by num of files
-    n_var_per_wav = int(8 / n_wav)
-
     var_boundary_labels = ['PIN-PEN', 'FEEL-FILL', 'TH-stopping', 'OU-backing', 'U-fronting', 'AEN-raising', 'AE-backing', 'T-deletion']
+    n_var = len(var_boundary_labels)
+    if args.verbose:
+        print("\nNumber of variables per file: {0}".format(n_var))
 
     # read in word labels
     wordrows = pd.read_csv("recordings_wordrows.csv")
@@ -38,21 +40,30 @@ def main(args):
 
     for wav in wav_list:
 
-        print("Processing TextGrid for {0}...".format(wav))
+        print("\nProcessing TextGrid for {0}...".format(wav))
 
         wav_fn = os.path.join(audio_in_path, wav)
         name, ext = os.path.splitext(wav)
         tg_fn = os.path.join(tg_out_path, name+".TextGrid")
 
+        if args.verbose:
+            print("\nInput WAV file name: {0}".format(wav_fn))
+            print("Output TG file name: {0}".format(tg_fn))
+
         # Process sound
         sound = parselmouth.Sound(wav_fn)
         total_duration = sound.get_total_duration()
-        # print("File duration (s): {0}".format(total_duration))
+        if args.verbose:
+            print("\nFile duration (s): {0}".format(total_duration))
 
         # Get variable & word boundary timestamps
-        var_int_dur = total_duration / n_var_per_wav
-        var_boundary_times = [var_int_dur * boundary_i for boundary_i in range(1, n_var_per_wav)]
-        word_boundary_times = [var_int_dur/10 * boundary_i for boundary_i in range(1, n_var_per_wav*10)]
+        var_int_dur = total_duration / n_var
+        var_boundary_times = [var_int_dur * boundary_i for boundary_i in range(1, n_var)]
+        word_boundary_times = [var_int_dur/10 * boundary_i for boundary_i in range(1, n_var*10)]
+
+        if args.verbose:
+            print("\nNumber of variable boundaries: {0}".format(len(var_boundary_times)))
+            print("Number of word boundaries: {0}".format(len(word_boundary_times)))
 
         # Process textgrid
         textgrid = call(sound, 'To TextGrid (silences)...',
@@ -89,7 +100,7 @@ def main(args):
 
         # Save to output dir
         textgrid.save(tg_fn)
-        print("Saved TextGrid to: {0}".format(tg_fn))
+        print("\nSaved TextGrid to: {0}".format(tg_fn))
 
 
 if __name__ == '__main__':
@@ -102,6 +113,8 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--silentint', default="0.2", type=float, help='minimum silent interval (s); default=0.2')
     parser.add_argument('-o', '--soundingint', default="0.3", type=float, help='minimum sounding interval (s); default=0.3')
     parser.add_argument('-d', '--originaldir', action='store_true', help='use audio from 1_original for checking')
+    parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
+
 
     args = parser.parse_args()
 
@@ -113,6 +126,11 @@ if __name__ == '__main__':
     # file_dir = os.path.dirname(os.path.abspath(__file__)).split(os.sep)
     # project = file_dir[-3]
     # recordings_path = os.path.join(project, "02-materials", "03-stimuli", "P0-norming", "n2", "03-recordings")
+
+    # # Get number of variables estimated for each file by num of files
+    # n_var_per_wav = int(8 / n_wav)
+    # if args.verbose:
+    #     print(n_var_per_wav)
 
     # Get number of intervals. need to make sure labels start from the last one that was used, if multiple files — Actually, just make sure to concanate all files together in order when doing WAV processing.
     # n_var_int = call(textgrid, 'Get number of intervals', 3)
