@@ -3,7 +3,7 @@
 # To run (macOS): sh mk_spkr_dir.sh speaker
 
 # hard path
-path="/Users/laurettacheng/Documents/Projects/SpAAC/02-materials/02-stimuli/03-n2/01-auditory-stim/03-recordings"
+path="../02-stimuli/P0-norming/n2/03-recordings"
 
 # input speaker code
 speaker=$1 # e.g., S07
