@@ -1459,7 +1459,7 @@ item []:
         intervals [362]:
             xmin = 364.34722902494343 
             xmax = 365.21922902494344 
-            text = "" 
+            text = "2" 
         intervals [363]:
             xmin = 365.21922902494344 
             xmax = 366.37122902494343 
@@ -1467,7 +1467,7 @@ item []:
         intervals [364]:
             xmin = 366.37122902494343 
             xmax = 366.9872290249434 
-            text = "" 
+            text = "3" 
         intervals [365]:
             xmin = 366.9872290249434 
             xmax = 368.6992290249434 
@@ -1475,7 +1475,7 @@ item []:
         intervals [366]:
             xmin = 368.6992290249434 
             xmax = 369.33922902494345 
-            text = "" 
+            text = "1" 
         intervals [367]:
             xmin = 369.33922902494345 
             xmax = 370.6672290249434 
@@ -2051,7 +2051,7 @@ item []:
         intervals [510]:
             xmin = 516.9872290249434 
             xmax = 517.6992290249434 
-            text = "" 
+            text = "1" 
         intervals [511]:
             xmin = 517.6992290249434 
             xmax = 518.9632290249434 
@@ -2059,7 +2059,7 @@ item []:
         intervals [512]:
             xmin = 518.9632290249434 
             xmax = 519.5952290249435 
-            text = "" 
+            text = "2" 
         intervals [513]:
             xmin = 519.5952290249435 
             xmax = 520.9792290249434 
@@ -2067,7 +2067,7 @@ item []:
         intervals [514]:
             xmin = 520.9792290249434 
             xmax = 521.7072290249434 
-            text = "" 
+            text = "3" 
         intervals [515]:
             xmin = 521.7072290249434 
             xmax = 523.4192290249434 
@@ -5776,10 +5776,10 @@ item []:
         intervals: size = 80 
         intervals [1]:
             xmin = 0 
-            xmax = 19.340480725623586 
+            xmax = 17.77037389735365 
             text = "1-1_dental-dinners" 
         intervals [2]:
-            xmin = 19.340480725623586 
+            xmin = 17.77037389735365 
             xmax = 38.68096145124717 
             text = "1-2_friendless-fringes" 
         intervals [3]:
@@ -6102,33 +6102,33 @@ item []:
         intervals: size = 8 
         intervals [1]:
             xmin = 0 
-            xmax = 193.40480725623584 
+            xmax = 172.98386580545133 
             text = "PIN-PEN" 
         intervals [2]:
-            xmin = 193.40480725623584 
-            xmax = 386.8096145124717 
+            xmin = 172.98386580545133 
+            xmax = 354.2097005049657 
             text = "FEEL-FILL" 
         intervals [3]:
-            xmin = 386.8096145124717 
-            xmax = 580.2144217687076 
+            xmin = 354.2097005049657 
+            xmax = 543.2310781655261 
             text = "TH-stopping" 
         intervals [4]:
-            xmin = 580.2144217687076 
-            xmax = 773.6192290249434 
+            xmin = 543.2310781655261 
+            xmax = 738.7737653818797 
             text = "OU-backing" 
         intervals [5]:
-            xmin = 773.6192290249434 
-            xmax = 967.0240362811792 
+            xmin = 738.7737653818797 
+            xmax = 929.0324773814021 
             text = "U-fronting" 
         intervals [6]:
-            xmin = 967.0240362811792 
-            xmax = 1160.428843537415 
+            xmin = 929.0324773814021 
+            xmax = 1113.997838194297 
             text = "AEN-raising" 
         intervals [7]:
-            xmin = 1160.428843537415 
-            xmax = 1353.8336507936508 
+            xmin = 1113.997838194297 
+            xmax = 1341.3202949216775 
             text = "AE-backing" 
         intervals [8]:
-            xmin = 1353.8336507936508 
+            xmin = 1341.3202949216775 
             xmax = 1547.2384580498867 
             text = "T-deletion" 
