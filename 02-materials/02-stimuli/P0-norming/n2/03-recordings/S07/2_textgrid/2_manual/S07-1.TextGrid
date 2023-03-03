@@ -1238,22 +1238,22 @@ item []:
             text = "" 
         intervals [307]:
             xmin = 319.09001587301583 
-            xmax = 322.53801587301587 
+            xmax = 322.21888480964657 
             text = "silent" 
         intervals [308]:
-            xmin = 322.53801587301587 
-            xmax = 323.0180158730158 
-            text = "" 
+            xmin = 322.21888480964657 
+            xmax = 323.40082878705016 
+            text = "1" 
         intervals [309]:
-            xmin = 323.0180158730158 
-            xmax = 324.05001587301587 
+            xmin = 323.40082878705016 
+            xmax = 323.79481011285134 
             text = "silent" 
         intervals [310]:
-            xmin = 324.05001587301587 
-            xmax = 324.89001587301584 
-            text = "" 
+            xmin = 323.79481011285134 
+            xmax = 325.00489561352646 
+            text = "2" 
         intervals [311]:
-            xmin = 324.89001587301584 
+            xmin = 325.00489561352646 
             xmax = 325.20201587301585 
             text = "silent" 
         intervals [312]:
@@ -1270,22 +1270,22 @@ item []:
             text = "" 
         intervals [315]:
             xmin = 328.21001587301583 
-            xmax = 328.77001587301584 
+            xmax = 328.52258602246576 
             text = "silent" 
         intervals [316]:
-            xmin = 328.77001587301584 
+            xmin = 328.52258602246576 
             xmax = 329.61001587301587 
             text = "" 
         intervals [317]:
             xmin = 329.61001587301587 
-            xmax = 330.17801587301585 
+            xmax = 329.88744990113423 
             text = "silent" 
         intervals [318]:
-            xmin = 330.17801587301585 
-            xmax = 330.64201587301585 
-            text = "" 
+            xmin = 329.88744990113423 
+            xmax = 331.0412523552663 
+            text = "3" 
         intervals [319]:
-            xmin = 330.64201587301585 
+            xmin = 331.0412523552663 
             xmax = 332.53801587301587 
             text = "silent" 
         intervals [320]:
@@ -1294,14 +1294,14 @@ item []:
             text = "" 
         intervals [321]:
             xmin = 333.3380158730159 
-            xmax = 333.57001587301585 
+            xmax = 333.48956487988806 
             text = "silent" 
         intervals [322]:
-            xmin = 333.57001587301585 
-            xmax = 335.35401587301584 
+            xmin = 333.48956487988806 
+            xmax = 334.6433673340202 
             text = "" 
         intervals [323]:
-            xmin = 335.35401587301584 
+            xmin = 334.6433673340202 
             xmax = 337.8020158730159 
             text = "silent" 
         intervals [324]:
@@ -5966,33 +5966,33 @@ item []:
         intervals: size = 8 
         intervals [1]:
             xmin = 0 
-            xmax = 157.44950396825396 
+            xmax = 188.34205887956404 
             text = "PIN-PEN" 
         intervals [2]:
-            xmin = 157.44950396825396 
-            xmax = 314.8990079365079 
+            xmin = 188.34205887956404 
+            xmax = 372.2309447409168 
             text = "FEEL-FILL" 
         intervals [3]:
-            xmin = 314.8990079365079 
-            xmax = 472.3485119047619 
+            xmin = 372.2309447409168 
+            xmax = 544.9502373698301 
             text = "TH-stopping" 
         intervals [4]:
-            xmin = 472.3485119047619 
-            xmax = 629.7980158730159 
+            xmin = 544.9502373698301 
+            xmax = 699.7214006098446 
             text = "OU-backing" 
         intervals [5]:
-            xmin = 629.7980158730159 
-            xmax = 787.2475198412699 
+            xmin = 699.7214006098446 
+            xmax = 857.850415881691 
             text = "U-fronting" 
         intervals [6]:
-            xmin = 787.2475198412699 
-            xmax = 944.6970238095238 
+            xmin = 857.850415881691 
+            xmax = 997.7399440966292 
             text = "AEN-raising" 
         intervals [7]:
-            xmin = 944.6970238095238 
-            xmax = 1102.1465277777777 
+            xmin = 997.7399440966292 
+            xmax = 1131.738543361707 
             text = "AE-backing" 
         intervals [8]:
-            xmin = 1102.1465277777777 
+            xmin = 1131.738543361707 
             xmax = 1259.5960317460317 
             text = "T-deletion" 
