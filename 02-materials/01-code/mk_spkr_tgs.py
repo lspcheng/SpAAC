@@ -19,14 +19,14 @@ def main(args):
         audio_in_path = os.path.join(speaker_path, "1_audio", "2_processed")
     tg_out_path = os.path.join(speaker_path, "2_textgrid", "1_original")
 
-    wav_list = [f for f in os.listdir(os.path.join(audio_in_path)) if f.endswith('.wav')]
+    wav_files = [f for f in os.listdir(audio_in_path) if f.endswith('.wav')]
 
     if args.verbose:
-        print(wav_list)
+        print(wav_files)
 
-    n_wav = len(wav_list)
+    n_wav = len(wav_files)
     if n_wav == 0:
-        print("\nNo processed audio file found. Exiting script.")
+        print("\nNo audio file found. Exiting script.")
         os._exit(0)
 
     var_boundary_labels = ['PIN-PEN', 'FEEL-FILL', 'TH-stopping', 'OU-backing', 'U-fronting', 'AEN-raising', 'AE-backing', 'T-deletion']
@@ -38,7 +38,7 @@ def main(args):
     wordrows = pd.read_csv("recordings_wordrows.csv")
     word_boundary_labels = wordrows['Word_Code'].tolist()
 
-    for wav in wav_list:
+    for wav in wav_files:
 
         print("\nProcessing TextGrid for {0}...".format(wav))
 
