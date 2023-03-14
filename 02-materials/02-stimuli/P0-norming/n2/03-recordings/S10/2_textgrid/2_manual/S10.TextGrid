@@ -1579,7 +1579,7 @@ item []:
         intervals [392]:
             xmin = 394.5712290249434 
             xmax = 395.44322902494343 
-            text = "" 
+            text = "2" 
         intervals [393]:
             xmin = 395.44322902494343 
             xmax = 396.5072290249434 
@@ -1587,7 +1587,7 @@ item []:
         intervals [394]:
             xmin = 396.5072290249434 
             xmax = 397.17122902494344 
-            text = "" 
+            text = "3" 
         intervals [395]:
             xmin = 397.17122902494344 
             xmax = 398.8912290249434 
@@ -1619,7 +1619,7 @@ item []:
         intervals [402]:
             xmin = 405.1152290249434 
             xmax = 405.81122902494343 
-            text = "" 
+            text = "1" 
         intervals [403]:
             xmin = 405.81122902494343 
             xmax = 406.94722902494345 
@@ -1867,7 +1867,7 @@ item []:
         intervals [464]:
             xmin = 469.6432290249434 
             xmax = 470.2592290249434 
-            text = "" 
+            text = "2" 
         intervals [465]:
             xmin = 470.2592290249434 
             xmax = 471.5792290249434 
@@ -1875,7 +1875,7 @@ item []:
         intervals [466]:
             xmin = 471.5792290249434 
             xmax = 472.38722902494345 
-            text = "" 
+            text = "3" 
         intervals [467]:
             xmin = 472.38722902494345 
             xmax = 473.7472290249434 
@@ -1907,7 +1907,7 @@ item []:
         intervals [474]:
             xmin = 479.88322902494343 
             xmax = 480.6432290249434 
-            text = "" 
+            text = "1" 
         intervals [475]:
             xmin = 480.6432290249434 
             xmax = 482.1392290249434 
@@ -5820,10 +5820,10 @@ item []:
             text = "2-1_fieldwork-filtered" 
         intervals [12]:
             xmin = 212.74528798185943 
-            xmax = 232.08576870748303 
+            xmax = 227.59189758665488 
             text = "2-2_ceiling-silly" 
         intervals [13]:
-            xmin = 232.08576870748303 
+            xmin = 227.59189758665488 
             xmax = 251.42624943310662 
             text = "2-3_healers-hilltop" 
         intervals [14]:
@@ -5856,26 +5856,26 @@ item []:
             text = "2-10_wheelbarrow-willfully" 
         intervals [21]:
             xmin = 386.80961451247174 
-            xmax = 406.1500952380953 
+            xmax = 391.2721658868414 
             text = "3-1_featherweight-federals" 
         intervals [22]:
-            xmin = 406.1500952380953 
-            xmax = 425.49057596371887 
+            xmin = 391.2721658868414 
+            xmax = 392.495702449288 
             text = "3-2_leathery-lettering" 
         intervals [23]:
-            xmin = 425.49057596371887 
+            xmin = 392.495702449288 
             xmax = 444.83105668934246 
             text = "3-3_mothership-mutterings" 
         intervals [24]:
             xmin = 444.83105668934246 
-            xmax = 464.17153741496605 
+            xmax = 456.77277780766514 
             text = "3-4_worthiest-wordiness" 
         intervals [25]:
-            xmin = 464.17153741496605 
-            xmax = 483.51201814058965 
+            xmin = 456.77277780766514 
+            xmax = 463.0135729675614 
             text = "3-5_otherness-uttering" 
         intervals [26]:
-            xmin = 483.51201814058965 
+            xmin = 463.0135729675614 
             xmax = 502.85249886621324 
             text = "3-6_heathers-header" 
         intervals [27]:
