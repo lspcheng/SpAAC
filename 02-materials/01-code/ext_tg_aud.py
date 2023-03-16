@@ -19,8 +19,11 @@ def get_coded_interval(tg, tier_number, interval_i):
     # Collect corresponding word tier interval label based on time
     int_word = call(tg, "Get label of interval", tier_number+1, call(tg, "Get interval at time", tier_number+1, int_mid)).strip()
 
+    # Return if labelled with anything other than silent
     if int_label and int_label != 'silent':
-        return {'label': int_label, 'start': int_start, 'end': int_end, 'word': int_word}
+        # Excluding any specific exclusion labels
+        if int_label != 'x':
+            return {'label': int_label, 'start': int_start, 'end': int_end, 'word': int_word}
 
 def main(args):
 
@@ -79,6 +82,9 @@ def main(args):
                 print(coded_intervals)
 
             for i, interval in enumerate(coded_intervals):
+
+                # TO ADD: Move all boundaries to zero crossings and/or include padding when extracting intervals.
+
                 # Extract the audio segment
                 audio_segment = sound.extract_part(from_time=interval['start'], to_time=interval['end'])
 
