@@ -34,13 +34,19 @@ def main(args):
         os._exit(0)
 
     var_boundary_labels = ['PIN-PEN', 'FEEL-FILL', 'TH-stopping', 'OU-backing', 'U-fronting', 'AEN-raising', 'AE-backing', 'T-deletion']
+    if args.number:
+        var_boundary_labels = [var_boundary_labels[args.number-1]]
+
     n_var = len(var_boundary_labels)
     if args.verbose:
         print("\nNumber of variables per file: {0}".format(n_var))
 
     # read in word labels
     wordrows = pd.read_csv("recordings_wordrows.csv")
-    word_boundary_labels = wordrows['Word_Code'].tolist()
+        if args.number:
+        word_boundary_labels = wordrows.loc[wordrows['Variable_Num'] == args.number]['Word_Code'].tolist()
+    else:
+        word_boundary_labels = wordrows['Word_Code'].tolist()
 
     for wav in wav_files:
 
@@ -117,6 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--silentint', default="0.2", type=float, help='minimum silent interval (s); default=0.2')
     parser.add_argument('-o', '--soundingint', default="0.3", type=float, help='minimum sounding interval (s); default=0.3')
     parser.add_argument('-f', '--filename', default=None, type=str, help='file name if processing only one file')
+    parser.add_argument('-n', '--number', default=None, type=int, help='variable number (1-8) if processing only one variable')
     parser.add_argument('-d', '--originaldir', action='store_true', help='use audio from 1_original for checking')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
