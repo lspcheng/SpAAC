@@ -19,7 +19,11 @@ def main(args):
         audio_in_path = os.path.join(speaker_path, "1_audio", "2_processed")
     tg_out_path = os.path.join(speaker_path, "2_textgrid", "1_original")
 
-    wav_files = [f for f in os.listdir(audio_in_path) if f.endswith('.wav')]
+    if args.filename:
+        name, _ = os.path.splitext(args.filename)
+        wav_files = [f"{name}.wav"]
+    else:
+        wav_files = [f for f in os.listdir(audio_in_path) if f.endswith('.wav')]
 
     if args.verbose:
         print(wav_files)
@@ -112,6 +116,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threshold', default="-50", type=int, help='silence threshold (dB); default=-50')
     parser.add_argument('-i', '--silentint', default="0.2", type=float, help='minimum silent interval (s); default=0.2')
     parser.add_argument('-o', '--soundingint', default="0.3", type=float, help='minimum sounding interval (s); default=0.3')
+    parser.add_argument('-f', '--filename', default=None, type=str, help='file name if processing only one file')
     parser.add_argument('-d', '--originaldir', action='store_true', help='use audio from 1_original for checking')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
