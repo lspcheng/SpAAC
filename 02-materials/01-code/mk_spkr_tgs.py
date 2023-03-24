@@ -43,7 +43,7 @@ def main(args):
 
     # read in word labels
     wordrows = pd.read_csv("recordings_wordrows.csv")
-        if args.number:
+    if args.number:
         word_boundary_labels = wordrows.loc[wordrows['Variable_Num'] == args.number]['Word_Code'].tolist()
     else:
         word_boundary_labels = wordrows['Word_Code'].tolist()
