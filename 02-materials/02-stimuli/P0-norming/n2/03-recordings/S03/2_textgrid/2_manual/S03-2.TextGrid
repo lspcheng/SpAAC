@@ -965,9 +965,49 @@ item []:
         name = "row" 
         xmin = 0 
         xmax = 326.81650793650795 
-        intervals: size = 1 
+        intervals: size = 11 
         intervals [1]:
             xmin = 0 
+            xmax = 32.186292981134116 
+            text = "" 
+        intervals [2]:
+            xmin = 32.186292981134116 
+            xmax = 61.212642251255986 
+            text = "2-7_wielding-wilted" 
+        intervals [3]:
+            xmin = 61.212642251255986 
+            xmax = 93.35129304308239 
+            text = "4-1_coding-coldest" 
+        intervals [4]:
+            xmin = 93.35129304308239 
+            xmax = 122.18670044676485 
+            text = "4-3_hoses-wholesome" 
+        intervals [5]:
+            xmin = 122.18670044676485 
+            xmax = 161.5273015873016 
+            text = "4-4_modem-molten" 
+        intervals [6]:
+            xmin = 161.5273015873016 
+            xmax = 183.70691609977322 
+            text = "4-7_sojourn-soulmate" 
+        intervals [7]:
+            xmin = 183.70691609977322 
+            xmax = 214.39662961678235 
+            text = "4-10_soberness-soulfully" 
+        intervals [8]:
+            xmin = 214.39662961678235 
+            xmax = 239.16892185239567 
+            text = "" 
+        intervals [9]:
+            xmin = 239.16892185239567 
+            xmax = 266.7368388207514 
+            text = "6-2_channeled-chinos" 
+        intervals [10]:
+            xmin = 266.7368388207514 
+            xmax = 310.4652588395226 
+            text = "8-5_softball-sophomore" 
+        intervals [11]:
+            xmin = 310.4652588395226 
             xmax = 326.81650793650795 
             text = "" 
     item [3]:
@@ -975,9 +1015,29 @@ item []:
         name = "variable" 
         xmin = 0 
         xmax = 326.81650793650795 
-        intervals: size = 1 
+        intervals: size = 6 
         intervals [1]:
             xmin = 0 
+            xmax = 32.186292981134116 
+            text = "" 
+        intervals [2]:
+            xmin = 32.186292981134116 
+            xmax = 61.212642251255986 
+            text = "FEEL-FILL" 
+        intervals [3]:
+            xmin = 61.212642251255986 
+            xmax = 239.16892185239567 
+            text = "OU-backing" 
+        intervals [4]:
+            xmin = 239.16892185239567 
+            xmax = 266.7368388207514 
+            text = "AEN-raising" 
+        intervals [5]:
+            xmin = 266.7368388207514 
+            xmax = 310.4652588395226 
+            text = "T-deletion" 
+        intervals [6]:
+            xmin = 310.4652588395226 
             xmax = 326.81650793650795 
             text = "" 
     item [4]:
