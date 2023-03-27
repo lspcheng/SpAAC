@@ -1517,11 +1517,63 @@ item []:
         name = "row" 
         xmin = 0 
         xmax = 472.21986394557825 
-        intervals: size = 1 
+        intervals: size = 14 
         intervals [1]:
             xmin = 0 
+            xmax = 33.72999028182702 
+            text = "4-2_goaded-golem" 
+        intervals [2]:
+            xmin = 33.72999028182702 
+            xmax = 67.45998056365404 
+            text = "4-9_podium-polaroid" 
+        intervals [3]:
+            xmin = 67.45998056365404 
+            xmax = 101.18997084548107 
+            text = "4-11_hoses-holy" 
+        intervals [4]:
+            xmin = 101.18997084548107 
+            xmax = 134.91996112730808 
+            text = "4-12_cozy-colon" 
+        intervals [5]:
+            xmin = 134.91996112730808 
+            xmax = 168.6499514091351 
+            text = "4-13_sober-solar" 
+        intervals [6]:
+            xmin = 168.6499514091351 
+            xmax = 202.37994169096214 
+            text = "4-14_posing-polar" 
+        intervals [7]:
+            xmin = 202.37994169096214 
+            xmax = 236.10993197278916 
+            text = "4-15_hosiery-holier" 
+        intervals [8]:
+            xmin = 236.10993197278916 
+            xmax = 269.83992225461617 
+            text = "4-16_phobia-foliage" 
+        intervals [9]:
+            xmin = 269.83992225461617 
+            xmax = 303.5699125364432 
+            text = "4-17_rosaries-rollerblade" 
+        intervals [10]:
+            xmin = 303.5699125364432 
+            xmax = 337.2999028182702 
+            text = "4-18_soberly-soloist" 
+        intervals [11]:
+            xmin = 337.2999028182702 
+            xmax = 371.02989310009724 
+            text = "4-5_posers-polling" 
+        intervals [12]:
+            xmin = 371.02989310009724 
+            xmax = 404.7598833819243 
+            text = "4-6_robot-roller" 
+        intervals [13]:
+            xmin = 404.7598833819243 
+            xmax = 438.48987366375127 
+            text = "4-19_coding-colon" 
+        intervals [14]:
+            xmin = 438.48987366375127 
             xmax = 472.21986394557825 
-            text = "" 
+            text = "4-20_soda-solar" 
     item [3]:
         class = "IntervalTier" 
         name = "variable" 
@@ -1531,7 +1583,7 @@ item []:
         intervals [1]:
             xmin = 0 
             xmax = 472.21986394557825 
-            text = "" 
+            text = "OU-backing" 
     item [4]:
         class = "TextTier" 
         name = "notes" 
