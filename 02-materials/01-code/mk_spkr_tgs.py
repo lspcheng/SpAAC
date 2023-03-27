@@ -33,20 +33,23 @@ def main(args):
         print("\nNo audio file found. Exiting script.")
         os._exit(0)
 
-    var_boundary_labels = ['PIN-PEN', 'FEEL-FILL', 'TH-stopping', 'OU-backing', 'U-fronting', 'AEN-raising', 'AE-backing', 'T-deletion']
-
-    # read in word labels
-    wordrows = pd.read_csv("recordings_wordrows.csv")
-    word_boundary_labels = wordrows['Word_Code'].tolist()
-
-    if args.number != None:
-        if args.number != 0:
-            var_boundary_labels = [var_boundary_labels[args.number-1]]
+    # read in variable and word labels
+    if args.number == 0:
+        var_boundary_labels = []
+        word_boundary_labels = []
+    elif args.number == 9:
+        suppwordrows = pd.read_csv("recordings_suppwordrows.csv")
+        var_boundary_labels = suppwordrows['Variable_Name'].unique().tolist()
+        word_boundary_labels = suppwordrows['Word_Code'].tolist()
+    else:
+        wordrows = pd.read_csv("recordings_wordrows.csv")
+        if args.number == None:
+            var_boundary_labels = wordrows['Variable_Name'].unique().tolist()
+            word_boundary_labels = wordrows['Word_Code'].tolist()
+        else:
+            var_boundary_labels = wordrows.loc[wordrows['Variable_Num'] == args.number]['Variable_Name'].unique().tolist()
             word_boundary_labels = wordrows.loc[wordrows['Variable_Num'] == args.number]['Word_Code'].tolist()
 
-        else:
-            var_boundary_labels = []
-            word_boundary_labels = []
 
     n_var = len(var_boundary_labels)
     if args.verbose:
@@ -93,7 +96,9 @@ def main(args):
             # Get variable & word boundary timestamps
             var_int_dur = total_duration / n_var
             var_boundary_times = [var_int_dur * boundary_i for boundary_i in range(1, n_var)]
-            word_boundary_times = [var_int_dur/10 * boundary_i for boundary_i in range(1, n_var*10)]
+
+            n_word = 14 if args.number ==9 else 10
+            word_boundary_times = [var_int_dur/n_word * boundary_i for boundary_i in range(1, n_var*n_word)]
 
             if args.verbose:
                 print("\nNumber of variable boundaries: {0}".format(len(var_boundary_times)))
@@ -128,7 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--silentint', default="0.2", type=float, help='minimum silent interval (s); default=0.2')
     parser.add_argument('-o', '--soundingint', default="0.3", type=float, help='minimum sounding interval (s); default=0.3')
     parser.add_argument('-f', '--filename', default=None, type=str, help='file name if processing only one file')
-    parser.add_argument('-n', '--number', default=None, type=int, help='variable number (1-8) if processing only one variable; use 0 if no variable labels should be added')
+    parser.add_argument('-n', '--number', default=None, type=int, help='variable number (1-8) if processing only one variable; use 0 if no variable labels should be added; use 9 if supplementary variable')
     parser.add_argument('-d', '--originaldir', action='store_true', help='use audio from 1_original for checking')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
