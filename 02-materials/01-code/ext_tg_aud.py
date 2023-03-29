@@ -79,6 +79,7 @@ def main(args):
         os.makedirs(os.path.join(audio_out_path, tg_base_name))
 
         if args.verbose:
+            print(os.path.join(tg_in_path, tg_file))
             print(audio_file_path)
 
         # Check if the audio file exists
@@ -98,9 +99,6 @@ def main(args):
             n_coding_ints = call(tg, "Get number of intervals", coding_tier)
             # Collect interval info for all coded word intervals only
             coded_intervals = [get_coded_interval(tg, coding_tier, interval_i) for interval_i in range(1, n_coding_ints+1) if get_coded_interval(tg, coding_tier, interval_i) is not None]
-
-            if args.verbose:
-                print(coded_intervals)
 
             for i, interval in enumerate(coded_intervals):
 
