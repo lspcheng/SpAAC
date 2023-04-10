@@ -3901,59 +3901,59 @@ item []:
         intervals [1]:
             xmin = 0 
             xmax = 36.65975713852754 
-            text = "goaded" 
+            text = "4-2_goaded-golem" 
         intervals [2]:
             xmin = 36.65975713852754 
             xmax = 61.82096558453282 
-            text = "posers" 
+            text = "4-5_posers-polling" 
         intervals [3]:
             xmin = 61.82096558453282 
             xmax = 88.65581239521744 
-            text = "robot" 
+            text = "4-6_robot-roller" 
         intervals [4]:
             xmin = 88.65581239521744 
             xmax = 151.18081796304403 
-            text = "podium" 
+            text = "4-9_podium-polaroid" 
         intervals [5]:
             xmin = 151.18081796304403 
             xmax = 175.523442516516 
-            text = "coding" 
+            text = "4-19_coding-colon" 
         intervals [6]:
             xmin = 175.523442516516 
             xmax = 213.54878111796813 
-            text = "hoses" 
+            text = "4-11_hoses-holy" 
         intervals [7]:
             xmin = 213.54878111796813 
             xmax = 266.23536980379384 
-            text = "soda" 
+            text = "4-20_soda-solar" 
         intervals [8]:
             xmin = 266.23536980379384 
             xmax = 317.6893680402985 
-            text = "cozy" 
+            text = "4-12_cozy-colon" 
         intervals [9]:
             xmin = 317.6893680402985 
             xmax = 382.9256139792908 
-            text = "sober" 
+            text = "4-13_sober-solar" 
         intervals [10]:
             xmin = 382.9256139792908 
             xmax = 430.11903914949204 
-            text = "posing" 
+            text = "4-14_posing-polar" 
         intervals [11]:
             xmin = 430.11903914949204 
             xmax = 471.73982797081777 
-            text = "hosiery" 
+            text = "4-15_hosiery-holier" 
         intervals [12]:
             xmin = 471.73982797081777 
             xmax = 525.7033978100122 
-            text = "phobia" 
+            text = "4-16_phobia-foliage" 
         intervals [13]:
             xmin = 525.7033978100122 
             xmax = 575.5460666824947 
-            text = "rosaries" 
+            text = "4-17_rosaries-rollerblade" 
         intervals [14]:
             xmin = 575.5460666824947 
             xmax = 647.3453663593644 
-            text = "soberly" 
+            text = "4-18_soberly-soloist" 
         intervals [15]:
             xmin = 647.3453663593644 
             xmax = 880.0920408163265 
