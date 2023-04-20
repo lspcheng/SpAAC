@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 1.3028672209624688 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 1.3028672209624688 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3028672209624688 
+            text = "3e" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "word" 
+        xmin = 0 
+        xmax = 1.3028672209624688 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3028672209624688 
+            text = "4-14_posing-polar" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variant" 
+        xmin = 0 
+        xmax = 1.3028672209624688 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3028672209624688 
+            text = "additional unconditional" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 1.3028672209624688 
+        points: size = 1 
+        points [1]:
+            number = 0.6245012397316145 
+            mark = "-P" 

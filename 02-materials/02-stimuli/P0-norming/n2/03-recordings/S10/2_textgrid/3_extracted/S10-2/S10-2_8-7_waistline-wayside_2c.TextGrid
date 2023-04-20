@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.7756761453792933 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.7756761453792933 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7756761453792933 
+            text = "2c" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.7756761453792933 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7756761453792933 
+            text = "8-7_waistline-wayside" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.7756761453792933 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7756761453792933 
+            text = "T-deletion" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.7756761453792933 
+        points: size = 1 
+        points [1]:
+            number = 0.4252218358678874 
+            mark = "+C" 

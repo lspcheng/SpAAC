@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 1.18397581254726 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 1.18397581254726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.18397581254726 
+            text = "2e" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "word" 
+        xmin = 0 
+        xmax = 1.18397581254726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.18397581254726 
+            text = "4-16_phobia-foliage" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variant" 
+        xmin = 0 
+        xmax = 1.18397581254726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.18397581254726 
+            text = "additional unconditional" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 1.18397581254726 
+        points: size = 1 
+        points [1]:
+            number = 0.6422705537254387 
+            mark = "~V" 
