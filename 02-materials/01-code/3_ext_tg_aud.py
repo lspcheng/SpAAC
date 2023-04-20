@@ -77,6 +77,7 @@ def main(args):
         audio_file_path = os.path.join(audio_in_path, f"{tg_base_name}.wav")
         # Make output folder per audio-textgrid file
         os.makedirs(os.path.join(audio_out_path, tg_base_name))
+        os.makedirs(os.path.join(tg_out_path, tg_base_name))
 
         if args.verbose:
             print(os.path.join(tg_in_path, tg_file))
@@ -104,12 +105,15 @@ def main(args):
 
                 # Extract the audio segment
                 audio_segment = sound.extract_part(from_time=interval['start'], to_time=interval['end'])
+                tg_segment = call(tg, 'Extract part', interval['start'], interval['end'], 0)
 
                 # Set the file path to save the audio segment
                 audio_save_path = os.path.join(audio_out_path, tg_base_name, f"{tg_base_name}_{interval['word']}_{interval['label']}.wav")
+                tg_save_path = os.path.join(tg_out_path, tg_base_name, f"{tg_base_name}_{interval['word']}_{interval['label']}.TextGrid")
 
                 # Save the audio segment to a WAV file
                 audio_segment.save(audio_save_path, format="WAV")
+                tg_segment.save(tg_save_path)
 
             print(f"Saved extracted audio files.")
         else:
