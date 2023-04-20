@@ -1,0 +1,223 @@
+---
+title: "Auditory Stimuli Profiling"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+# Speaker Set-up
+```{r}
+current_speaker <- "S01" # S01 S03 S10
+current_path <- paste0("../02-stimuli/P0-norming/n2/03-recordings/",current_speaker,"/3_selections/1_P1/3_concatenated/")
+current_data_path <- paste0("../02-stimuli/P0-norming/n2/03-recordings/",current_speaker,"/3_selections/1_P1/4_aligned/acoustic_data/")
+
+# Use duration.txt as the base to collect token info
+dur_df <- read.table(paste0(current_path, "duration.txt"), header=T) %>%
+  pivot_longer(cols=-Filename, names_to = "filename", values_to = "duration") %>% select(-Filename) %>%
+  separate(filename, sep="_", into=c("speaker", "item_code", "word", "variant")) %>%
+  separate(item_code, sep="\\.", into=c("variableN", "rowN", "variantN"), remove=F)
+
+# Get token info only
+token_info <- dur_df %>% select(speaker:variant) %>% type_convert()
+token_info
+# Version of token_info with 10 reps per token row for normed data
+norm_token_info <- token_info %>% slice(rep(1:n(), each = 10))
+norm_token_info
+```
+
+# Word-level
+## Duration
+```{r}
+# See above
+dur_df
+
+dur_df %>%
+  ggplot(aes(x=variant, y=duration)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.2) +
+  stat_summary(geom="pointrange")
+  
+dur_df %>%
+  ggplot(aes(x=variableN, y=duration, fill=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95))
+```
+
+## F0 
+### Mean
+```{r}
+meanf0_df <- read.table(paste0(current_path, "meanf0.txt"), header=T) %>%
+  pivot_longer(cols=-Filename, names_to = "filename", values_to = "meanf0") %>% select(-Filename) %>%
+  separate(filename, sep="_", into=c("speaker", "item_code", "word", "variant")) %>%
+  separate(item_code, sep="\\.", into=c("variableN", "rowN", "variantN"), remove=F)
+meanf0_df
+
+meanf0_df %>%
+  ggplot(aes(x=variant, y=meanf0)) + theme_minimal() +
+  geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.2) +
+  stat_summary(geom="pointrange")
+  
+meanf0_df %>%
+  ggplot(aes(x=variableN, y=meanf0, fill=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95))
+```
+### Max
+```{r}
+maxf0_df <- read.table(paste0(current_path, "maxf0.txt"), header=T) %>%
+  pivot_longer(cols=-Filename, names_to = "filename", values_to = "maxf0") %>% select(-Filename) %>%
+  separate(filename, sep="_", into=c("speaker", "item_code", "word", "variant")) %>%
+  separate(item_code, sep="\\.", into=c("variableN", "rowN", "variantN"), remove=F)
+maxf0_df
+
+maxf0_df %>%
+  ggplot(aes(x=variant, y=maxf0)) + theme_minimal() +
+  geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.2) +
+  stat_summary(geom="pointrange")
+  
+maxf0_df %>%
+  ggplot(aes(x=variableN, y=maxf0, fill=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95))
+```
+
+### Min
+```{r}
+minf0_df <- read.table(paste0(current_path, "minf0.txt"), header=T) %>%
+  pivot_longer(cols=-Filename, names_to = "filename", values_to = "minf0") %>% select(-Filename) %>%
+  separate(filename, sep="_", into=c("speaker", "item_code", "word", "variant")) %>%
+  separate(item_code, sep="\\.", into=c("variableN", "rowN", "variantN"), remove=F)
+minf0_df
+
+minf0_df %>%
+  ggplot(aes(x=variant, y=minf0)) + theme_minimal() +
+  geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.2) +
+  stat_summary(geom="pointrange")
+  
+minf0_df %>%
+  ggplot(aes(x=variableN, y=minf0, fill=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95))
+```
+
+### Final
+```{r}
+finalf0_df <- read.table(paste0(current_path, "finalf0.txt"), header=T) %>%
+  pivot_longer(cols=-Filename, names_to = "filename", values_to = "finalf0") %>% select(-Filename) %>%
+  separate(filename, sep="_", into=c("speaker", "item_code", "word", "variant")) %>%
+  separate(item_code, sep="\\.", into=c("variableN", "rowN", "variantN"), remove=F)
+finalf0_df
+
+finalf0_df %>%
+  ggplot(aes(x=variant, y=finalf0)) + theme_minimal() +
+  geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.2) +
+  stat_summary(geom="pointrange")
+  
+finalf0_df %>%
+  ggplot(aes(x=variableN, y=finalf0, fill=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95))
+```
+
+### Normalized
+
+```{r}
+normf0_df <- read.table(paste0(current_path, "normf0.txt"), header=T) %>%
+  pivot_longer(cols=-File.Normtime, names_to = "normtime", values_to = "normf0") %>%
+  select(-File.Normtime) %>% 
+  cbind(norm_token_info, .) %>%
+  mutate(timepoint = rep(1:10, length.out=n())) %>%
+  relocate(timepoint, normf0, .before=normtime)
+normf0_df
+```
+```{r}
+# Across all 160 tokens
+normf0_df %>%
+  ggplot(aes(x=timepoint, y=normf0)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(geom="smooth", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# Between-variant comparison (across all variables)
+normf0_df %>%
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# By variable + between-variant comparison
+normf0_df %>%
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + theme_minimal() + facet_wrap(~variableN) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+```
+```{r}
+current_variableN = 3
+
+normf0_df %>% filter(variableN==current_variableN) %>%
+  filter((!rowN %in% c(5,6))) %>%
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + theme_minimal() + facet_wrap(~variableN) +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="line", position=position_dodge()) +
+  # stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9) +
+  labs(title=paste0("Variable ",current_variableN, ": Average"))
+
+normf0_df %>% filter(variableN==current_variableN) %>% 
+  filter((!rowN %in% c(5,6))) %>%
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + theme_minimal() + 
+  facet_wrap(~rowN) +
+  geom_point() +
+  geom_line() +
+  # geom_smooth() +
+  scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+  labs(title=paste0("Variable ",current_variableN, ": By-Token"))
+```
+```{r}
+# Identify all tokens with outlier f0 values for any timepoint
+# Produce a list of those tokens per speaker
+# Go in and manually adjust those before re-running pitch extraction
+```
+```{r}
+normf0_df %>% group_by(speaker,item_code,variableN,rowN, variantN, word,variant) %>% 
+  summarize(
+  # meanf0=mean(normf0), 
+  sdf0=sd(normf0)
+  ) %>%
+  full_join(normf0_df,.) %>% 
+  # mutate(diffmeanf0=normf0-meanf0) %>%
+  filter(sdf0<50)
+
+normf0_steps <- 
+  normf0_df %>% select(-normtime) %>% filter(timepoint!=10) %>% rename(timepoint_1=timepoint, normf0_1=normf0) %>%
+  cbind(
+    normf0_df %>% select(-normtime) %>% filter(timepoint!=1) %>% select(timepoint_2=timepoint, normf0_2=normf0) 
+  ) %>%
+  mutate(
+    timepoint_stepdiff = paste(timepoint_1, timepoint_2, sep='-'),
+    f0_stepdiff = normf0_2-normf0_1, .after=variant)
+
+normf0_steps %>%  filter(abs(f0_stepdiff) > 20)
+
+normf0_steps %>% filter(item_code=="3.3.1")
+
+```
+
