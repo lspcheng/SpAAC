@@ -124,6 +124,10 @@ def main(args):
         # Access target files
         aligned_tgs = [f for f in os.listdir(os.path.join(aligned_out_path)) if f.endswith('.TextGrid')]
 
+        if not aligned_tgs:
+            print("No aligned textgrid found. Please conduct forced alignment before rerunning with -f.")
+            os._exit(0)
+
         for tg_file in aligned_tgs:
             tg_concat = parselmouth.read(os.path.join(concat_in_path, tg_file))
             tg_aligned = parselmouth.read(os.path.join(aligned_out_path, tg_file))
