@@ -232,11 +232,24 @@ else
 			endif
 			current_file += 1
 		else
-			call Labeling 'fileName$'
+			#call Labeling 'fileName$'
+			Read from file... 'directory$''fileName$'
+			name$ = fileName$ - ".wav" - ".WAV"
+			labelfile$ = name$+"'TextGrid_extension$'"
+			textgridfile$ = name$+".TextGrid"
+			if fileReadable (labelfile$)
+				Read from file... 'directory$''name$''TextGrid_extension$'
+			elsif fileReadable (textgridfile$)
+				Read from file... 'directory$''name$'.TextGrid
+			else
+				To TextGrid... "interval point" point
+			endif
+			plus Sound 'name$'
 #######################################################################################
 			if task = 2
 				current_file += 1
 			else
+				Edit
 				beginPause ("Press Done to save current results and exit")
 					jump_to = current_file
 					integer ("Jump to", jump_to)
@@ -303,21 +316,21 @@ if task == 3
 	endif
 endif
 
-procedure Labeling file_name$ file_extension$
-	Read from file... 'directory$''file_name$'
-	name$ = file_name$ - ".wav" - ".WAV"
-	labelfile$ = name$+"'TextGrid_extension$'"
-	textgridfile$ = name$+".TextGrid"
-	if fileReadable (labelfile$)
-		Read from file... 'directory$''name$''TextGrid_extension$'
-	elsif fileReadable (textgridfile$)
-		Read from file... 'directory$''name$'.TextGrid
-	else
-		To TextGrid... "interval point" point
-	endif
-	plus Sound 'name$'
-	#Edit
-endproc
+#procedure Labeling file_name$ file_extension$
+#	Read from file... 'directory$''file_name$'
+#	name$ = file_name$ - ".wav" - ".WAV"
+#	labelfile$ = name$+"'TextGrid_extension$'"
+#	textgridfile$ = name$+".TextGrid"
+#	if fileReadable (labelfile$)
+#		Read from file... 'directory$''name$''TextGrid_extension$'
+#	elsif fileReadable (textgridfile$)
+#		Read from file... 'directory$''name$'.TextGrid
+#	else
+#		To TextGrid... "interval point" point
+#	endif
+#	plus Sound 'name$'
+#	#Edit
+#endproc
 
 procedure Save directory$ name$
 	select TextGrid 'name$'
