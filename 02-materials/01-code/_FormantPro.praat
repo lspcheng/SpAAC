@@ -316,7 +316,7 @@ procedure Labeling file_name$ file_extension$
 		To TextGrid... "interval point" point
 	endif
 	plus Sound 'name$'
-	Edit
+	#Edit
 endproc
 
 procedure Save directory$ name$
