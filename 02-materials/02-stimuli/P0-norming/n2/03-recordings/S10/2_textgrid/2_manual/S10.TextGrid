@@ -563,7 +563,7 @@ item []:
         intervals [138]:
             xmin = 127.4432290249434 
             xmax = 128.2902952146949 
-            text = "3x" 
+            text = "3" 
         intervals [139]:
             xmin = 128.2902952146949 
             xmax = 129.6432290249434 
@@ -571,7 +571,7 @@ item []:
         intervals [140]:
             xmin = 129.6432290249434 
             xmax = 130.4928016659537 
-            text = "1x" 
+            text = "1" 
         intervals [141]:
             xmin = 130.4928016659537 
             xmax = 131.61122902494338 
@@ -579,7 +579,7 @@ item []:
         intervals [142]:
             xmin = 131.61122902494338 
             xmax = 132.4272290249434 
-            text = "" 
+            text = "2" 
         intervals [143]:
             xmin = 132.4272290249434 
             xmax = 133.4752290249434 
@@ -666,64 +666,64 @@ item []:
             text = "silent" 
         intervals [164]:
             xmin = 154.2992290249434 
-            xmax = 154.89122902494339 
+            xmax = 155.27475847071358 
             text = "" 
         intervals [165]:
-            xmin = 154.89122902494339 
+            xmin = 155.27475847071358 
             xmax = 156.0832290249434 
             text = "silent" 
         intervals [166]:
             xmin = 156.0832290249434 
-            xmax = 156.4352290249434 
-            text = "" 
+            xmax = 157.09091148045425 
+            text = "2" 
         intervals [167]:
-            xmin = 156.4352290249434 
+            xmin = 157.09091148045425 
             xmax = 157.8352290249434 
             text = "silent" 
         intervals [168]:
             xmin = 157.8352290249434 
             xmax = 158.4592290249434 
-            text = "" 
+            text = "x" 
         intervals [169]:
             xmin = 158.4592290249434 
             xmax = 160.0912290249434 
             text = "silent" 
         intervals [170]:
             xmin = 160.0912290249434 
-            xmax = 160.7232290249434 
-            text = "" 
+            xmax = 161.10535412256914 
+            text = "1" 
         intervals [171]:
-            xmin = 160.7232290249434 
+            xmin = 161.10535412256914 
             xmax = 162.0592290249434 
             text = "silent" 
         intervals [172]:
             xmin = 162.0592290249434 
             xmax = 162.6192290249434 
-            text = "" 
+            text = "x" 
         intervals [173]:
             xmin = 162.6192290249434 
             xmax = 164.0192290249434 
             text = "silent" 
         intervals [174]:
             xmin = 164.0192290249434 
-            xmax = 164.6032290249434 
-            text = "" 
+            xmax = 164.97765110786182 
+            text = "3" 
         intervals [175]:
-            xmin = 164.6032290249434 
+            xmin = 164.97765110786182 
             xmax = 166.2432290249434 
             text = "silent" 
         intervals [176]:
             xmin = 166.2432290249434 
-            xmax = 166.9232290249434 
+            xmax = 167.19051053600379 
             text = "" 
         intervals [177]:
-            xmin = 166.9232290249434 
+            xmin = 167.19051053600379 
             xmax = 168.2432290249434 
             text = "silent" 
         intervals [178]:
             xmin = 168.2432290249434 
             xmax = 168.7792290249434 
-            text = "" 
+            text = "x" 
         intervals [179]:
             xmin = 168.7792290249434 
             xmax = 170.30722902494338 
@@ -731,7 +731,7 @@ item []:
         intervals [180]:
             xmin = 170.30722902494338 
             xmax = 171.25922902494338 
-            text = "" 
+            text = "x" 
         intervals [181]:
             xmin = 171.25922902494338 
             xmax = 174.5312290249434 
@@ -6169,7 +6169,7 @@ item []:
         name = "notes" 
         xmin = 0 
         xmax = 1547.2384580498867 
-        points: size = 26 
+        points: size = 30 
         points [1]:
             number = 45.55965016028322 
             mark = "+BG" 
@@ -6195,56 +6195,68 @@ item []:
             number = 130.0732766276187 
             mark = "+P, >I" 
         points [9]:
+            number = 158.1143162575251 
+            mark = "-pro" 
+        points [10]:
+            number = 162.28630049434926 
+            mark = "-pro" 
+        points [11]:
+            number = 168.5017055818628 
+            mark = "-pro" 
+        points [12]:
+            number = 170.66432598217574 
+            mark = "-pro" 
+        points [13]:
             number = 243.42922704799827 
             mark = "<G" 
-        points [10]:
+        points [14]:
             number = 246.02462093941344 
             mark = ">I, +BG" 
-        points [11]:
+        points [15]:
             number = 257.5395615362264 
             mark = "<N" 
-        points [12]:
+        points [16]:
             number = 285.15985098362154 
             mark = "+P" 
-        points [13]:
+        points [17]:
             number = 320.8745473124121 
             mark = "+P" 
-        points [14]:
+        points [18]:
             number = 329.62781088445206 
             mark = "+C" 
-        points [15]:
+        points [19]:
             number = 339.8323478760223 
             mark = "+P" 
-        points [16]:
+        points [20]:
             number = 360.4978202788029 
             mark = "+P" 
-        points [17]:
+        points [21]:
             number = 372.92568686182375 
             mark = "-P" 
-        points [18]:
+        points [22]:
             number = 405.45469796993103 
             mark = "+P" 
-        points [19]:
+        points [23]:
             number = 421.5587056608027 
             mark = "-P" 
-        points [20]:
+        points [24]:
             number = 424.1174420163203 
             mark = "<Q" 
-        points [21]:
+        points [25]:
             number = 425.91915578144807 
             mark = "+S" 
-        points [22]:
+        points [26]:
             number = 427.99339767911613 
             mark = "-P" 
-        points [23]:
+        points [27]:
             number = 515.3162476719932 
             mark = "-pro" 
-        points [24]:
+        points [28]:
             number = 527.7285048309925 
             mark = "-pro" 
-        points [25]:
+        points [29]:
             number = 529.626104380417 
             mark = "+BG" 
-        points [26]:
+        points [30]:
             number = 540.1491564272258 
             mark = "-pro" 
