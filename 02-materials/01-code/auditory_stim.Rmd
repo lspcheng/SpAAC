@@ -11,16 +11,28 @@ library(patchwork)
 
 read_table_transposed <- function(table_file, measure){
   table_df <- read.table(table_file, header=T) %>%
-    pivot_longer(cols=-Filename, names_to = "token_label", values_to = measure) %>% select(-Filename) %>%
+    pivot_longer(cols=-1, names_to = "token_label", values_to = measure) %>% select(-1) %>%
     mutate(speaker_dir = str_split(table_file, '/')[[1]][6])
 }
 
-read_table_normtime <- function(table_file, measure){
+read_table_normtime <- function(table_file, measure, formant=FALSE){
   table_df <- read.table(table_file, header=T) %>%
-    pivot_longer(cols=-File.Normtime, names_to = "normtime", values_to = measure) %>% select(-File.Normtime) %>%
+    pivot_longer(cols=-1, names_to = "normtime", values_to = measure) %>%
     mutate(speaker_dir = str_split(table_file, '/')[[1]][6])
+  
+  if (formant==FALSE){
+    table_df <- table_df %>% select(-1)
+  } else {
+    table_df <- table_df %>% extract(1, into=c("formant"), regex="(?:.*?_){3}(.+)$")
+  # separate(1, into=c(NA, NA, NA, "formant"), sep = "_", extra="merge") # same effect
+  }
 }
 ```
+
+```{r}
+token_info %>% names(.)
+```
+
 
 # Speaker Set-up
 ```{r}
@@ -403,4 +415,162 @@ for (var_num in c(1:8)){
 ```
 
 
+# Phone-level
 
+## Duration
+```{r}
+# Read in data
+p_dur_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+           pattern="duration.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "phone_level", negate = FALSE) %>%
+   plyr::ldply(., read_table_transposed, "duration") %>%
+  cbind(token_info, .) %>% 
+  mutate(token_label = mgsub(token_label, "\\.[0-9]+$", "", fixed=FALSE))
+
+# Check row match
+p_dur_df %>% filter(phone !=token_label) %>% nrow()
+p_dur_df %>% filter(speaker !=speaker_dir) %>% nrow()
+
+# Finalize data
+( p_dur_df <- p_dur_df %>% select(-token_label, -speaker_dir) )
+
+# Plot grand means
+p_dur_df %>%
+  ggplot(aes(x=variant, y=duration)) + theme_minimal() +
+  stat_summary(geom="pointrange")
+
+# Plot means across speaker per variable
+p_dur_df %>%
+  ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + theme_minimal() +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+
+# Plot by-speaker means per variable
+for (spk_num in speaker_list){
+  plot <- p_dur_df %>% filter(speaker==spk_num) %>%
+  ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + theme_minimal() + facet_wrap(~speaker) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+ print(plot)
+}
+
+```
+
+## Formants
+### Normalized
+```{r}
+read.table("/Users/laurettacheng/Documents/Projects/SpAAC/02-materials/02-stimuli/P0-norming/n2/03-recordings/S01/3_selections/1_P1/5_profiled/phone_level/normtime_formant.txt", header=T) %>%
+    pivot_longer(cols=-1, names_to = "normtime", values_to = "normform") %>%
+    extract(1, into=c("formant"), regex="(?:.*?_){3}(.+)$")
+  # separate(1, into=c(NA, NA, NA, "formant"), sep = "_", extra="merge") # same effect
+  
+
+```
+
+
+```{r}
+w_normform_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+           pattern="normtime_formant.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "phone_level", negate = FALSE) %>%
+   plyr::ldply(., read_table_normtime, "normform", formant=TRUE) %>%
+  arrange(formant) %>%
+  cbind(norm_token_info %>% slice(rep(1:n(), times=4)), .) %>%
+  mutate(timepoint = rep(1:10, length.out=n())) %>%
+  relocate(timepoint, normform, .before=normtime)
+w_normform_df
+
+# Check row match
+w_normform_df %>% filter(speaker !=speaker_dir) %>% nrow()
+
+# Finalize data
+( w_normform_df <- w_normform_df %>% select(-normtime, -speaker_dir) %>%
+    filter(formant!="F2_3") %>% filter(!variableN %in% c(3, 8)))
+```
+
+
+#### All Speakers
+```{r}
+# Grand means across all speakers
+# Across all tokens
+w_normform_df %>%
+  ggplot(aes(x=timepoint, y=normform, linetype=formant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(geom="smooth", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# Between-variant comparison (across all variables)
+w_normform_df %>%
+  ggplot(aes(x=timepoint, y=normform, col=variant, linetype=formant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# By variable + between-variant comparison
+w_normform_df %>%
+  ggplot(aes(x=timepoint, y=normform, col=variant, linetype=formant)) + theme_minimal() + facet_wrap(~variable) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+```
+
+#### By-Speaker
+```{r, fig.width=7, fig.height=6}
+for (spk_num in speaker_list){
+
+  # By variable + between-variant comparison
+  plot <- w_normform_df %>% filter(speaker==spk_num) %>%
+    ggplot(aes(x=timepoint, y=normform, col=variant, linetype=formant)) + theme_minimal() + facet_wrap(~speaker) + facet_wrap(~variable) +
+    # geom_point(alpha=0.2) +
+    # stat_summary(geom="col", alpha=0.5, position="dodge") +
+    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(geom="smooth", position=position_dodge()) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9) +
+    labs(title= paste0(spk_num))
+    print(plot)
+}
+
+```
+
+#### By-Variable for Speaker
+```{r, fig.width=12, fig.height=6}
+current_speaker = speaker_list[[1]]
+variable_list = w_normform_df %>% distinct(variableN) %>% pull()
+exclude_rows = c()
+
+for (var_num in variable_list){
+  plot_df <- w_normform_df %>% filter(speaker==current_speaker) %>% 
+    filter(formant!="F3") %>%
+    filter(variableN==var_num) %>%  filter((!rowN %in% exclude_rows))  
+  
+  plot1 <- plot_df %>%
+    ggplot(aes(x=timepoint, y=normform, col=variant, linetype=formant)) + theme_minimal() + facet_wrap(~variable) +
+    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(geom="line", position=position_dodge()) +
+    # stat_summary(geom="smooth", position=position_dodge()) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9) +
+    labs(title="Average across Tokens")
+
+  plot2 <- plot_df %>%
+    ggplot(aes(x=timepoint, y=normform, col=variant, linetype=formant)) + theme_minimal() + 
+    facet_wrap(~rowN, ncol = 5) +
+    geom_point() +
+    geom_line() +
+    # geom_smooth() +
+    scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+    labs(title="By-Token")
+  
+  combined_plot <- plot1 + plot2 + 
+    plot_layout(guides = "collect") +
+    plot_annotation(title = paste0(current_speaker, " - Variable ",var_num))
+  print(combined_plot)
+}
+
+```
