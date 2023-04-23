@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.8164455782313098 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.8164455782313098 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8164455782313098 
+            text = "2" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.8164455782313098 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8164455782313098 
+            text = "7-9_tattletales-tallying" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.8164455782313098 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8164455782313098 
+            text = "AE-backing" 

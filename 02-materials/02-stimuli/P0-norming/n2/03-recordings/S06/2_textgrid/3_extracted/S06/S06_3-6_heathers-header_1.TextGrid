@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.8605668934240498 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.8605668934240498 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8605668934240498 
+            text = "1" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.8605668934240498 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8605668934240498 
+            text = "3-6_heathers-header" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.8605668934240498 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8605668934240498 
+            text = "TH-stopping" 

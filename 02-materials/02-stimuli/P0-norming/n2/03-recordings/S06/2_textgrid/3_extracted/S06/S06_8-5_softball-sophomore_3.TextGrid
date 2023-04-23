@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.8071421012849669 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.8071421012849669 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8071421012849669 
+            text = "3" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.8071421012849669 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8071421012849669 
+            text = "8-5_softball-sophomore" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.8071421012849669 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8071421012849669 
+            text = "T-deletion" 
