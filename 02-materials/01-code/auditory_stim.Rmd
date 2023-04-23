@@ -17,6 +17,7 @@ read_table_transposed <- function(table_file, measure){
 
 read_table_normtime <- function(table_file, measure, formant=FALSE){
   table_df <- read.table(table_file, header=T) %>%
+    mutate((across(starts_with("X"), ~ ifelse(.x == "--undefined--", NA, .x)))) %>%
     pivot_longer(cols=-1, names_to = "normtime", values_to = measure) %>%
     mutate(speaker_dir = str_split(table_file, '/')[[1]][6])
   
@@ -68,6 +69,7 @@ speaker_list <- token_info %>% distinct(speaker) %>% pull()
 
 # Word-level
 ## Duration
+### Actual
 ```{r}
 # Read in data
 w_dur_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
@@ -107,6 +109,167 @@ for (spk_num in speaker_list){
 }
 
 ```
+
+## Intensity
+### Mean
+```{r}
+w_meanintensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+           pattern="meanintensity.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "word_level", negate = FALSE) %>%
+   plyr::ldply(., read_table_transposed, "meanintensity") %>%
+  cbind(token_info, .) %>% 
+  mutate(token_label = gsub(".1", "", token_label, fixed=TRUE))
+
+# Check row match
+w_meanintensity_df %>% filter(word !=token_label) %>% nrow()
+w_meanintensity_df %>% filter(speaker !=speaker_dir) %>% nrow()
+
+# Finalize data
+( w_meanintensity_df <- w_meanintensity_df %>% select(-token_label, -speaker_dir) )
+
+# Plot grand means
+w_meanintensity_df %>%
+  ggplot(aes(x=variant, y=meanintensity)) + theme_minimal() +
+  stat_summary(geom="pointrange")
+
+w_meanintensity_df %>%
+  ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + theme_minimal() +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+
+# Plot by-speaker means per variable
+for (spk_num in speaker_list){
+  plot <- w_meanintensity_df %>% filter(speaker==spk_num) %>%
+  ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + theme_minimal() + facet_wrap(~speaker) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+ print(plot)
+}
+```
+
+### Normalized
+```{r}
+w_normtimeIntensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+           pattern="normtimeIntensity.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "word_level", negate = FALSE) %>%
+   plyr::ldply(., read_table_normtime, "normtimeIntensity") %>%
+  cbind(norm_token_info, .) %>%
+  mutate(timepoint = rep(1:10, length.out=n())) %>%
+  relocate(timepoint, normtimeIntensity, .before=normtime)
+
+# Check row match
+w_normtimeIntensity_df %>% filter(speaker !=speaker_dir) %>% nrow()
+
+# Finalize data
+( w_normtimeIntensity_df <- w_normtimeIntensity_df %>% select(-normtime, -speaker_dir) )
+```
+
+#### All Speakers
+```{r}
+# Grand means across all speakers
+# Across all tokens
+w_normtimeIntensity_df %>%
+  ggplot(aes(x=timepoint, y=normtimeIntensity)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(geom="smooth", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# Between-variant comparison (across all variables)
+w_normtimeIntensity_df %>%
+  ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+
+# By variable + between-variant comparison
+w_normtimeIntensity_df %>%
+  ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() + facet_wrap(~variableN) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge()) +
+  stat_summary(geom="smooth", position=position_dodge()) +
+  scale_x_continuous(limits = c(2, 9), breaks=2:9)
+```
+
+#### By-Speaker
+```{r}
+for (spk_num in speaker_list){
+  plot <- w_normtimeIntensity_df %>% filter(speaker==spk_num) %>%
+  # Across all tokens
+    ggplot(aes(x=timepoint, y=normtimeIntensity)) + theme_minimal() + facet_wrap(~speaker) +
+    # geom_point(alpha=0.2) +
+    # stat_summary(geom="col", alpha=0.5, position="dodge") +
+    stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+    stat_summary(geom="smooth", position=position_dodge(0.95)) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9)
+   print(plot)
+   
+  # Between-variant comparison (across all variables)
+  plot <- w_normtimeIntensity_df %>% filter(speaker==spk_num) %>%
+    ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() + facet_wrap(~speaker) +
+    # geom_point(alpha=0.2) +
+    # stat_summary(geom="col", alpha=0.5, position="dodge") +
+    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(geom="smooth", position=position_dodge()) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9)
+   print(plot)
+   
+  # By variable + between-variant comparison
+  plot <- w_normtimeIntensity_df %>% filter(speaker==spk_num) %>%
+    ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() + facet_wrap(~speaker) + facet_wrap(~variableN) +
+    # geom_point(alpha=0.2) +
+    # stat_summary(geom="col", alpha=0.5, position="dodge") +
+    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(geom="smooth", position=position_dodge()) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9)
+ print(plot)
+}
+
+```
+
+#### By-Variable for Speaker
+```{r, fig.width=12, fig.height=6}
+current_speaker = speaker_list[[2]]
+exclude_rows = c()
+
+for (var_num in c(1:8)){
+  plot1 <- w_normtimeIntensity_df %>% filter(speaker==current_speaker) %>%
+    filter(variableN==var_num) %>%
+    filter((!rowN %in% exclude_rows)) %>%
+    ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() + facet_wrap(~variable) +
+    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(geom="line", position=position_dodge()) +
+    # stat_summary(geom="smooth", position=position_dodge()) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9) +
+    labs(title="Average across Tokens")
+
+  plot2 <- w_normtimeIntensity_df  %>% filter(speaker==current_speaker) %>%
+    filter(variableN==var_num) %>% 
+    filter((!rowN %in% exclude_rows)) %>%
+    ggplot(aes(x=timepoint, y=normtimeIntensity, col=variant)) + theme_minimal() + 
+    facet_wrap(~rowN, ncol = 5) +
+    geom_point() +
+    geom_line() +
+    # geom_smooth() +
+    scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+    labs(title="By-Token")
+  
+  combined_plot <- plot1 + plot2 + 
+    plot_layout(guides = "collect") +
+    plot_annotation(title = paste0(current_speaker, " - Variable ",var_num))
+  print(combined_plot)
+}
+
+```
+
+
+
 
 ## F0 
 ### Mean
@@ -456,6 +619,45 @@ for (spk_num in speaker_list){
  print(plot)
 }
 
+```
+
+## Intensity
+### Mean
+```{r}
+p_meanintensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+           pattern="meanintensity.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "phone_level", negate = FALSE) %>%
+   plyr::ldply(., read_table_transposed, "meanintensity") %>%
+  cbind(token_info, .) %>% 
+  mutate(token_label = gsub(".1", "", token_label, fixed=TRUE))
+
+# Check row match
+p_meanintensity_df %>% filter(word !=token_label) %>% nrow()
+p_meanintensity_df %>% filter(speaker !=speaker_dir) %>% nrow()
+
+# Finalize data
+( p_meanintensity_df <- p_meanintensity_df %>% select(-token_label, -speaker_dir) )
+
+# Plot grand means
+p_meanintensity_df %>%
+  ggplot(aes(x=variant, y=meanintensity)) + theme_minimal() +
+  stat_summary(geom="pointrange")
+
+p_meanintensity_df %>%
+  ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + theme_minimal() +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+
+# Plot by-speaker means per variable
+for (spk_num in speaker_list){
+  plot <- p_meanintensity_df %>% filter(speaker==spk_num) %>%
+  ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + theme_minimal() + facet_wrap(~speaker) +
+  # geom_point(alpha=0.2) +
+  # stat_summary(geom="col", alpha=0.5, position="dodge") +
+  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+ print(plot)
+}
 ```
 
 ## Formants (Pro)
