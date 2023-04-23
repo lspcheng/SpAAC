@@ -30,12 +30,7 @@ read_table_normtime <- function(table_file, measure, formant=FALSE){
 }
 ```
 
-```{r}
-token_info %>% names(.)
-```
-
-
-# Speaker Set-up
+## Token Info
 ```{r}
 token_info <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
            pattern="selected_tokens_info.csv", recursive=TRUE, 
@@ -67,6 +62,7 @@ norm_token_info
 speaker_list <- token_info %>% distinct(speaker) %>% pull()
 ```
 
+#.
 # Word-level
 ## Duration
 ### Actual
@@ -577,7 +573,7 @@ for (var_num in c(1:8)){
 
 ```
 
-
+#.
 # Phone-level
 
 ## Duration
@@ -660,7 +656,7 @@ for (spk_num in speaker_list){
 }
 ```
 
-## Formants (Pro)
+## [V] Formants (Pro)
 ### Normalized
 ```{r}
 p_normform_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
@@ -767,7 +763,7 @@ for (var_num in variable_list){
 
 ```
 
-## Formants (fasttrack)
+## [V] Formants (fasttrack)
 ```{r}
 ft_normform_df <- 
   list.files('../02-stimuli/P0-norming/n2/03-recordings', 
@@ -803,12 +799,6 @@ ft_normform_df %>% filter(vowel !=label) %>% nrow()
 ft_normform_df
 
 ```
-
-```{r}
-ft_normform_df %>% filter(item_code %in% c("7-7-1", "7-7-3"))
-ft_normform_df %>% filter(variableN==7)
-```
-
 
 #### All Speakers
 ```{r}
@@ -903,3 +893,7 @@ for (var_num in variable_list){
 #   plyr::ldply(., read_csv) %>% select(-inputfile)  %>% rename(file = outputfile)
 # segment_info
 ```
+
+## [C] Auditory Ratings
+
+
