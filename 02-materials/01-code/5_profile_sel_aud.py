@@ -20,10 +20,6 @@ def main(args):
     aligner_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "4_aligned", "mfa_aligner")
     aligned_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "4_aligned", "aligned_corpus")
 
-    # Set the folder path to write files to for acoustic data profiling
-    word_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "5_profiled", "word_level")
-    phone_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "5_profiled", "phone_level")
-
     # Get selected tokens from previous step
     concat_wavs = [f for f in os.listdir(concat_in_path) if f.endswith('.wav')]
     concat_tgs = [f for f in os.listdir(concat_in_path) if f.endswith('.TextGrid')]
@@ -67,6 +63,8 @@ def main(args):
     if args.prosody:
         run = 2
 
+        word_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "5_profiled", "word_level")
+
         if os.path.exists(word_out_path):
             if args.overwrite:
                 shutil.rmtree(word_out_path)
@@ -106,18 +104,7 @@ def main(args):
         for wav_file in concat_wavs:
             os.remove(os.path.join(word_out_path, wav_file))
 
-    if args.formants:
-        run = 3
-
-        if os.path.exists(phone_out_path):
-            if args.overwrite:
-                shutil.rmtree(phone_out_path)
-                os.makedirs(phone_out_path)
-            else:
-                print("Word-level acoustic data directory already exists. Rerun with -o to overwrite if desired.")
-                os._exit(0)
-        else:
-            os.makedirs(phone_out_path)
+    if args.formants or args.fasttrack:
 
         target_dict = {'1': 'EH1', '2': 'IY1', '3': 'DH', '4': 'OW1', '5': 'UW1', '6': 'AE1', '7': 'AE1', '8': 'T'}
 
@@ -125,7 +112,7 @@ def main(args):
         aligned_tgs = [f for f in os.listdir(os.path.join(aligned_out_path)) if f.endswith('.TextGrid')]
 
         if not aligned_tgs:
-            print("No aligned textgrid found. Please conduct forced alignment before rerunning with -f.")
+            print("No aligned textgrid found. Please conduct forced alignment before rerunning with -f or -ft.")
             os._exit(0)
 
         for tg_file in aligned_tgs:
@@ -156,39 +143,78 @@ def main(args):
                         call(tg_merged, "Insert boundary", 1, phone_end)
                         call(tg_merged, "Set interval text", 1, call(tg_merged, "Get interval at time", 1, phone_start), phone_label)
 
+        if args.formants:
+            run = 3
+
+            phone_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "5_profiled", "phone_level")
+
+            if os.path.exists(phone_out_path):
+                if args.overwrite:
+                    shutil.rmtree(phone_out_path)
+                    os.makedirs(phone_out_path)
+                else:
+                    print("Phone-level acoustic data directory already exists. Rerun with -o to overwrite if desired.")
+                    os._exit(0)
+            else:
+                os.makedirs(phone_out_path)
+
             tg_merged.save(os.path.join(phone_out_path, tg_file))
 
-        for wav_file in concat_wavs:
-            shutil.copy(os.path.join(concat_in_path, wav_file), phone_out_path)
+            for wav_file in concat_wavs:
+                shutil.copy(os.path.join(concat_in_path, wav_file), phone_out_path)
 
-        print(f"\nExtracting formant information...")
+            print(f"\nExtracting formant information...")
 
-        # Copy _FormantPro.praat to folder
-        temp_script_path = os.path.join(phone_out_path, "_FormantPro.praat")
-        shutil.copyfile(os.path.join(os.path.dirname(__file__), "_FormantPro.praat"), temp_script_path)
+            # Copy _FormantPro.praat to folder
+            temp_script_path = os.path.join(phone_out_path, "_FormantPro.praat")
+            shutil.copyfile(os.path.join(os.path.dirname(__file__), "_FormantPro.praat"), temp_script_path)
 
-        run_file([], temp_script_path,
-                "2. Process all sounds without pause", 1, 1, 0, 0, "repetition_list.txt", 0,
-                ".TextGrid", ".wav",
-                "./", "speaker_folders.txt",
-                5, 5500, 0.25, # Formant Analysis options options
-                10, # Number of normalized times per interval
-                0.10)
-        run_file([], temp_script_path,
-                "3. Get ensemble files",  1, 1, 0, 0, "repetition_list.txt", 0,
-                ".TextGrid", ".wav",
-                "./", "speaker_folders.txt",
-                5, 5500, 0.25, # Formant Analysis options options
-                10, # Number of normalized times per interval
-                0.10)
+            run_file([], temp_script_path,
+                    "2. Process all sounds without pause", 1, 1, 0, 0, "repetition_list.txt", 0,
+                    ".TextGrid", ".wav",
+                    "./", "speaker_folders.txt",
+                    5, 5500, 0.25, # Formant Analysis options options
+                    10, # Number of normalized times per interval
+                    0.10)
+            run_file([], temp_script_path,
+                    "3. Get ensemble files",  1, 1, 0, 0, "repetition_list.txt", 0,
+                    ".TextGrid", ".wav",
+                    "./", "speaker_folders.txt",
+                    5, 5500, 0.25, # Formant Analysis options options
+                    10, # Number of normalized times per interval
+                    0.10)
 
-        # Delete _FormantPro.praat from folder
-        os.remove(temp_script_path)
-        for wav_file in concat_wavs:
-            os.remove(os.path.join(phone_out_path, wav_file))
+            # Delete _FormantPro.praat from folder
+            os.remove(temp_script_path)
+            for wav_file in concat_wavs:
+                os.remove(os.path.join(phone_out_path, wav_file))
+
+        if args.fasttrack:
+            run = 4
+
+            fasttrack_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "5_profiled", "phone_level_ft")
+
+            if os.path.exists(fasttrack_out_path):
+                if args.overwrite:
+                    shutil.rmtree(fasttrack_out_path)
+                    os.makedirs(fasttrack_out_path)
+                else:
+                    print("Phone-level (FastTrack) acoustic data directory already exists. Rerun with -o to overwrite if desired.")
+                    os._exit(0)
+            else:
+                os.makedirs(fasttrack_out_path)
+
+            tg_merged.save(os.path.join(fasttrack_out_path, tg_file))
+
+            for wav_file in concat_wavs:
+                shutil.copy(os.path.join(concat_in_path, wav_file), fasttrack_out_path)
+
+            print(f"Open the files in Praat and run 'Extract vowels with Textgrid' using folder:\n\n{os.path.abspath(fasttrack_out_path)}\n")
+
+            print("Then run 'Track folder'.")
 
     if not run:
-        print("No processes selected. Rerun with -a, -p, and/or -f as needed.")
+        print("No processes selected. Rerun with appropriate flag as needed.")
 
 if __name__ == '__main__':
 
@@ -199,6 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--alignment', action='store_true', help='prep for forced alignment')
     parser.add_argument('-p', '--prosody', action='store_true', help='extract prosodic information')
     parser.add_argument('-f', '--formants', action='store_true', help='extract formant information')
+    parser.add_argument('-ft', '--fasttrack', action='store_true', help='prep for extracting formant information via fasttrack')
     parser.add_argument('-o', '--overwrite', action='store_true', help='overwrite extracted output directory')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
