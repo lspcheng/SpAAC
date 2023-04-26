@@ -148,12 +148,12 @@ w_dur_df %>% filter(speaker !=speaker_dir) %>% nrow()
 # Plot grand means
 w_dur_df %>%
   ggplot(aes(x=variant, y=duration)) + gg_theme() +
-  stat_summary(geom="pointrange")
+  stat_summary(fun.data = mean_se, geom="pointrange")
 
 # Plot means across speaker per variable
 w_dur_df %>%
   ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -162,12 +162,39 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
 
 ```
+
+```{r}
+# Standardized output plot
+w_dur_df %>%
+  ggplot(aes(x=variable, y=duration, linetype=variant, color=variant, fill=variant)) + gg_theme() +
+  # stat_summary(fun = mean, geom="col", alpha=0.5, position="dodge") +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.95), size=3) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+  # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= "All Speakers", x="Variable", y="Word Duration (ms)")
+  ggsave(filename=paste("All", "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "store"), width=10, height=6)
+
+for (spk_num in speaker_list){
+  plot <- w_dur_df %>% filter(speaker==spk_num) %>%
+  ggplot(aes(x=variable, y=duration, linetype=variant, color=variant, fill=variant)) + gg_theme() +
+  # stat_summary(fun = mean, geom="col", alpha=0.5, position="dodge") +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.95), size=3) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+  # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= paste0(spk_num), x="Variable", y="Word Duration (ms)")
+  print(plot)
+  ggsave(filename=paste(spk_num, "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "store"), width=10, height=6)
+}
+```
+
 
 ## Intensity
 ### Mean
@@ -193,7 +220,7 @@ w_meanintensity_df %>%
 
 w_meanintensity_df %>%
   ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -202,7 +229,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -233,7 +260,7 @@ w_normtimeIntensity_df %>%
   ggplot(aes(x=timepoint, y=normtimeIntensity)) + gg_theme() +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   stat_summary(geom="smooth", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(2, 9), breaks=2:9)
 
@@ -264,7 +291,7 @@ for (spk_num in speaker_list){
     ggplot(aes(x=timepoint, y=normtimeIntensity)) + gg_theme() + facet_wrap(~speaker) +
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
     stat_summary(geom="smooth", position=position_dodge(0.95)) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9)
    print(plot)
@@ -355,7 +382,7 @@ w_meanf0_df %>%
 
 w_meanf0_df %>%
   ggplot(aes(x=variableN, y=meanf0, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -364,7 +391,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=meanf0, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -393,7 +420,7 @@ w_maxf0_df %>%
 
 w_maxf0_df %>%
   ggplot(aes(x=variableN, y=maxf0, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -402,7 +429,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=maxf0, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -431,7 +458,7 @@ w_minf0_df %>%
 
 w_minf0_df %>%
   ggplot(aes(x=variableN, y=minf0, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -440,7 +467,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=minf0, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -469,7 +496,7 @@ w_finalf0_df %>%
 
 w_finalf0_df %>%
   ggplot(aes(x=variableN, y=finalf0, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -478,7 +505,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=finalf0, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -511,7 +538,7 @@ w_normf0_df %>%
   ggplot(aes(x=timepoint, y=normf0)) + gg_theme() +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   stat_summary(geom="smooth", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(2, 9), breaks=2:9)
 
@@ -545,7 +572,7 @@ for (spk_num in speaker_list){
     ggplot(aes(x=timepoint, y=normf0)) + gg_theme() + 
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
     stat_summary(geom="smooth", position=position_dodge(0.95)) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num))
@@ -670,22 +697,58 @@ p_dur_df %>% filter(speaker !=speaker_dir) %>% nrow()
 p_dur_df %>%
   ggplot(aes(x=variant, y=duration)) + gg_theme() +
   stat_summary(geom="pointrange")
+```
 
+```{r}
+# # First-pass pointrange version
+# # Plot means across speaker per variable
+# p_dur_df %>% filter(speaker==spk_num) %>%
+#   ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() +
+#   # geom_point(alpha=0.2) +
+#   # stat_summary(geom="col", alpha=0.5, position="dodge") +
+#   stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+#   stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+#   scale_x_continuous(limits = c(0, 9), breaks=1:8)
+# 
+# # Plot by-speaker means per variable
+# for (spk_num in speaker_list){
+#   plot <- p_dur_df %>% filter(speaker==spk_num) %>%
+#   ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
+#   # geom_point(alpha=0.2) +
+#   # stat_summary(geom="col", alpha=0.5, position="dodge") +
+#   stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+#   stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+#   scale_x_continuous(limits = c(0, 9), breaks=1:8)
+#  print(plot)
+# }
+
+```
+
+```{r}
+# Standardized Column version
 # Plot means across speaker per variable
 p_dur_df %>%
-  ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
-  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+  ggplot(aes(x=variable, y=duration, linetype=variant, color=variant, fill=variant)) + gg_theme() +
+  stat_summary(fun = mean, geom="col", alpha=0.2, position="dodge", color=NA) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.95), size=2) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+  # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= "All Speakers", x="Variable", y="Phone duration (ms)")
+ggsave(filename=paste("All", "duration-phone", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 
 # Plot by-speaker means per variable
 for (spk_num in speaker_list){
   plot <- p_dur_df %>% filter(speaker==spk_num) %>%
-  ggplot(aes(x=variableN, y=duration, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
-  # geom_point(alpha=0.2) +
-  # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
-  scale_x_continuous(limits = c(0, 9), breaks=1:8)
+  ggplot(aes(x=variable, y=duration, linetype=variant, color=variant, fill=variant)) + gg_theme() +
+  stat_summary(fun = mean, geom="col", alpha=0.2, position="dodge", color=NA) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.95), size=2) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", position=position_dodge(0.95), width=0.5) +
+  # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= paste0(spk_num), x="Variable", y="Phone Duration (ms)")
  print(plot)
+ ggsave(filename=paste(spk_num, "duration-phone", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 }
 
 ```
@@ -714,7 +777,7 @@ p_meanintensity_df %>%
 
 p_meanintensity_df %>%
   ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + gg_theme() +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
 
 # Plot by-speaker means per variable
@@ -723,7 +786,7 @@ for (spk_num in speaker_list){
   ggplot(aes(x=variableN, y=meanintensity, linetype=variant, color=variable)) + gg_theme() + facet_wrap(~speaker) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(0, 9), breaks=1:8)
  print(plot)
 }
@@ -759,7 +822,7 @@ p_normform_df %>%
   ggplot(aes(x=timepoint, y=normform, linetype=formant)) + gg_theme() +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   stat_summary(geom="smooth", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(2, 9), breaks=2:9)
 
@@ -881,7 +944,7 @@ ft_normform_df %>%
   ggplot(aes(x=timepoint, y=normform_logmean, linetype=formant)) + gg_theme() +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   stat_summary(geom="smooth", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(1, 9), breaks=1:9) +
   labs(title= "All Speakers", x="Normalized Timepoint", y="Log-Mean Normalized Formants")
@@ -1076,9 +1139,3 @@ gtsave(out_table, file.path(pipeline, "temp", "All_pitch_profile_table.tex"))
 gtsave(out_table, file.path(pipeline, "temp", "All_pitch_profile_table.png"), 
        vwidth = 1500, zoom = 1)
 ```
-## Final Choices
-```{r}
-# Copy from pipeline out to 05-output
-# file.path("...", "05-output", "01-figures", "materials", "stimuli")
-```
-
