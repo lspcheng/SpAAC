@@ -56,11 +56,6 @@ def main(args):
     if args.verbose:
         print(audio_dirs)
 
-    # varnum_row_list = []
-    # for j in range(1,9):
-    #     for i in range(1,11):
-    #         varnum_row_list.append(f"{j}-{i}")
-
     for audio_dir in audio_dirs:
 
         try:
@@ -107,32 +102,32 @@ def main(args):
             audio_out_filename = f"{spk}_{varnum_row}-{code}_{word}_{variant}.wav"
             tg_out_filename = f"{spk}_{varnum_row}-{code}_{word}_{variant}.TextGrid"
 
-            # audio_variable_out_path = os.path.join(audio_out_path, f"v{varnum}")
-            # tg_variable_out_path = os.path.join(audio_out_path, f"v{varnum}")
-            # if not os.path.exists(audio_variable_out_path):
-            #     os.makedirs(audio_variable_out_path)
-
             if args.verbose:
-                # if os.path.exists(os.path.join(audio_variable_out_path, audio_out_filename)):
                 if os.path.exists(os.path.join(audio_out_path, audio_out_filename)):
                     count += 1
                     print(f"{count}. Replacing existing file from {audio_dir}: {audio_out_filename}")
 
-            # shutil.copyfile(os.path.join(audio_in_path, audio_dir, audio_file), os.path.join(audio_variable_out_path, audio_out_filename))
-            shutil.copyfile(os.path.join(audio_in_path, audio_dir, audio_file), os.path.join(audio_out_path, audio_out_filename))
+
+            # Normalize and save files
+            sound = parselmouth.Sound(os.path.join(audio_in_path, audio_dir, audio_file))
+            call(sound, "Scale peak", 0.99)
+            call(sound, "Scale intensity", 70.0)
+            sound.save(os.path.join(audio_out_path, audio_out_filename), format="WAV")
+
             shutil.copyfile(os.path.join(tg_in_path, audio_dir, f"{audio_basename}.TextGrid"), os.path.join(tg_out_path, tg_out_filename))
 
-    print(f"\nCopied all selected files to {audio_out_path}")
 
-    print(f"\nProcessing normalization and concatenation...")
+    print(f"\nCopied and normalized all selected files to {audio_out_path}")
+
+    print(f"\nProcessing concatenation...")
 
     # Sort files by variableN and rowN
     sorted_audio_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(audio_out_path)])
     sorted_tg_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(tg_out_path)])
 
     sounds = [parselmouth.Sound(os.path.join(audio_out_path, f)) for (v, r, f) in sorted_audio_files]
-    call(sounds, "Scale peak", 0.99)
-    call(sounds, "Scale intensity", 70.0)
+    # call(sounds, "Scale peak", 0.99)
+    # call(sounds, "Scale intensity", 70.0)
     tgs = [parselmouth.read(os.path.join(tg_out_path, f)) for (v, r, f) in sorted_tg_files]
 
     if args.verbose:
@@ -159,9 +154,7 @@ def main(args):
 
     if args.verbose:
         print(f"Duration of concatenated sound: {concat_sounds.get_total_duration()}")
-        # print(concat_sounds)
         print(f'Duration of concatenated TextGrid: {call(concat_tgs, "Get total duration")}')
-        # print(concat_tgs)
 
     # Save files
     concat_sounds.save(os.path.join(concat_out_path, f"{spk}_selected_tokens.wav"), format="WAV")
