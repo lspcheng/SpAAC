@@ -21,14 +21,14 @@ library(gt)
 read_table_transposed <- function(table_file, measure){
   table_df <- read.table(table_file, header=T) %>%
     pivot_longer(cols=-1, names_to = "token_label", values_to = measure) %>% select(-1) %>%
-    mutate(speaker_dir = str_split(table_file, '/')[[1]][6])
+    mutate(speaker_dir = str_extract(table_file, "(S\\d{2})"))
 }
 
 read_table_normtime <- function(table_file, measure, formant=FALSE){
   table_df <- read.table(table_file, header=T) %>%
     mutate((across(starts_with("X"), ~ ifelse(.x == "--undefined--", NA, .x)))) %>%
     pivot_longer(cols=-1, names_to = "normtime", values_to = measure) %>%
-    mutate(speaker_dir = str_split(table_file, '/')[[1]][6])
+    mutate(speaker_dir = str_extract(table_file, "(S\\d{2})"))
   
   if (formant==FALSE){
     table_df <- table_df %>% select(-1)
@@ -36,6 +36,12 @@ read_table_normtime <- function(table_file, measure, formant=FALSE){
     table_df <- table_df %>% extract(1, into=c("formant"), regex="(?:.*?_){3}(.+)$")
   # separate(1, into=c(NA, NA, NA, "formant"), sep = "_", extra="merge") # same effect
   }
+}
+
+read_table_ratings <- function(table_file){
+  table_df <- read.table(table_file, header=T) %>%
+    rename(filename = Item, rating = Rating) %>%
+    mutate(rater = str_extract(table_file, "(R\\d{2})"), .before=rating)
 }
 
 # Plot Functions
@@ -61,7 +67,6 @@ NAME <- 'auditory_stim' ## Name of the R file (w/o file extension!)
 PHASE <- 'P0-norming' ## Name of the project phase 
 PROJECT <- 'SpAAC' ## Name of project
 ```
-
 
 ```{r}
 # Get project directory path & subfolder status from working dir
@@ -89,10 +94,11 @@ if (!dir.exists(pipeline)) {
 }
 ```
 
-
-## Token Info
+## Basic Info
 ```{r}
-token_info <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+recordings_path <- file.path(PROJECT_DIR, "02-materials", "02-stimuli", "P0-norming", "n2", "03-recordings")
+
+token_info <- list.files(recordings_path,
            pattern="selected_tokens_info.csv", recursive=TRUE, 
            full.names = TRUE) %>%
   plyr::ldply(., read_csv) %>% 
@@ -131,7 +137,7 @@ speaker_list <- token_info %>% distinct(speaker) %>% pull()
 ### Actual
 ```{r}
 # Read in data
-w_dur_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_dur_df <- list.files(recordings_path,
            pattern="duration.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "duration") %>%
@@ -179,7 +185,7 @@ w_dur_df %>%
   # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   labs(title= "All Speakers", x="Variable", y="Word Duration (ms)")
-  ggsave(filename=paste("All", "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "store"), width=10, height=6)
+  ggsave(filename=paste("All", "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 
 for (spk_num in speaker_list){
   plot <- w_dur_df %>% filter(speaker==spk_num) %>%
@@ -191,7 +197,7 @@ for (spk_num in speaker_list){
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   labs(title= paste0(spk_num), x="Variable", y="Word Duration (ms)")
   print(plot)
-  ggsave(filename=paste(spk_num, "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "store"), width=10, height=6)
+  ggsave(filename=paste(spk_num, "duration-word", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 }
 ```
 
@@ -199,7 +205,7 @@ for (spk_num in speaker_list){
 ## Intensity
 ### Mean
 ```{r}
-w_meanintensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_meanintensity_df <- list.files(recordings_path,
            pattern="meanintensity.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "meanintensity") %>%
@@ -237,7 +243,7 @@ for (spk_num in speaker_list){
 
 ### Normalized
 ```{r}
-w_normtimeIntensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_normtimeIntensity_df <- list.files(recordings_path,
            pattern="normtimeIntensity.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_normtime, "normtimeIntensity") %>%
@@ -361,7 +367,7 @@ for (var_num in c(1:8)){
 ## F0 
 ### Mean
 ```{r}
-w_meanf0_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_meanf0_df <- list.files(recordings_path,
            pattern="meanf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "meanf0") %>%
@@ -399,7 +405,7 @@ for (spk_num in speaker_list){
 
 ### Max
 ```{r}
-w_maxf0_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_maxf0_df <- list.files(recordings_path,
            pattern="maxf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "maxf0") %>%
@@ -437,7 +443,7 @@ for (spk_num in speaker_list){
 
 ### Min
 ```{r}
-w_minf0_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_minf0_df <- list.files(recordings_path,
            pattern="minf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "minf0") %>%
@@ -475,7 +481,7 @@ for (spk_num in speaker_list){
 
 ### Final
 ```{r}
-w_finalf0_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_finalf0_df <- list.files(recordings_path,
            pattern="finalf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "finalf0") %>%
@@ -513,7 +519,7 @@ for (spk_num in speaker_list){
 
 ### Normalized
 ```{r}
-w_normf0_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+w_normf0_df <- list.files(recordings_path,
            pattern="normf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
    plyr::ldply(., read_table_normtime, "normf0") %>%
@@ -600,7 +606,7 @@ for (spk_num in speaker_list){
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num), x="Normalized Timepoint", y="f0 (Hz)")
  print(plot)
- ggsave(filename=paste(spk_num, "f0", "profile.png", sep="_"), path=file.path(pipeline, "store"), width=10, height=6)
+ ggsave(filename=paste(spk_num, "f0", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 }
 
 ```
@@ -679,7 +685,7 @@ for (var_num in c(1:8)){
 ## Duration
 ```{r}
 # Read in data
-p_dur_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+p_dur_df <- list.files(recordings_path,
            pattern="duration.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "phone_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "duration") %>%
@@ -756,7 +762,7 @@ for (spk_num in speaker_list){
 ## Intensity
 ### Mean
 ```{r}
-p_meanintensity_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+p_meanintensity_df <- list.files(recordings_path,
            pattern="meanintensity.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "phone_level", negate = FALSE) %>%
    plyr::ldply(., read_table_transposed, "meanintensity") %>%
@@ -795,7 +801,7 @@ for (spk_num in speaker_list){
 ## [V] Formants (Pro)
 ### Normalized
 ```{r}
-p_normform_df <- list.files("../02-stimuli/P0-norming/n2/03-recordings",
+p_normform_df <- list.files(recordings_path,
            pattern="normtime_formant.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "phone_level", negate = FALSE) %>%
    plyr::ldply(., read_table_normtime, "normform", formant=TRUE) %>%
@@ -1050,6 +1056,97 @@ for (var_num in variable_list){
 ```
 
 ## [C] Auditory Ratings
+For the consonant ratings (V3, V8), ratings of 1 = more mainstream, 3 = ambiguous, 5 = non-mainstream. 
+So, tokens coded as variant M should be rated close to 1 and N should be rated close to 5.
+
+v3 =
+  			     option ("1 - clearly fricated")
+  			     option ("2 - weakly fricated")
+  			     option ("3 - ambiguously fricated/flapped")
+  			     option ("4 - weakly flapped")
+  			     option ("5 - clearly flapped")
+v8 =
+           option ("1 - clearly released")
+           option ("2 - weakly released")
+           option ("3 - ambiguously released/deleted")
+           option ("4 - weakly deleted")
+           option ("5 - clearly deleted")
+           
+For the /ou/ word-level emphasis ratings (V4), ratings of 1 = less emphasized, 3 = neutral, 5 = emphasized.
+So, tokens should ideally all be rated close to 3 (neutral). If there are differences due to fronting/backing inherently, we might see fronted M variants having ratings shifted towards 1 (e.g. 2~2.5) and backed N variants having ratings shifted towards 5 (e.g. 3.5~4).
+
+v4 =
+             option ("1 - very de-emphasized ")
+             option ("2 - somewhat de-emphasized")
+             option ("3 - neutrally emphasized")
+             option ("4 - somewhat emphasized")
+             option ("5 - very emphasized")
+             
+             
+```{r}
+# Read in data
+p_rating_df <- list.files(recordings_path,
+           pattern="ratings.txt",  recursive=TRUE, full.names = TRUE) %>%
+  stringr::str_subset(., "1_manual", negate = FALSE) %>%
+   plyr::ldply(., read_table_ratings) %>%
+  inner_join(token_info, .)
+p_rating_df
+```
+
+### Mean
+```{r}
+# First pass plots
+# Plot grand means
+p_rating_df %>%
+  ggplot(aes(x=variant, y=rating)) + gg_theme() +
+  geom_violin(width=0.5, position=position_dodge(0.95)) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.25)) +
+  stat_summary(fun.data = mean_se, geom="errorbar", position=position_dodge(0.25), width=0.25)
+
+# Plot means across speaker per variable
+p_rating_df %>%
+  ggplot(aes(x=variable, y=rating, linetype=variant, color=variable)) + gg_theme() +
+  geom_violin(width=0.5, position=position_dodge(0.95)) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.25)) +
+  stat_summary(fun.data = mean_se, geom="errorbar", position=position_dodge(0.25), width=0.25)
+
+# Plot by-speaker means per variable
+for (spk_num in speaker_list){
+  plot <- p_rating_df %>% filter(speaker==spk_num) %>%
+  ggplot(aes(x=variable, y=rating, linetype=variant, color=variable)) + gg_theme() +
+    facet_wrap(~speaker) +
+  geom_violin(width=0.5, position=position_dodge(0.95)) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.25)) +
+  stat_summary(fun.data = mean_se, geom="errorbar", position=position_dodge(0.25), width=0.25)
+  # stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95))
+ print(plot)
+}
+
+```
+```{r}
+# Standardized output plot
+p_rating_df %>%
+  ggplot(aes(x=variable, y=rating, linetype=variant, color=variant)) + gg_theme() +
+  geom_violin(width=0.4, position=position_dodge(0.95)) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.25)) +
+  stat_summary(fun.data = mean_se, geom="errorbar", position=position_dodge(0.25), width=0.1) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= "All Speakers", x="Variable", y="Rating (1-5)")
+  # ggsave(filename=paste("All", "rating-phone", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+
+for (spk_num in speaker_list){
+  plot <- p_rating_df %>% filter(speaker==spk_num) %>%
+  # ggplot(aes(x=variable, y=duration, linetype=variant, color=variant, fill=variant)) + gg_theme() +
+  ggplot(aes(x=variable, y=rating, linetype=variant, color=variant)) + gg_theme() +
+  geom_violin(width=0.4, position=position_dodge(0.95)) +
+  stat_summary(fun = mean, geom="point", position=position_dodge(0.25)) +
+  stat_summary(fun.data = mean_se, geom="errorbar", position=position_dodge(0.25), width=0.1) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(title= paste0(spk_num), x="Variable", y="Word Duration (ms)")
+  print(plot)
+  # ggsave(filename=paste(spk_num, "rating-phone", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+}
+```
 
 #.
 # Output: Aggregated data
