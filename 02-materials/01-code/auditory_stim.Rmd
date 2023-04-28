@@ -1236,3 +1236,45 @@ gtsave(out_table, file.path(pipeline, "temp", "All_pitch_profile_table.tex"))
 gtsave(out_table, file.path(pipeline, "temp", "All_pitch_profile_table.png"), 
        vwidth = 1500, zoom = 1)
 ```
+
+
+## [TBD] Phone-level
+### Tables
+```{r}
+# Combine measures
+p_df <-
+  p_dur_df %>%
+  full_join(p_meanintensity_df) %>%
+  full_join(ft_normform_df %>%
+              pivot_wider(1:10,
+                          names_from = c(formant, timepoint),
+                          values_from = c(normform_raw, normform_logmean),
+                          names_glue = "{.value}_{formant}_T{timepoint}"
+                          ),
+            ) %>% rename_with(~ gsub("normform_", "", .)) %>%
+  mutate(variable = fct_relevel(variable, "PIN-PEN", "FEEL-FILL",
+                                "TH-stopping", "OU-backing", "U-fronting",
+                                "AEN-raising", "AE-backing", "T-deletion"))
+p_df
+```
+
+
+```{r}
+# Summarize by speaker, variable and variant
+# Simplified
+p_summary_df <-
+  p_df %>% select(-variableN:-variantN) %>% group_by(variable, variant) %>%
+  # select(!ends_with("T1") & !ends_with("T10")) %>%
+  summarize(across(where(is.numeric), ~ round(mean(.x), 1))) %>%
+  select(-meanintensity) %>%
+  pivot_wider(1, names_from = variant, values_from = duration:last_col())
+p_summary_df
+```
+
+
+## Final Choices
+```{r}
+# Copy from pipeline out to 05-output
+# file.path("...", "05-output", "01-figures", "materials", "stimuli")
+```
+
