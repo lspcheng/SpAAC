@@ -24,30 +24,28 @@ def main(args):
 
     # Set the folder path to write audio files to
     audio_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "1_audio")
+    audio_supp_out_path = os.path.join(audio_out_path, "supp")
 
     # Set the folder path containing TextGrid files
     tg_in_path = os.path.join(speaker_path, "2_textgrid", "3_extracted")
 
     # Set the folder path to write TextGrid files to
     tg_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "2_textgrid")
+    tg_supp_out_path = os.path.join(tg_out_path, "supp")
 
     concat_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "3_concatenated")
 
     if os.path.exists(audio_out_path):
         if args.overwrite:
-            shutil.rmtree(audio_out_path)
-            os.makedirs(audio_out_path)
-            shutil.rmtree(tg_out_path)
-            os.makedirs(tg_out_path)
-            shutil.rmtree(concat_out_path)
-            os.makedirs(concat_out_path)
+            for dir in [audio_out_path, tg_out_path, concat_out_path]:
+                shutil.rmtree(dir)
+                os.makedirs(dir)
         else:
             print("Selected audio directory already exists. Rerun with -o to overwrite if desired.")
             os._exit(0)
     else:
-        os.makedirs(audio_out_path)
-        os.makedirs(tg_out_path)
-        os.makedirs(concat_out_path)
+        for dir in [audio_out_path, tg_out_path, concat_out_path]:
+            os.makedirs(dir)
 
     print(f"\nSelecting target tokens...")
 
@@ -64,8 +62,17 @@ def main(args):
             spk = audio_dir
             session = '1' # or None
         if session == "supp":
-            print("Ignoring 'supp' files.")
-            continue
+            if os.path.exists(audio_supp_out_path):
+                if args.overwrite:
+                    for dir in [audio_supp_out_path, tg_supp_out_path]:
+                        shutil.rmtree(dir)
+                        os.makedirs(dir)
+            else:
+                for dir in [audio_supp_out_path, tg_supp_out_path]:
+                    os.makedirs(dir)
+            # If skipping supp files
+            #print("Ignoring 'supp' files.")
+            #continue
 
         if args.verbose:
             print(f"\nSpeaker Session: {audio_dir}")
@@ -103,18 +110,26 @@ def main(args):
             tg_out_filename = f"{spk}_{varnum_row}-{code}_{word}_{variant}.TextGrid"
 
             if args.verbose:
-                if os.path.exists(os.path.join(audio_out_path, audio_out_filename)):
-                    count += 1
-                    print(f"{count}. Replacing existing file from {audio_dir}: {audio_out_filename}")
-
+                if session != 'supp':
+                    if os.path.exists(os.path.join(audio_out_path, audio_out_filename)):
+                        count += 1
+                        print(f"{count}. Replacing existing file from {audio_dir}: {audio_out_filename}")
 
             # Normalize and save files
             sound = parselmouth.Sound(os.path.join(audio_in_path, audio_dir, audio_file))
             call(sound, "Scale peak", 0.99)
             call(sound, "Scale intensity", 70.0)
-            sound.save(os.path.join(audio_out_path, audio_out_filename), format="WAV")
+            
+            if session == 'supp':
+                audio_save_path = audio_supp_out_path
+                tg_save_path = tg_supp_out_path
+            else:
+                audio_save_path = audio_out_path
+                tg_save_path = tg_out_path
 
-            shutil.copyfile(os.path.join(tg_in_path, audio_dir, f"{audio_basename}.TextGrid"), os.path.join(tg_out_path, tg_out_filename))
+            sound.save(os.path.join(audio_save_path, audio_out_filename), format="WAV")
+
+            shutil.copyfile(os.path.join(tg_in_path, audio_dir, f"{audio_basename}.TextGrid"), os.path.join(tg_save_path, tg_out_filename))
 
 
     print(f"\nCopied and normalized all selected files to {audio_out_path}")
@@ -122,8 +137,8 @@ def main(args):
     print(f"\nProcessing concatenation...")
 
     # Sort files by variableN and rowN
-    sorted_audio_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(audio_out_path)])
-    sorted_tg_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(tg_out_path)])
+    sorted_audio_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(audio_out_path) if f.endswith('.wav')] )
+    sorted_tg_files = sorted([(int(f.split('_')[1].split('-')[0]), int(f.split('_')[1].split('-')[1]), f) for f in os.listdir(tg_out_path) if f.endswith('.TextGrid')] )
 
     sounds = [parselmouth.Sound(os.path.join(audio_out_path, f)) for (v, r, f) in sorted_audio_files]
     # call(sounds, "Scale peak", 0.99)
