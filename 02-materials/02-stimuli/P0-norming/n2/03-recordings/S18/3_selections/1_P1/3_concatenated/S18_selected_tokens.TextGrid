@@ -1,0 +1,654 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 135.435306122449 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 135.435306122449 
+        intervals: size = 160 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.5996145124716553 
+            text = "S18_1-1-1_dental_M" 
+        intervals [2]:
+            xmin = 0.5996145124716553 
+            xmax = 1.1998185941043085 
+            text = "S18_1-1-3_dental_N" 
+        intervals [3]:
+            xmin = 1.1998185941043085 
+            xmax = 2.0235827664399095 
+            text = "S18_1-2-1_friendless_M" 
+        intervals [4]:
+            xmin = 2.0235827664399095 
+            xmax = 2.8796145124716555 
+            text = "S18_1-2-3_friendless_N" 
+        intervals [5]:
+            xmin = 2.8796145124716555 
+            xmax = 3.7579591836734694 
+            text = "S18_1-3-1_gemstone_M" 
+        intervals [6]:
+            xmin = 3.7579591836734694 
+            xmax = 4.53843537414966 
+            text = "S18_1-3-3_gemstone_N" 
+        intervals [7]:
+            xmin = 4.53843537414966 
+            xmax = 5.258616780045352 
+            text = "S18_1-4-1_lemon_M" 
+        intervals [8]:
+            xmin = 5.258616780045352 
+            xmax = 5.875238095238096 
+            text = "S18_1-4-3_lemon_N" 
+        intervals [9]:
+            xmin = 5.875238095238096 
+            xmax = 6.931496598639456 
+            text = "S18_1-5-1_spenders_M" 
+        intervals [10]:
+            xmin = 6.931496598639456 
+            xmax = 7.967936507936509 
+            text = "S18_1-5-3_spenders_N" 
+        intervals [11]:
+            xmin = 7.967936507936509 
+            xmax = 8.767732426303855 
+            text = "S18_1-6-1_tendons_M" 
+        intervals [12]:
+            xmin = 8.767732426303855 
+            xmax = 9.599773242630386 
+            text = "S18_1-6-3_tendons_N" 
+        intervals [13]:
+            xmin = 9.599773242630386 
+            xmax = 10.351473922902494 
+            text = "S18_1-7-1_venture_M" 
+        intervals [14]:
+            xmin = 10.351473922902494 
+            xmax = 11.08718820861678 
+            text = "S18_1-7-3_venture_N" 
+        intervals [15]:
+            xmin = 11.08718820861678 
+            xmax = 11.879410430839002 
+            text = "S18_1-8-1_generates_M" 
+        intervals [16]:
+            xmin = 11.879410430839002 
+            xmax = 12.768299319727891 
+            text = "S18_1-8-3_generates_N" 
+        intervals [17]:
+            xmin = 12.768299319727891 
+            xmax = 13.738820861678004 
+            text = "S18_1-9-1_sentiments_M" 
+        intervals [18]:
+            xmin = 13.738820861678004 
+            xmax = 14.668253968253968 
+            text = "S18_1-9-3_sentiments_N" 
+        intervals [19]:
+            xmin = 14.668253968253968 
+            xmax = 15.538684807256235 
+            text = "S18_1-10-1_ventilates_M" 
+        intervals [20]:
+            xmin = 15.538684807256235 
+            xmax = 16.53748299319728 
+            text = "S18_1-10-3_ventilates_N" 
+        intervals [21]:
+            xmin = 16.53748299319728 
+            xmax = 17.53263038548753 
+            text = "S18_2-1-1_fieldwork_M" 
+        intervals [22]:
+            xmin = 17.53263038548753 
+            xmax = 18.521587301587303 
+            text = "S18_2-1-3_fieldwork_N" 
+        intervals [23]:
+            xmin = 18.521587301587303 
+            xmax = 19.32215419501134 
+            text = "S18_2-2-1_ceiling_M" 
+        intervals [24]:
+            xmin = 19.32215419501134 
+            xmax = 20.105963718820863 
+            text = "S18_2-2-3_ceiling_N" 
+        intervals [25]:
+            xmin = 20.105963718820863 
+            xmax = 20.88337868480726 
+            text = "S18_2-3-1_healers_M" 
+        intervals [26]:
+            xmin = 20.88337868480726 
+            xmax = 21.682131519274378 
+            text = "S18_2-3-3_healers_N" 
+        intervals [27]:
+            xmin = 21.682131519274378 
+            xmax = 22.534285714285716 
+            text = "S18_2-4-1_mealtime_M" 
+        intervals [28]:
+            xmin = 22.534285714285716 
+            xmax = 23.412743764172337 
+            text = "S18_2-4-3_mealtime_N" 
+        intervals [29]:
+            xmin = 23.412743764172337 
+            xmax = 24.121814058956918 
+            text = "S18_2-5-1_peeling_M" 
+        intervals [30]:
+            xmin = 24.121814058956918 
+            xmax = 24.769591836734698 
+            text = "S18_2-5-3_peeling_N" 
+        intervals [31]:
+            xmin = 24.769591836734698 
+            xmax = 25.663945578231296 
+            text = "S18_2-6-1_wheelchair_M" 
+        intervals [32]:
+            xmin = 25.663945578231296 
+            xmax = 26.57321995464853 
+            text = "S18_2-6-3_wheelchair_N" 
+        intervals [33]:
+            xmin = 26.57321995464853 
+            xmax = 27.318321995464856 
+            text = "S18_2-7-1_wielding_M" 
+        intervals [34]:
+            xmin = 27.318321995464856 
+            xmax = 28.127619047619053 
+            text = "S18_2-7-3_wielding_N" 
+        intervals [35]:
+            xmin = 28.127619047619053 
+            xmax = 29.164353741496605 
+            text = "S18_2-8-1_steelworks_M" 
+        intervals [36]:
+            xmin = 29.164353741496605 
+            xmax = 30.259229024943316 
+            text = "S18_2-8-3_steelworks_N" 
+        intervals [37]:
+            xmin = 30.259229024943316 
+            xmax = 30.92346938775511 
+            text = "S18_2-9-1_dealership_M" 
+        intervals [38]:
+            xmin = 30.92346938775511 
+            xmax = 31.556530612244906 
+            text = "S18_2-9-3_dealership_N" 
+        intervals [39]:
+            xmin = 31.556530612244906 
+            xmax = 32.462743764172345 
+            text = "S18_2-10-1_wheelbarrow_M" 
+        intervals [40]:
+            xmin = 32.462743764172345 
+            xmax = 33.41421768707484 
+            text = "S18_2-10-3_wheelbarrow_N" 
+        intervals [41]:
+            xmin = 33.41421768707484 
+            xmax = 34.11804988662132 
+            text = "S18_3-1-1_featherweight_M" 
+        intervals [42]:
+            xmin = 34.11804988662132 
+            xmax = 34.75784580498867 
+            text = "S18_3-1-3_featherweight_N" 
+        intervals [43]:
+            xmin = 34.75784580498867 
+            xmax = 35.62068027210885 
+            text = "S18_3-2-1_leathery_M" 
+        intervals [44]:
+            xmin = 35.62068027210885 
+            xmax = 36.33131519274377 
+            text = "S18_3-2-3_leathery_N" 
+        intervals [45]:
+            xmin = 36.33131519274377 
+            xmax = 37.09104308390024 
+            text = "S18_3-3-1_mothership_M" 
+        intervals [46]:
+            xmin = 37.09104308390024 
+            xmax = 37.81430839002269 
+            text = "S18_3-3-3_mothership_N" 
+        intervals [47]:
+            xmin = 37.81430839002269 
+            xmax = 38.703446712018156 
+            text = "S18_3-4-1_worthiest_M" 
+        intervals [48]:
+            xmin = 38.703446712018156 
+            xmax = 39.599501133786866 
+            text = "S18_3-4-3_worthiest_N" 
+        intervals [49]:
+            xmin = 39.599501133786866 
+            xmax = 40.38281179138324 
+            text = "S18_3-5-1_otherness_M" 
+        intervals [50]:
+            xmin = 40.38281179138324 
+            xmax = 41.23117913832201 
+            text = "S18_3-5-3_otherness_N" 
+        intervals [51]:
+            xmin = 41.23117913832201 
+            xmax = 41.956077097505684 
+            text = "S18_3-6-1_heathers_M" 
+        intervals [52]:
+            xmin = 41.956077097505684 
+            xmax = 42.74820861678006 
+            text = "S18_3-6-3_heathers_N" 
+        intervals [53]:
+            xmin = 42.74820861678006 
+            xmax = 43.691609977324276 
+            text = "S18_3-7-1_lathers_M" 
+        intervals [54]:
+            xmin = 43.691609977324276 
+            xmax = 44.49954648526079 
+            text = "S18_3-7-3_lathers_N" 
+        intervals [55]:
+            xmin = 44.49954648526079 
+            xmax = 45.17242630385489 
+            text = "S18_3-8-1_othered_M" 
+        intervals [56]:
+            xmin = 45.17242630385489 
+            xmax = 45.80369614512473 
+            text = "S18_3-8-3_othered_N" 
+        intervals [57]:
+            xmin = 45.80369614512473 
+            xmax = 46.579977324263055 
+            text = "S18_3-9-1_fathered_M" 
+        intervals [58]:
+            xmin = 46.579977324263055 
+            xmax = 47.227959183673484 
+            text = "S18_3-9-3_fathered_N" 
+        intervals [59]:
+            xmin = 47.227959183673484 
+            xmax = 47.90755102040818 
+            text = "S18_3-10-1_weathered_M" 
+        intervals [60]:
+            xmin = 47.90755102040818 
+            xmax = 48.58018140589571 
+            text = "S18_3-10-3_weathered_N" 
+        intervals [61]:
+            xmin = 48.58018140589571 
+            xmax = 49.28462585034015 
+            text = "S18_4-1-1_coding_M" 
+        intervals [62]:
+            xmin = 49.28462585034015 
+            xmax = 49.9797732426304 
+            text = "S18_4-1-3_coding_N" 
+        intervals [63]:
+            xmin = 49.9797732426304 
+            xmax = 50.666893424036296 
+            text = "S18_4-2-1_goaded_M" 
+        intervals [64]:
+            xmin = 50.666893424036296 
+            xmax = 51.27233560090704 
+            text = "S18_4-2-3_goaded_N" 
+        intervals [65]:
+            xmin = 51.27233560090704 
+            xmax = 52.11219954648527 
+            text = "S18_4-3-1_hoses_M" 
+        intervals [66]:
+            xmin = 52.11219954648527 
+            xmax = 53.04013605442178 
+            text = "S18_4-3-3_hoses_N" 
+        intervals [67]:
+            xmin = 53.04013605442178 
+            xmax = 53.83199546485262 
+            text = "S18_4-4-1_modem_M" 
+        intervals [68]:
+            xmin = 53.83199546485262 
+            xmax = 54.54639455782314 
+            text = "S18_4-4-3_modem_N" 
+        intervals [69]:
+            xmin = 54.54639455782314 
+            xmax = 55.48333333333335 
+            text = "S18_4-5-1_posers_M" 
+        intervals [70]:
+            xmin = 55.48333333333335 
+            xmax = 56.43995464852609 
+            text = "S18_4-5-3_posers_N" 
+        intervals [71]:
+            xmin = 56.43995464852609 
+            xmax = 57.138208616780055 
+            text = "S18_4-6-1_robot_M" 
+        intervals [72]:
+            xmin = 57.138208616780055 
+            xmax = 57.794807256235835 
+            text = "S18_4-6-3_robot_N" 
+        intervals [73]:
+            xmin = 57.794807256235835 
+            xmax = 58.70759637188209 
+            text = "S18_4-7-1_sojourn_M" 
+        intervals [74]:
+            xmin = 58.70759637188209 
+            xmax = 59.704353741496604 
+            text = "S18_4-7-3_sojourn_N" 
+        intervals [75]:
+            xmin = 59.704353741496604 
+            xmax = 60.432040816326534 
+            text = "S18_4-8-1_soda_M" 
+        intervals [76]:
+            xmin = 60.432040816326534 
+            xmax = 61.18621315192744 
+            text = "S18_4-8-3_soda_N" 
+        intervals [77]:
+            xmin = 61.18621315192744 
+            xmax = 61.967664399092975 
+            text = "S18_4-9-1_podium_M" 
+        intervals [78]:
+            xmin = 61.967664399092975 
+            xmax = 62.739977324263045 
+            text = "S18_4-9-3_podium_N" 
+        intervals [79]:
+            xmin = 62.739977324263045 
+            xmax = 63.74006802721089 
+            text = "S18_4-10-1_soberness_M" 
+        intervals [80]:
+            xmin = 63.74006802721089 
+            xmax = 64.78090702947846 
+            text = "S18_4-10-3_soberness_N" 
+        intervals [81]:
+            xmin = 64.78090702947846 
+            xmax = 65.4549433106576 
+            text = "S18_5-1-1_kudo_M" 
+        intervals [82]:
+            xmin = 65.4549433106576 
+            xmax = 66.08671201814059 
+            text = "S18_5-1-3_kudo_N" 
+        intervals [83]:
+            xmin = 66.08671201814059 
+            xmax = 66.83562358276644 
+            text = "S18_5-2-1_moody_M" 
+        intervals [84]:
+            xmin = 66.83562358276644 
+            xmax = 67.52857142857144 
+            text = "S18_5-2-3_moody_N" 
+        intervals [85]:
+            xmin = 67.52857142857144 
+            xmax = 68.3051247165533 
+            text = "S18_5-3-1_noodle_M" 
+        intervals [86]:
+            xmin = 68.3051247165533 
+            xmax = 69.00972789115647 
+            text = "S18_5-3-3_noodle_N" 
+        intervals [87]:
+            xmin = 69.00972789115647 
+            xmax = 69.90891156462587 
+            text = "S18_5-4-1_rudeness_M" 
+        intervals [88]:
+            xmin = 69.90891156462587 
+            xmax = 70.94469387755103 
+            text = "S18_5-4-3_rudeness_N" 
+        intervals [89]:
+            xmin = 70.94469387755103 
+            xmax = 71.7528344671202 
+            text = "S18_5-5-1_brooding_M" 
+        intervals [90]:
+            xmin = 71.7528344671202 
+            xmax = 72.46931972789118 
+            text = "S18_5-5-3_brooding_N" 
+        intervals [91]:
+            xmin = 72.46931972789118 
+            xmax = 73.34469387755104 
+            text = "S18_5-6-1_prudish_M" 
+        intervals [92]:
+            xmin = 73.34469387755104 
+            xmax = 74.22712018140591 
+            text = "S18_5-6-3_prudish_N" 
+        intervals [93]:
+            xmin = 74.22712018140591 
+            xmax = 75.29367346938777 
+            text = "S18_5-7-1_students_M" 
+        intervals [94]:
+            xmin = 75.29367346938777 
+            xmax = 76.4613605442177 
+            text = "S18_5-7-3_students_N" 
+        intervals [95]:
+            xmin = 76.4613605442177 
+            xmax = 77.3878911564626 
+            text = "S18_5-8-1_scooted_M" 
+        intervals [96]:
+            xmin = 77.3878911564626 
+            xmax = 78.28444444444446 
+            text = "S18_5-8-3_scooted_N" 
+        intervals [97]:
+            xmin = 78.28444444444446 
+            xmax = 79.33333333333334 
+            text = "S18_5-9-1_soothingly_M" 
+        intervals [98]:
+            xmin = 79.33333333333334 
+            xmax = 80.34920634920636 
+            text = "S18_5-9-3_soothingly_N" 
+        intervals [99]:
+            xmin = 80.34920634920636 
+            xmax = 81.46401360544218 
+            text = "S18_5-10-1_studious_M" 
+        intervals [100]:
+            xmin = 81.46401360544218 
+            xmax = 82.55730158730158 
+            text = "S18_5-10-3_studious_N" 
+        intervals [101]:
+            xmin = 82.55730158730158 
+            xmax = 83.37961451247165 
+            text = "S18_6-1-1_candied_M" 
+        intervals [102]:
+            xmin = 83.37961451247165 
+            xmax = 84.19843537414965 
+            text = "S18_6-1-3_candied_N" 
+        intervals [103]:
+            xmin = 84.19843537414965 
+            xmax = 84.92705215419501 
+            text = "S18_6-2-1_channeled_M" 
+        intervals [104]:
+            xmin = 84.92705215419501 
+            xmax = 85.65083900226757 
+            text = "S18_6-2-3_channeled_N" 
+        intervals [105]:
+            xmin = 85.65083900226757 
+            xmax = 86.4737641723356 
+            text = "S18_6-3-1_dancer_M" 
+        intervals [106]:
+            xmin = 86.4737641723356 
+            xmax = 87.30580498866213 
+            text = "S18_6-3-3_dancer_N" 
+        intervals [107]:
+            xmin = 87.30580498866213 
+            xmax = 88.2371201814059 
+            text = "S18_6-4-1_fancy_M" 
+        intervals [108]:
+            xmin = 88.2371201814059 
+            xmax = 89.10462585034014 
+            text = "S18_6-4-3_fancy_N" 
+        intervals [109]:
+            xmin = 89.10462585034014 
+            xmax = 90.0365306122449 
+            text = "S18_6-5-1_tantrums_M" 
+        intervals [110]:
+            xmin = 90.0365306122449 
+            xmax = 90.97387755102041 
+            text = "S18_6-5-3_tantrums_N" 
+        intervals [111]:
+            xmin = 90.97387755102041 
+            xmax = 91.73678004535148 
+            text = "S18_6-6-1_vanish_M" 
+        intervals [112]:
+            xmin = 91.73678004535148 
+            xmax = 92.68877551020408 
+            text = "S18_6-6-3_vanish_N" 
+        intervals [113]:
+            xmin = 92.68877551020408 
+            xmax = 93.52820861678005 
+            text = "S18_6-7-1_manager_M" 
+        intervals [114]:
+            xmin = 93.52820861678005 
+            xmax = 94.33555555555556 
+            text = "S18_6-7-3_manager_N" 
+        intervals [115]:
+            xmin = 94.33555555555556 
+            xmax = 95.31321995464853 
+            text = "S18_6-8-1_randomness_M" 
+        intervals [116]:
+            xmin = 95.31321995464853 
+            xmax = 96.450589569161 
+            text = "S18_6-8-3_randomness_N" 
+        intervals [117]:
+            xmin = 96.450589569161 
+            xmax = 97.28605442176871 
+            text = "S18_6-9-1_banditry_M" 
+        intervals [118]:
+            xmin = 97.28605442176871 
+            xmax = 98.1190022675737 
+            text = "S18_6-9-3_banditry_N" 
+        intervals [119]:
+            xmin = 98.1190022675737 
+            xmax = 98.98374149659865 
+            text = "S18_6-10-1_sanity_M" 
+        intervals [120]:
+            xmin = 98.98374149659865 
+            xmax = 99.83489795918369 
+            text = "S18_6-10-3_sanity_N" 
+        intervals [121]:
+            xmin = 99.83489795918369 
+            xmax = 100.66412698412701 
+            text = "S18_7-1-1_battles_M" 
+        intervals [122]:
+            xmin = 100.66412698412701 
+            xmax = 101.44816326530615 
+            text = "S18_7-1-3_battles_N" 
+        intervals [123]:
+            xmin = 101.44816326530615 
+            xmax = 102.20006802721092 
+            text = "S18_7-2-1_madden_M" 
+        intervals [124]:
+            xmin = 102.20006802721092 
+            xmax = 102.9359637188209 
+            text = "S18_7-2-3_madden_N" 
+        intervals [125]:
+            xmin = 102.9359637188209 
+            xmax = 103.63671201814063 
+            text = "S18_7-3-1_padding_M" 
+        intervals [126]:
+            xmin = 103.63671201814063 
+            xmax = 104.3104988662132 
+            text = "S18_7-3-3_padding_N" 
+        intervals [127]:
+            xmin = 104.3104988662132 
+            xmax = 105.22641723356013 
+            text = "S18_7-4-1_saddest_M" 
+        intervals [128]:
+            xmin = 105.22641723356013 
+            xmax = 106.19968253968257 
+            text = "S18_7-4-3_saddest_N" 
+        intervals [129]:
+            xmin = 106.19968253968257 
+            xmax = 107.01575963718824 
+            text = "S18_7-5-1_shattered_M" 
+        intervals [130]:
+            xmin = 107.01575963718824 
+            xmax = 107.81006802721092 
+            text = "S18_7-5-3_shattered_N" 
+        intervals [131]:
+            xmin = 107.81006802721092 
+            xmax = 108.63725623582769 
+            text = "S18_7-6-1_tatters_M" 
+        intervals [132]:
+            xmin = 108.63725623582769 
+            xmax = 109.39190476190478 
+            text = "S18_7-6-3_tatters_N" 
+        intervals [133]:
+            xmin = 109.39190476190478 
+            xmax = 110.16408163265308 
+            text = "S18_7-7-1_battery_M" 
+        intervals [134]:
+            xmin = 110.16408163265308 
+            xmax = 110.82047619047621 
+            text = "S18_7-7-3_battery_N" 
+        intervals [135]:
+            xmin = 110.82047619047621 
+            xmax = 111.7530158730159 
+            text = "S18_7-8-1_gatherings_M" 
+        intervals [136]:
+            xmin = 111.7530158730159 
+            xmax = 112.65997732426307 
+            text = "S18_7-8-3_gatherings_N" 
+        intervals [137]:
+            xmin = 112.65997732426307 
+            xmax = 113.6520181405896 
+            text = "S18_7-9-1_tattletales_M" 
+        intervals [138]:
+            xmin = 113.6520181405896 
+            xmax = 114.65494331065763 
+            text = "S18_7-9-3_tattletales_N" 
+        intervals [139]:
+            xmin = 114.65494331065763 
+            xmax = 115.4843083900227 
+            text = "S18_7-10-1_chattering_M" 
+        intervals [140]:
+            xmin = 115.4843083900227 
+            xmax = 116.28539682539686 
+            text = "S18_7-10-3_chattering_N" 
+        intervals [141]:
+            xmin = 116.28539682539686 
+            xmax = 117.23777777777781 
+            text = "S18_8-1-1_coastguard_M" 
+        intervals [142]:
+            xmin = 117.23777777777781 
+            xmax = 118.0795464852608 
+            text = "S18_8-1-3_coastguard_N" 
+        intervals [143]:
+            xmin = 118.0795464852608 
+            xmax = 119.02358276643994 
+            text = "S18_8-2-1_fastball_M" 
+        intervals [144]:
+            xmin = 119.02358276643994 
+            xmax = 119.78321995464856 
+            text = "S18_8-2-3_fastball_N" 
+        intervals [145]:
+            xmin = 119.78321995464856 
+            xmax = 120.69517006802724 
+            text = "S18_8-3-1_lastly_M" 
+        intervals [146]:
+            xmin = 120.69517006802724 
+            xmax = 121.45476190476194 
+            text = "S18_8-3-3_lastly_N" 
+        intervals [147]:
+            xmin = 121.45476190476194 
+            xmax = 122.33453514739233 
+            text = "S18_8-4-1_restful_M" 
+        intervals [148]:
+            xmin = 122.33453514739233 
+            xmax = 123.10770975056694 
+            text = "S18_8-4-3_restful_N" 
+        intervals [149]:
+            xmin = 123.10770975056694 
+            xmax = 124.10070294784585 
+            text = "S18_8-5-1_softball_M" 
+        intervals [150]:
+            xmin = 124.10070294784585 
+            xmax = 125.07922902494334 
+            text = "S18_8-5-3_softball_N" 
+        intervals [151]:
+            xmin = 125.07922902494334 
+            xmax = 126.07133786848075 
+            text = "S18_8-6-1_vastly_M" 
+        intervals [152]:
+            xmin = 126.07133786848075 
+            xmax = 126.87857142857146 
+            text = "S18_8-6-3_vastly_N" 
+        intervals [153]:
+            xmin = 126.87857142857146 
+            xmax = 127.92721088435377 
+            text = "S18_8-7-1_waistline_M" 
+        intervals [154]:
+            xmin = 127.92721088435377 
+            xmax = 128.8550793650794 
+            text = "S18_8-7-3_waistline_N" 
+        intervals [155]:
+            xmin = 128.8550793650794 
+            xmax = 129.9709070294785 
+            text = "S18_8-8-1_restlessness_M" 
+        intervals [156]:
+            xmin = 129.9709070294785 
+            xmax = 131.08333333333337 
+            text = "S18_8-8-3_restlessness_N" 
+        intervals [157]:
+            xmin = 131.08333333333337 
+            xmax = 132.09580498866217 
+            text = "S18_8-9-1_wistfulness_M" 
+        intervals [158]:
+            xmin = 132.09580498866217 
+            xmax = 133.24052154195016 
+            text = "S18_8-9-3_wistfulness_N" 
+        intervals [159]:
+            xmin = 133.24052154195016 
+            xmax = 134.42510204081637 
+            text = "S18_8-10-1_wristwatches_M" 
+        intervals [160]:
+            xmin = 134.42510204081637 
+            xmax = 135.435306122449 
+            text = "S18_8-10-3_wristwatches_N" 
