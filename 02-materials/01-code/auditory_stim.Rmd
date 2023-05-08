@@ -589,7 +589,7 @@ for (spk_num in speaker_list){
     ggplot(aes(x=timepoint, y=normf0, col=variant)) + gg_theme() + 
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
     stat_summary(geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num))
@@ -601,7 +601,7 @@ for (spk_num in speaker_list){
     facet_wrap(~variable, ncol=4) +
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
     stat_summary(geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num), x="Normalized Timepoint", y="f0 (Hz)")
@@ -613,7 +613,7 @@ for (spk_num in speaker_list){
 
 #### By-Variable for Speaker
 ```{r, fig.width=12, fig.height=6}
-current_speaker = speaker_list[[1]]
+current_speaker = speaker_list[[5]]
 exclude_rows = c()
 
 for (var_num in c(1:8)){
@@ -644,6 +644,25 @@ for (var_num in c(1:8)){
   print(combined_plot)
 }
 
+```
+#### By-Row for Speaker+Variable
+```{r}
+current_speaker = speaker_list[[5]]
+current_var = 1
+# 1-8
+
+for (row_num in c(1:10)){
+  plot <-  w_normf0_df  %>% filter(speaker==current_speaker) %>%
+    filter(variableN==current_var) %>% filter(rowN==row_num) %>% 
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + gg_theme() + 
+  facet_wrap(~rowN, ncol = 5) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+  scale_y_continuous(limits = c(120, 220)) +
+  labs(title=paste0("Variable ", current_var))
+  print(plot)
+}
 ```
 
 
