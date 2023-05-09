@@ -1639,7 +1639,7 @@ item []:
         intervals [407]:
             xmin = 374.3860204081633 
             xmax = 375.62602040816324 
-            text = "3" 
+            text = "3x" 
         intervals [408]:
             xmin = 375.62602040816324 
             xmax = 376.1700204081633 
@@ -1647,7 +1647,7 @@ item []:
         intervals [409]:
             xmin = 376.1700204081633 
             xmax = 377.3620204081633 
-            text = "2" 
+            text = "2x" 
         intervals [410]:
             xmin = 377.3620204081633 
             xmax = 377.8260204081633 
@@ -1655,7 +1655,7 @@ item []:
         intervals [411]:
             xmin = 377.8260204081633 
             xmax = 379.0260204081633 
-            text = "2" 
+            text = "2x" 
         intervals [412]:
             xmin = 379.0260204081633 
             xmax = 379.5380204081633 
@@ -1663,7 +1663,7 @@ item []:
         intervals [413]:
             xmin = 379.5380204081633 
             xmax = 380.74602040816325 
-            text = "3" 
+            text = "3b" 
         intervals [414]:
             xmin = 380.74602040816325 
             xmax = 382.1220204081633 
@@ -3989,7 +3989,7 @@ item []:
         name = "notes" 
         xmin = 0 
         xmax = 880.0920408163265 
-        points: size = 148 
+        points: size = 149 
         points [1]:
             number = 2.461838171369718 
             mark = "<Q" 
@@ -4252,185 +4252,188 @@ item []:
             number = 366.6263554923848 
             mark = "<N" 
         points [88]:
+            number = 375.13200523251186 
+            mark = "+P" 
+        points [89]:
             number = 376.7808575256153 
             mark = "<Q" 
-        points [89]:
+        points [90]:
             number = 387.9217449040662 
             mark = "+P" 
-        points [90]:
+        points [91]:
             number = 389.65858665167417 
             mark = "-P" 
-        points [91]:
+        points [92]:
             number = 394.9168999531219 
             mark = "<N" 
-        points [92]:
+        points [93]:
             number = 404.1366083663424 
             mark = "~V" 
-        points [93]:
+        points [94]:
             number = 405.8866280514015 
             mark = "<Q" 
-        points [94]:
+        points [95]:
             number = 413.9268506157014 
             mark = ">V" 
-        points [95]:
+        points [96]:
             number = 422.5617274683194 
             mark = "<I" 
-        points [96]:
+        points [97]:
             number = 432.98893762731063 
             mark = "<N" 
-        points [97]:
+        points [98]:
             number = 434.9836337373349 
             mark = "<N" 
-        points [98]:
+        points [99]:
             number = 436.87631568381744 
             mark = "<Q" 
-        points [99]:
+        points [100]:
             number = 441.5568417202747 
             mark = "<Q" 
-        points [100]:
+        points [101]:
             number = 445.044894040685 
             mark = "<N" 
-        points [101]:
+        points [102]:
             number = 450.7364838176476 
             mark = "<Q" 
-        points [102]:
+        points [103]:
             number = 454.4953818538792 
             mark = "-P" 
-        points [103]:
+        points [104]:
             number = 458.40706158272445 
             mark = "+P" 
-        points [104]:
+        points [105]:
             number = 465.7022112734087 
             mark = "<I" 
-        points [105]:
+        points [106]:
             number = 471.1021146096376 
             mark = "<N" 
-        points [106]:
+        points [107]:
             number = 475.6350415781241 
             mark = ">I" 
-        points [107]:
+        points [108]:
             number = 477.4887452875191 
             mark = "<I" 
-        points [108]:
+        points [109]:
             number = 479.3428351902109 
             mark = "<Q" 
-        points [109]:
+        points [110]:
             number = 481.1159384754471 
             mark = "<Q, <N" 
-        points [110]:
+        points [111]:
             number = 482.87565984909656 
             mark = "<Q, <N" 
-        points [111]:
+        points [112]:
             number = 487.93796271131407 
             mark = "+P" 
-        points [112]:
+        points [113]:
             number = 499.7195029069885 
             mark = "+S" 
-        points [113]:
+        points [114]:
             number = 508.40191084108704 
             mark = "~V" 
-        points [114]:
+        points [115]:
             number = 509.9460885629837 
             mark = "<Q" 
-        points [115]:
+        points [116]:
             number = 512.3379831165632 
             mark = "<Q" 
-        points [116]:
+        points [117]:
             number = 513.754343140087 
             mark = "<Q" 
-        points [117]:
+        points [118]:
             number = 521.3053675521935 
             mark = "<Q" 
-        points [118]:
+        points [119]:
             number = 523.1803053231888 
             mark = "~V" 
-        points [119]:
+        points [120]:
             number = 530.6591003152212 
             mark = "<I" 
-        points [120]:
+        points [121]:
             number = 535.8484894131119 
             mark = "<N" 
-        points [121]:
+        points [122]:
             number = 538.0334953490658 
             mark = ">I" 
-        points [122]:
+        points [123]:
             number = 540.163876136621 
             mark = "<Q" 
-        points [123]:
+        points [124]:
             number = 542.7585706855663 
             mark = "<N" 
-        points [124]:
+        points [125]:
             number = 547.5928963188644 
             mark = "<Q" 
-        points [125]:
+        points [126]:
             number = 558.0404610660091 
             mark = "<I" 
-        points [126]:
+        points [127]:
             number = 563.7383786739581 
             mark = "<I" 
-        points [127]:
+        points [128]:
             number = 567.0432001520885 
             mark = "<N" 
-        points [128]:
+        points [129]:
             number = 569.392081533239 
             mark = "<Q" 
-        points [129]:
+        points [130]:
             number = 571.5497748949936 
             mark = "<Q" 
-        points [130]:
+        points [131]:
             number = 573.4070299405544 
             mark = "<Q" 
-        points [131]:
+        points [132]:
             number = 575.0730969667193 
             mark = "<Q" 
-        points [132]:
+        points [133]:
             number = 583.8319838523221 
             mark = "-P" 
-        points [133]:
+        points [134]:
             number = 590.8539636688784 
             mark = ">I" 
-        points [134]:
+        points [135]:
             number = 592.4786293102944 
             mark = "<N" 
-        points [135]:
+        points [136]:
             number = 596.4207724041938 
             mark = ">I" 
-        points [136]:
+        points [137]:
             number = 600.0648698665314 
             mark = "<Q" 
-        points [137]:
+        points [138]:
             number = 607.2021258430622 
             mark = "<Q" 
-        points [138]:
+        points [139]:
             number = 609.0349559276698 
             mark = "<Q" 
-        points [139]:
+        points [140]:
             number = 611.313125718337 
             mark = "+P" 
-        points [140]:
+        points [141]:
             number = 613.4047082854775 
             mark = "<Q" 
-        points [141]:
+        points [142]:
             number = 619.4853916249991 
             mark = "<Q" 
-        points [142]:
+        points [143]:
             number = 621.8572893815501 
             mark = "<Q" 
-        points [143]:
+        points [144]:
             number = 633.1702333539891 
             mark = "<N" 
-        points [144]:
+        points [145]:
             number = 638.2159067633795 
             mark = ">N" 
-        points [145]:
+        points [146]:
             number = 639.8762351929653 
             mark = "-P" 
-        points [146]:
+        points [147]:
             number = 641.6119394010831 
             mark = "<Q" 
-        points [147]:
+        points [148]:
             number = 643.7897727957345 
             mark = "<Q" 
-        points [148]:
+        points [149]:
             number = 645.9029180697527 
             mark = "<Q" 
