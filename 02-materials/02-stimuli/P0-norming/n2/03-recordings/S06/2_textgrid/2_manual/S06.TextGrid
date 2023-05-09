@@ -1723,7 +1723,7 @@ item []:
         intervals [428]:
             xmin = 614.7132108843538 
             xmax = 615.4732108843538 
-            text = "1" 
+            text = "1x" 
         intervals [429]:
             xmin = 615.4732108843538 
             xmax = 616.3052108843538 
@@ -1739,7 +1739,7 @@ item []:
         intervals [432]:
             xmin = 617.8412108843537 
             xmax = 618.6012108843537 
-            text = "3" 
+            text = "3x" 
         intervals [433]:
             xmin = 618.6012108843537 
             xmax = 620.7612108843538 
@@ -1771,7 +1771,7 @@ item []:
         intervals [440]:
             xmin = 626.9637531772416 
             xmax = 627.9455727733631 
-            text = "" 
+            text = "1x" 
         intervals [441]:
             xmin = 627.9455727733631 
             xmax = 628.3852108843537 
@@ -2019,7 +2019,7 @@ item []:
         intervals [502]:
             xmin = 701.4172108843537 
             xmax = 702.1532108843537 
-            text = "" 
+            text = "1" 
         intervals [503]:
             xmin = 702.1532108843537 
             xmax = 702.9132108843537 
@@ -2035,7 +2035,7 @@ item []:
         intervals [506]:
             xmin = 704.6572108843537 
             xmax = 705.4892108843537 
-            text = "" 
+            text = "3" 
         intervals [507]:
             xmin = 705.4892108843537 
             xmax = 708.2332108843538 
@@ -2685,7 +2685,7 @@ item []:
         name = "notes" 
         xmin = 0 
         xmax = 784.5544217687075 
-        points: size = 30 
+        points: size = 31 
         points [1]:
             number = 101.08721756624996 
             mark = "+BG" 
@@ -2774,5 +2774,8 @@ item []:
             number = 661.6146969726643 
             mark = "+BG" 
         points [30]:
+            number = 701.7912426881572 
+            mark = "<G" 
+        points [31]:
             number = 744.7351400116746 
             mark = "<Q" 
