@@ -29,21 +29,29 @@ def main(args):
         print(f"Speakers to process: {speaker_list}\n")
 
     # Create aggregate folder
-    if args.variableN and args.aggregate:
+    if args.aggregate:
         aggregate_auto_out_path = os.path.join(base_path, "1_aggregate", "1_ratings", "temp")
-        if os.path.exists(aggregate_auto_out_path):
+        aggregate_manual_out_path = os.path.join(base_path, "1_aggregate", "1_ratings", "1_manual")
+        aggregate_norming_out_path = os.path.join(base_path, "1_aggregate", "1_norming", "temp")
+
+        if args.variableN:
+            aggregate_path = aggregate_auto_out_path
+        elif args.random:
+            aggregate_path = aggregate_norming_out_path
+
+        if os.path.exists(aggregate_path):
             if args.overwrite:
-                shutil.rmtree(aggregate_auto_out_path)
-                os.makedirs(aggregate_auto_out_path)
+                shutil.rmtree(aggregate_path)
+                os.makedirs(aggregate_path)
             else:
                 print("Output directory already exists. Rerun with -o to overwrite if desired.")
                 os._exit(0)
         else:
-            os.makedirs(aggregate_auto_out_path)
+            os.makedirs(aggregate_path)
 
-        aggregate_manual_out_path = os.path.join(base_path, "1_aggregate", "1_ratings", "1_manual")
-        if not os.path.exists(aggregate_manual_out_path):
-            os.makedirs(aggregate_manual_out_path)
+        if args.variableN:
+            if not os.path.exists(aggregate_manual_out_path):
+                os.makedirs(aggregate_manual_out_path)
 
     # Generate random list
     if args.random:
@@ -165,6 +173,9 @@ def main(args):
                 concat_sounds.save(os.path.join(subset_concat_out_path, f"{speaker}_random_tokens.wav"), format="WAV")
                 concat_tgs.save(os.path.join(subset_concat_out_path, f"{speaker}_random_tokens.TextGrid"))
 
+                if args.aggregate:
+                    concat_sounds.save(os.path.join(aggregate_norming_out_path, f"{speaker}_random_tokens.wav"), format="WAV")
+
         if args.variableN:
 
             for vN in args.variableN:
@@ -209,7 +220,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--path', default=None, type=str, help='output path')
     parser.add_argument('-r', '--random', default=0, type=int, help='generate random sample')
     parser.add_argument('-n', '--variableN', default=None, type=lambda s: [int(item) for item in s.split(',')], help='variableNs to subset (delimited list input)')
-    parser.add_argument('-a', '--aggregate', action='store_true', help='aggregate by-speaker output; only if -n flagged')
+    parser.add_argument('-a', '--aggregate', action='store_true', help='aggregate by-speaker output into separate directory')
     parser.add_argument('-o', '--overwrite', action='store_true', help='overwrite extracted output directory')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
