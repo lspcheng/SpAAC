@@ -27,7 +27,7 @@ item []:
         intervals [4]:
             xmin = 5.576947845804993 
             xmax = 6.2969478458049934 
-            text = "" 
+            text = "2x" 
         intervals [5]:
             xmin = 6.2969478458049934 
             xmax = 6.992947845804993 
@@ -35,7 +35,7 @@ item []:
         intervals [6]:
             xmin = 6.992947845804993 
             xmax = 7.592947845804993 
-            text = "" 
+            text = "3x" 
         intervals [7]:
             xmin = 7.592947845804993 
             xmax = 9.696947845804992 
@@ -51,7 +51,7 @@ item []:
         intervals [10]:
             xmin = 10.976947845804993 
             xmax = 11.688947845804993 
-            text = "" 
+            text = "x" 
         intervals [11]:
             xmin = 11.688947845804993 
             xmax = 12.296947845804993 
@@ -59,7 +59,7 @@ item []:
         intervals [12]:
             xmin = 12.296947845804993 
             xmax = 12.872947845804992 
-            text = "" 
+            text = "3x" 
         intervals [13]:
             xmin = 12.872947845804992 
             xmax = 15.168947845804993 
@@ -75,7 +75,7 @@ item []:
         intervals [16]:
             xmin = 16.440947845804995 
             xmax = 17.192947845804994 
-            text = "" 
+            text = "2b" 
         intervals [17]:
             xmin = 17.192947845804994 
             xmax = 17.768947845804995 
@@ -83,7 +83,7 @@ item []:
         intervals [18]:
             xmin = 17.768947845804995 
             xmax = 18.456947845804994 
-            text = "" 
+            text = "3b" 
         intervals [19]:
             xmin = 18.456947845804994 
             xmax = 20.848947845804993 
@@ -1304,14 +1304,14 @@ item []:
         intervals: size = 14 
         intervals [1]:
             xmin = 0 
-            xmax = 25.387563977972142 
+            xmax = 19.589448574981933 
             text = "4-2_goaded-golem" 
         intervals [2]:
-            xmin = 25.387563977972142 
-            xmax = 50.775127955944285 
+            xmin = 19.589448574981933 
+            xmax = 38.33142199216664 
             text = "4-9_podium-polaroid" 
         intervals [3]:
-            xmin = 50.775127955944285 
+            xmin = 38.33142199216664 
             xmax = 76.16269193391642 
             text = "4-11_hoses-holy" 
         intervals [4]:
@@ -1373,4 +1373,13 @@ item []:
         name = "notes" 
         xmin = 0 
         xmax = 355.42589569161 
-        points: size = 0 
+        points: size = 3 
+        points [1]:
+            number = 5.894952876886858 
+            mark = "+BG" 
+        points [2]:
+            number = 7.17934148698331 
+            mark = "+BG" 
+        points [3]:
+            number = 11.320721795988227 
+            mark = ">V" 
