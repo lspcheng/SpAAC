@@ -128,7 +128,7 @@ def main(args):
                 # Normalize and save files
                 sound = parselmouth.Sound(os.path.join(audio_in_path, audio_dir, audio_file))
                 call(sound, "Scale peak", 0.99)
-                call(sound, "Scale intensity", 70.0)
+                call(sound, "Scale intensity", 60.0)
 
                 if session == 'supp':
                     audio_save_path = audio_supp_out_path
