@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.9314555663535202 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.9314555663535202 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.9314555663535202 
+            text = "1" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.9314555663535202 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.9314555663535202 
+            text = "7-8_gatherings-galleries" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.9314555663535202 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.9314555663535202 
+            text = "AE-backing" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.9314555663535202 
+        points: size = 1 
+        points [1]:
+            number = 0.44738314658195577 
+            mark = "+BG" 

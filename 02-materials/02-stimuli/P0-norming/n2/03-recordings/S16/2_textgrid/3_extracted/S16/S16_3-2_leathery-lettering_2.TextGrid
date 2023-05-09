@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.6973557571176343 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.6973557571176343 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6973557571176343 
+            text = "2" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.6973557571176343 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6973557571176343 
+            text = "3-2_leathery-lettering" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.6973557571176343 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6973557571176343 
+            text = "TH-stopping" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.6973557571176343 
+        points: size = 1 
+        points [1]:
+            number = 0.3456240194561815 
+            mark = "+P" 

@@ -1,0 +1,44 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.6587131519272589 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.6587131519272589 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6587131519272589 
+            text = "2c" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.6587131519272589 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6587131519272589 
+            text = "8-6_vastly-vassal" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.6587131519272589 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6587131519272589 
+            text = "T-deletion" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.6587131519272589 
+        points: size = 0 

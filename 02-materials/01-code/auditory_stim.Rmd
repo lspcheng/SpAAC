@@ -95,6 +95,7 @@ if (!dir.exists(pipeline)) {
 ```
 
 ## Basic Info
+Must re-run this code to get the correct number of reference rows per speaker, given that some speakers don't have the full 160 tokens.
 ```{r}
 recordings_path <- file.path(PROJECT_DIR, "02-materials", "02-stimuli", "P0-norming", "n2", "03-recordings")
 
@@ -522,7 +523,7 @@ for (spk_num in speaker_list){
 w_normf0_df <- list.files(recordings_path,
            pattern="normf0.txt",  recursive=TRUE, full.names = TRUE) %>%
   stringr::str_subset(., "word_level", negate = FALSE) %>%
-   plyr::ldply(., read_table_normtime, "normf0") %>%
+  plyr::ldply(., read_table_normtime, "normf0") %>%
   cbind(norm_token_info, .) %>%
   mutate(timepoint = rep(1:10, length.out=n())) %>%
   relocate(timepoint, normf0, .before=normtime)
@@ -579,7 +580,7 @@ for (spk_num in speaker_list){
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
     stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
-    stat_summary(geom="smooth", position=position_dodge(0.95)) +
+    stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge(0.95)) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num))
    print(plot)
@@ -589,8 +590,8 @@ for (spk_num in speaker_list){
     ggplot(aes(x=timepoint, y=normf0, col=variant)) + gg_theme() + 
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge()) +
-    stat_summary(geom="smooth", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num))
    print(plot)
@@ -601,19 +602,19 @@ for (spk_num in speaker_list){
     facet_wrap(~variable, ncol=4) +
     # geom_point(alpha=0.2) +
     # stat_summary(geom="col", alpha=0.5, position="dodge") +
-    stat_summary(geom="pointrange", position=position_dodge()) +
-    stat_summary(geom="smooth", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title = paste0(spk_num), x="Normalized Timepoint", y="f0 (Hz)")
  print(plot)
- ggsave(filename=paste(spk_num, "f0", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+ # ggsave(filename=paste(spk_num, "f0", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 }
 
 ```
 
 #### By-Variable for Speaker
 ```{r, fig.width=12, fig.height=6}
-current_speaker = speaker_list[[1]]
+current_speaker = speaker_list[[3]]
 exclude_rows = c()
 
 for (var_num in c(1:8)){
@@ -635,7 +636,7 @@ for (var_num in c(1:8)){
     geom_point() +
     geom_line() +
     # geom_smooth() +
-    scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+    scale_x_continuous(limits = c(2, 9), breaks=2:9) +
     labs(title="By-Token")
   
   combined_plot <- plot1 + plot2 + 
@@ -644,6 +645,25 @@ for (var_num in c(1:8)){
   print(combined_plot)
 }
 
+```
+#### By-Row for Speaker+Variable
+```{r}
+current_speaker = speaker_list[[3]]
+current_var = 8
+
+for (row_num in filter(w_normf0_df, speaker==current_speaker & variableN==current_var) %>% pull(rowN) %>% unique() 
+     ){
+  plot <-  w_normf0_df  %>% filter(speaker==current_speaker) %>%
+    filter(variableN==current_var) %>% filter(rowN==row_num) %>% 
+  ggplot(aes(x=timepoint, y=normf0, col=variant)) + gg_theme() + 
+  facet_wrap(~rowN, ncol = 5) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(limits = c(1, 10), breaks=2:9) +
+  scale_y_continuous(limits = c(120, 220)) +
+  labs(title=paste0("Variable ", current_var))
+  print(plot)
+}
 ```
 
 
@@ -951,7 +971,7 @@ ft_normform_df %>%
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
   stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge(0.95)) +
-  stat_summary(geom="smooth", position=position_dodge(0.95)) +
+  stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge(0.95)) +
   scale_x_continuous(limits = c(1, 9), breaks=1:9) +
   labs(title= "All Speakers", x="Normalized Timepoint", y="Log-Mean Normalized Formants")
 
@@ -960,8 +980,8 @@ ft_normform_df %>%
   ggplot(aes(x=timepoint, y=normform_logmean, col=variant, linetype=formant)) + gg_theme() +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge()) +
-  stat_summary(geom="smooth", position=position_dodge()) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+  stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
   scale_x_continuous(limits = c(1, 9), breaks=1:9) +
   labs(title= "All Speakers", x="Normalized Timepoint", y="Log-Mean Normalized Formants")
 
@@ -970,11 +990,11 @@ ft_normform_df %>% filter(formant!="F3") %>%
   ggplot(aes(x=timepoint, y=normform_logmean, col=variant, linetype=formant)) + gg_theme() + facet_wrap(~variable) +
   # geom_point(alpha=0.2) +
   # stat_summary(geom="col", alpha=0.5, position="dodge") +
-  stat_summary(geom="pointrange", position=position_dodge()) +
-  stat_summary(geom="smooth", position=position_dodge()) +
+  stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+  stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
   scale_x_continuous(limits = c(1, 9), breaks=1:9) +
   labs(title= "All Speakers", x="Normalized Timepoint", y="Log-Mean Normalized Formants")
-ggsave(filename=paste("All", "formants-norm", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+# ggsave(filename=paste("All", "formants-norm", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
   
 ```
 
@@ -989,22 +1009,22 @@ for (spk_num in speaker_list){
   plot <- plot_df %>%
     ggplot(aes(x=timepoint, y=normform_raw, col=variant, linetype=formant)) +
     gg_theme() + facet_wrap(~variable) +
-    stat_summary(geom="pointrange", position=position_dodge()) +
-    stat_summary(geom="smooth", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(1, 9), breaks=1:9) +
     labs(title= paste0(spk_num), x="Normalized Timepoint", y="Formants (Hz)")
     print(plot)
-    ggsave(filename=paste(spk_num, "formants", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+    # ggsave(filename=paste(spk_num, "formants", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
     
   plot <- plot_df %>%
     ggplot(aes(x=timepoint, y=normform_logmean, col=variant, linetype=formant)) +
     gg_theme() + facet_wrap(~variable) +
-    stat_summary(geom="pointrange", position=position_dodge()) +
-    stat_summary(geom="smooth", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(1, 9), breaks=1:9) +
     labs(title= paste0(spk_num), x="Normalized Timepoint", y="Log-Mean Normalized Formants")
     print(plot)
-    ggsave(filename=paste(spk_num, "formants-norm", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
+    # ggsave(filename=paste(spk_num, "formants-norm", "profile.png", sep="_"), path=file.path(pipeline, "temp"), width=10, height=6)
 }
 
 
@@ -1012,7 +1032,7 @@ for (spk_num in speaker_list){
 
 #### By-Variable for Speaker
 ```{r, fig.width=12, fig.height=6}
-current_speaker = speaker_list[[3]]
+current_speaker = speaker_list[[6]]
 variable_list = ft_normform_df %>% distinct(variableN) %>% pull()
 exclude_rows = c()
 
@@ -1023,8 +1043,8 @@ for (var_num in variable_list){
   
   plot1 <- plot_df %>%
     ggplot(aes(x=timepoint, y=normform_raw, col=variant, linetype=formant)) + gg_theme() + facet_wrap(~variable) +
-    stat_summary(geom="pointrange", position=position_dodge()) +
-    stat_summary(geom="line", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="pointrange", position=position_dodge()) +
+    stat_summary(fun.data = mean_se, geom="line", position=position_dodge()) +
     # stat_summary(geom="smooth", position=position_dodge()) +
     scale_x_continuous(limits = c(1, 9), breaks=1:9) +
     labs(title="Average across Tokens")

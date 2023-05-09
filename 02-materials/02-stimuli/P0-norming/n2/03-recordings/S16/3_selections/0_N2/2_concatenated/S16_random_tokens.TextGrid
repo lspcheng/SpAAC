@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 16.47637188208617 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 16.47637188208617 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.5088208616780046 
+            text = "S16_7-9-1_tattletales_M" 
+        intervals [2]:
+            xmin = 1.5088208616780046 
+            xmax = 3.0251473922902496 
+            text = "S16_8-8-1_restlessness_M" 
+        intervals [3]:
+            xmin = 3.0251473922902496 
+            xmax = 4.188231292517007 
+            text = "S16_5-2-1_moody_M" 
+        intervals [4]:
+            xmin = 4.188231292517007 
+            xmax = 5.424013605442177 
+            text = "S16_7-10-1_chattering_M" 
+        intervals [5]:
+            xmin = 5.424013605442177 
+            xmax = 6.973628117913832 
+            text = "S16_5-9-1_soothingly_M" 
+        intervals [6]:
+            xmin = 6.973628117913832 
+            xmax = 8.201428571428572 
+            text = "S16_7-3-1_padding_M" 
+        intervals [7]:
+            xmin = 8.201428571428572 
+            xmax = 9.750861678004537 
+            text = "S16_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 9.750861678004537 
+            xmax = 11.210385487528345 
+            text = "S16_5-8-1_scooted_M" 
+        intervals [9]:
+            xmin = 11.210385487528345 
+            xmax = 12.356757369614513 
+            text = "S16_6-2-1_channeled_M" 
+        intervals [10]:
+            xmin = 12.356757369614513 
+            xmax = 13.74281179138322 
+            text = "S16_6-9-1_banditry_M" 
+        intervals [11]:
+            xmin = 13.74281179138322 
+            xmax = 15.262834467120182 
+            text = "S16_8-9-1_wistfulness_M" 
+        intervals [12]:
+            xmin = 15.262834467120182 
+            xmax = 16.47637188208617 
+            text = "S16_8-2-1_fastball_M" 
