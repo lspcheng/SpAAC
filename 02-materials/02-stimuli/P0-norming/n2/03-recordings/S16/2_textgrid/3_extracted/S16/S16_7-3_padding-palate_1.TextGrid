@@ -2,7 +2,7 @@ File type = "ooTextFile"
 Object class = "TextGrid"
 
 xmin = 0 
-xmax = 0.7277981859406282 
+xmax = 0.7288806431661214 
 tiers? <exists> 
 size = 4 
 item []: 
@@ -10,38 +10,38 @@ item []:
         class = "IntervalTier" 
         name = "silences" 
         xmin = 0 
-        xmax = 0.7277981859406282 
+        xmax = 0.7288806431661214 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 0.7277981859406282 
+            xmax = 0.7288806431661214 
             text = "1" 
     item [2]:
         class = "IntervalTier" 
         name = "row" 
         xmin = 0 
-        xmax = 0.7277981859406282 
+        xmax = 0.7288806431661214 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 0.7277981859406282 
+            xmax = 0.7288806431661214 
             text = "7-3_padding-palate" 
     item [3]:
         class = "IntervalTier" 
         name = "variable" 
         xmin = 0 
-        xmax = 0.7277981859406282 
+        xmax = 0.7288806431661214 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 0.7277981859406282 
+            xmax = 0.7288806431661214 
             text = "AE-backing" 
     item [4]:
         class = "TextTier" 
         name = "notes" 
         xmin = 0 
-        xmax = 0.7277981859406282 
+        xmax = 0.7288806431661214 
         points: size = 1 
         points [1]:
-            number = 0.3263702886961255 
+            number = 0.32744821077403685 
             mark = "+P" 

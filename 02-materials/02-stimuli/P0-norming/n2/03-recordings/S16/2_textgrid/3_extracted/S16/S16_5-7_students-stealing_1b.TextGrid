@@ -2,7 +2,7 @@ File type = "ooTextFile"
 Object class = "TextGrid"
 
 xmin = 0 
-xmax = 1.0798072562358811 
+xmax = 1.0797354497356082 
 tiers? <exists> 
 size = 4 
 item []: 
@@ -10,38 +10,38 @@ item []:
         class = "IntervalTier" 
         name = "silences" 
         xmin = 0 
-        xmax = 1.0798072562358811 
+        xmax = 1.0797354497356082 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 1.0798072562358811 
+            xmax = 1.0797354497356082 
             text = "1b" 
     item [2]:
         class = "IntervalTier" 
         name = "row" 
         xmin = 0 
-        xmax = 1.0798072562358811 
+        xmax = 1.0797354497356082 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 1.0798072562358811 
+            xmax = 1.0797354497356082 
             text = "5-7_students-stealing" 
     item [3]:
         class = "IntervalTier" 
         name = "variable" 
         xmin = 0 
-        xmax = 1.0798072562358811 
+        xmax = 1.0797354497356082 
         intervals: size = 1 
         intervals [1]:
             xmin = 0 
-            xmax = 1.0798072562358811 
+            xmax = 1.0797354497356082 
             text = "U-fronting" 
     item [4]:
         class = "TextTier" 
         name = "notes" 
         xmin = 0 
-        xmax = 1.0798072562358811 
+        xmax = 1.0797354497356082 
         points: size = 1 
         points [1]:
-            number = 0.5908161448553528 
+            number = 0.5908085862763528 
             mark = "<G" 
