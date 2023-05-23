@@ -33,17 +33,25 @@ def main(args):
         audio_in_path = os.path.join(speaker_path, "1_audio", "3_extracted")
 
         # Set the folder path to write audio files to
-        audio_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "1_audio")
+        if args.experiment == 1:
+            exp_out_dir = "1_P1"
+        elif args.experiment == 2:
+            exp_out_dir = "2_P2"
+
+        audio_out_path = os.path.join(speaker_path, "3_selections", exp_out_dir, "1_audio")
         audio_supp_out_path = os.path.join(audio_out_path, "supp")
 
         # Set the folder path containing TextGrid files
         tg_in_path = os.path.join(speaker_path, "2_textgrid", "3_extracted")
 
         # Set the folder path to write TextGrid files to
-        tg_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "2_textgrid")
+        tg_out_path = os.path.join(speaker_path, "3_selections", exp_out_dir, "2_textgrid")
         tg_supp_out_path = os.path.join(tg_out_path, "supp")
 
-        concat_out_path = os.path.join(speaker_path, "3_selections", "1_P1", "3_concatenated")
+        concat_out_path = os.path.join(speaker_path, "3_selections", exp_out_dir, "3_concatenated")
+
+        if args.verbose:
+            print(f"Checking for {audio_out_path}")
 
         if os.path.exists(audio_out_path):
             if args.overwrite:
@@ -89,7 +97,10 @@ def main(args):
 
             audio_files = sorted([f for f in os.listdir(os.path.join(audio_in_path, audio_dir)) if f.endswith('.wav')])
 
-            target_audio_files = sorted([f for f in audio_files if is_target(f, 1) or is_target(f, 3) or is_target(f, '1a') or is_target(f, '3a')])
+            if args.experiment == 1:
+                target_audio_files = sorted([f for f in audio_files if is_target(f, 1) or is_target(f, 3) or is_target(f, '1a') or is_target(f, '3a')])
+            elif args.experiment == 2:
+                target_audio_files = sorted([f for f in audio_files if is_target(f, 2) or is_target(f, 3) or is_target(f, '2a') or is_target(f, '3a')])
 
             if args.verbose:
                 print(f"Total number of tokens: {len(target_audio_files)}")
@@ -104,8 +115,8 @@ def main(args):
                 varnum, row = varnum_row.split('-')
                 word1, word2 = word1_word2.split('-')
                 if code[0] == '2':
-                    code = '2'
                     word = word2
+                    code = '2'
                     variant = "O" # other (cOmpetitor)
                 else:
                     word = word1
@@ -195,6 +206,7 @@ if __name__ == '__main__':
 
     parser.set_defaults(func=None)
     parser.add_argument('-s', '--speaker', default=None, type=lambda s: [item for item in s.split(',')], help='speaker code (delimited list input); if empty, all speakers')
+    parser.add_argument('-e', '--experiment', type=int, help='experiment files to output')
     parser.add_argument('-o', '--overwrite', action='store_true', help='overwrite extracted output directory')
     parser.add_argument('-v', '--verbose', action='store_true', help='print out processing checks')
 
