@@ -15,6 +15,12 @@ def is_target(audio_file, target_string):
     audio_info = os.path.splitext(audio_file)[0].split('_')
     return audio_info[-1] == target_string
 
+def startswith_target(audio_file, target_string):
+    if not isinstance(target_string, str):
+        target_string = str(target_string)
+    audio_info = os.path.splitext(audio_file)[0].split('_')
+    return audio_info[-1][0] == target_string
+
 def main(args):
     base_path = os.path.join("..", "02-stimuli", "P0-norming", "n2", "03-recordings")
 
@@ -100,7 +106,7 @@ def main(args):
             if args.experiment == 1:
                 target_audio_files = sorted([f for f in audio_files if is_target(f, 1) or is_target(f, 3) or is_target(f, '1a') or is_target(f, '3a')])
             elif args.experiment == 2:
-                target_audio_files = sorted([f for f in audio_files if is_target(f, 2) or is_target(f, 3) or is_target(f, '2a') or is_target(f, '3a')])
+                target_audio_files = sorted([f for f in audio_files if startswith_target(f, 2) or startswith_target(f, 3)])
 
             if args.verbose:
                 print(f"Total number of tokens: {len(target_audio_files)}")
