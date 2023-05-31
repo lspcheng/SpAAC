@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 1.3199943310655726 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 1.3199943310655726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3199943310655726 
+            text = "3x" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 1.3199943310655726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3199943310655726 
+            text = "4-7_sojourn-soulmate" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 1.3199943310655726 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3199943310655726 
+            text = "OU-backing" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 1.3199943310655726 
+        points: size = 1 
+        points [1]:
+            number = 0.4930344244949083 
+            mark = "<N" 

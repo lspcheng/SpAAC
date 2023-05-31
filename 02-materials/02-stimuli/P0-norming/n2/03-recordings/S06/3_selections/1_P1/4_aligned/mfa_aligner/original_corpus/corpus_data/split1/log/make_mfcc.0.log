@@ -1,0 +1,176 @@
+/Users/laurettacheng/Documents/MFA/thirdparty/bin/extract-segments scp,p:../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/wav.0.scp ../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/segments.0 ark:- 
+/Users/laurettacheng/Documents/MFA/thirdparty/bin/compute-mfcc-feats --verbose=2 --use-energy=False --sample-frequency=44100 --low-freq=20 --high-freq=7800 ark:- ark:- 
+/Users/laurettacheng/Documents/MFA/thirdparty/bin/copy-feats --compress=true --write-num-frames=ark,t:../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/utt2num_frames.0 ark:- ark,scp:../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/raw_mfcc.0.ark,../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/feats.0.scp 
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_0_0_0_5903
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_0_5903_1_1651
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_100_0742_100_8892
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_100_8892_101_6508
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_101_6508_102_4113
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_102_4113_103_0823
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_103_0823_103_8516
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_103_8516_104_7376
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_104_7376_105_6444
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 10 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_105_6444_106_5379
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_106_5379_107_3541
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_107_3541_108_0653
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_108_0653_108_7496
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_108_7496_109_6811
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_109_6811_110_5759
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_10_5893_11_4196
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_110_5759_111_6163
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_111_6163_112_6036
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_112_6036_113_458
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 20 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_113_458_114_3815
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_114_3815_115_1651
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_115_1651_115_8894
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_115_8894_116_9203
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_116_9203_117_776
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_117_776_118_5769
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_118_5769_119_2822
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_119_2822_120_2112
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_11_4196_12_5225
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_120_2112_121_0184
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 30 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_121_0184_121_9945
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_121_9945_122_7797
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_122_7797_123_6831
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_123_6831_124_5383
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_124_5383_125_5944
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_125_5944_126_3627
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_126_3627_127_3488
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_127_3488_128_2629
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_128_2629_129_2955
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_129_2955_130_2657596371882
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 40 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_12_5225_13_6685
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_13_6685_14_6402
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_14_6402_15_7458
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_15_7458_17_0458
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_17_0458_18_3261
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_18_3261_19_2787
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_19_2787_20_1838
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_1_1651_2_0132
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_20_1838_21_1071
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_21_1071_22_0008
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 50 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_22_0008_22_8191
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_22_8191_23_6738
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_23_6738_24_5374
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_24_5374_25_4012
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_25_4012_26_1555
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_26_1555_26_8599
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_26_8599_27_7054
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_27_7054_28_4667
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_28_4667_29_3092
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_29_3092_30_0114
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 60 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_2_0132_2_8371
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_2_8371_3_6939
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_30_0114_31_1352
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_31_1352_32_3023
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_32_3023_33_246
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_33_246_34_0771
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_34_0771_35_0298
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_35_0298_35_8794
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_35_8794_36_8053
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_36_8053_37_6228
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 70 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_37_6228_38_3426
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_38_3426_38_9668
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_38_9668_39_6908
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_39_6908_40_4007
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_3_6939_4_4866
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_40_4007_41_3028
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_41_3028_42_183
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_42_183_43_0621
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_43_0621_43_8152
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_43_8152_44_6757
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 80 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_44_6757_45_5345
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_45_5345_46_3078
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_46_3078_47_0813
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_47_0813_47_7681
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_47_7681_48_3366
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_48_3366_49_1408
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_49_1408_49_8071
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_49_8071_50_444
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_4_4866_5_1504
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_50_444_51_1644
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 90 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_51_1644_51_854
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_51_854_52_6378
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_52_6378_53_261
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_53_261_53_8939
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_53_8939_54_6619
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_54_6619_55_4721
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_55_4721_56_2873
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_56_2873_57_1304
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_57_1304_57_9204
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_57_9204_58_722
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 100 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_58_722_59_4995
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_59_4995_60_1997
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_5_1504_5_7752
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_5_7752_6_7971
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_60_1997_60_9275
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_60_9275_61_6636
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_61_6636_62_3749
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_62_3749_63_0874
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_63_0874_64_1252
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_64_1252_64_9678
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 110 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_64_9678_65_7048
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_65_7048_66_3927
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_66_3927_67_1057
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_67_1057_67_9313
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_67_9313_68_6594
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_68_6594_69_3465
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_69_3465_70_2514
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_6_7971_7_9434
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_70_2514_71_1036
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_71_1036_71_9383
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 120 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_71_9383_72_7696
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_72_7696_73_5848
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_73_5848_74_5158
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_74_5158_75_6754
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_75_6754_76_8613
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_76_8613_77_8842
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_77_8842_78_8771
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_78_8771_79_8899
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_79_8899_80_8269
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_7_9434_8_9084
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 130 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_80_8269_81_7766
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_81_7766_82_959
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_82_959_83_7286
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_83_7286_84_5892
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_84_5892_85_3662
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_85_3662_86_1258
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_86_1258_86_8216
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_86_8216_87_5152
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_87_5152_88_3993
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_88_3993_89_2616
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 140 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_89_2616_90_1901
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_8_9084_9_7815
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_90_1901_91_1016
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_91_1016_91_9022
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_91_9022_92_6948
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_92_6948_93_4541
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_93_4541_94_2061
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_94_2061_95_0612
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_95_0612_96_0565
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_96_0565_96_8096
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:181) Processed 150 utterances
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_96_8096_97_5459
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_97_5459_98_3362
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_98_3362_99_2365
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_99_2365_100_0742
+LOG (extract-segments[5.5.880~1-3e446]:main():extract-segments.cc:194) Successfully processed 154 lines out of 154 in the segments file. 
+VLOG[2] (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:182) Processed features for key labels_S06_selected_tokens_9_7815_10_5893
+LOG (compute-mfcc-feats[5.5.880~1-3e446]:main():compute-mfcc-feats.cc:185)  Done 154 out of 154 utterances.
+LOG (copy-feats[5.5.880~1-3e446]:main():copy-feats.cc:143) Copied 154 feature matrices.
+/Users/laurettacheng/Documents/MFA/thirdparty/bin/feat-to-len scp:../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/feats.0.scp ark,t:../02-stimuli/P0-norming/n2/03-recordings/S06/3_selections/1_P1/4_aligned/mfa_aligner/original_corpus/corpus_data/split1/utterance_lengths.0.scp 

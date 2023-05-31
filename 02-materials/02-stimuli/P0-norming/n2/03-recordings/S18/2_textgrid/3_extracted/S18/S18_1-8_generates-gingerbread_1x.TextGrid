@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.7897584404131948 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.7897584404131948 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7897584404131948 
+            text = "1x" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.7897584404131948 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7897584404131948 
+            text = "1-8_generates-gingerbread" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.7897584404131948 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7897584404131948 
+            text = "PIN-PEN" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.7897584404131948 
+        points: size = 1 
+        points [1]:
+            number = 0.4472558217580769 
+            mark = "<Q" 

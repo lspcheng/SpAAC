@@ -1,0 +1,5 @@
+# Praat settings
+
+silence threshold = -50
+silence duration (min) = 0.2
+sounding duration (min) = 0.3

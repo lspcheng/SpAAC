@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.8723412698412858 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.8723412698412858 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8723412698412858 
+            text = "1" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.8723412698412858 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8723412698412858 
+            text = "4-4_modem-molten" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.8723412698412858 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.8723412698412858 
+            text = "OU-backing" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 0.8723412698412858 
+        points: size = 1 
+        points [1]:
+            number = 0.5523361605348498 
+            mark = ">N" 

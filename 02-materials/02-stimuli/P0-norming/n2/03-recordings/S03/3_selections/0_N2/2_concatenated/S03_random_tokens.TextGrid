@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 16.875419501133788 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 16.875419501133788 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.46 
+            text = "S03_7-9-1_tattletales_M" 
+        intervals [2]:
+            xmin = 1.46 
+            xmax = 3.0960770975056686 
+            text = "S03_8-8-1_restlessness_M" 
+        intervals [3]:
+            xmin = 3.0960770975056686 
+            xmax = 4.212086167800454 
+            text = "S03_5-2-1_moody_M" 
+        intervals [4]:
+            xmin = 4.212086167800454 
+            xmax = 5.576077097505669 
+            text = "S03_7-10-1_chattering_M" 
+        intervals [5]:
+            xmin = 5.576077097505669 
+            xmax = 6.9320634920634925 
+            text = "S03_5-9-1_soothingly_M" 
+        intervals [6]:
+            xmin = 6.9320634920634925 
+            xmax = 8.240158730158731 
+            text = "S03_7-3-1_padding_M" 
+        intervals [7]:
+            xmin = 8.240158730158731 
+            xmax = 9.764149659863946 
+            text = "S03_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 9.764149659863946 
+            xmax = 11.195351473922903 
+            text = "S03_5-8-1_scooted_M" 
+        intervals [9]:
+            xmin = 11.195351473922903 
+            xmax = 12.439387755102041 
+            text = "S03_6-2-1_channeled_M" 
+        intervals [10]:
+            xmin = 12.439387755102041 
+            xmax = 13.787369614512473 
+            text = "S03_6-9-1_banditry_M" 
+        intervals [11]:
+            xmin = 13.787369614512473 
+            xmax = 15.43138321995465 
+            text = "S03_8-9-1_wistfulness_M" 
+        intervals [12]:
+            xmin = 15.43138321995465 
+            xmax = 16.875419501133788 
+            text = "S03_8-2-1_fastball_M" 

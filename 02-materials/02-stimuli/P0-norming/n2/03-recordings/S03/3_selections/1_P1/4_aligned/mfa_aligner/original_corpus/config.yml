@@ -1,0 +1,7 @@
+acoustic_model_path: /Users/laurettacheng/Documents/MFA/pretrained_models/acoustic/english.zip
+begin: 1682009033.40957
+corpus_directory: ../02-stimuli/P0-norming/n2/03-recordings/S03/3_selections/1_P1/4_aligned/original_corpus
+dictionary_path: /Users/laurettacheng/Documents/Projects/SpAAC/02-materials/01-code/mfa/english.dict
+dirty: false
+type: align
+version: 2.0.0a5
