@@ -1881,31 +1881,68 @@ n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim2_Likeable, l
 ### Find Outliers
 Consider: Check for Outliers with Mahalanobis distances
 
-* Use the Mahalanobis distance to assess outliers via visual inspection and selecting a threshold cut-off
+* Use the Mahalanobis distance to assess outliers/matches via visual inspection and selecting a threshold cut-off
 
 ```{r}
-scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
-  select(Dim1_American, Dim2_Likeable, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
-index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
-  
-# Finding the center point 
+# Get mahalnobis distances Function
+get_mdist <- function(scores_df, index_df){
+  # Finding the center point 
 center  = colMeans(scores_df)
 # Finding the covariance matrix
 cov     = cov(scores_df)
-
 # Calculate Mahalnobis distance + identify outliers
 mdist_df <- index_df %>% 
   cbind(m_dist = mahalanobis(scores_df, center, cov))  %>%
   mutate(outlier = ifelse(m_dist > 10, TRUE, FALSE))
   # mutate(pvalue = pchisq(m_dist, df=3, lower.tail=FALSE)) #pval<0.001 outlier
+return(mdist_df)
+}
+```
 
+```{r}
+# All orthogonal/unique variables
+scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
+  select(Dim1_American, Dim2_Likeable, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
+
+# Get mahalnobis distances
+mdist_df <- get_mdist(scores_df, index_df)
+
+# Most different considering all variables
 # See results
 mdist_df %>% arrange(desc(m_dist))
 # Get list of potential outliers to check
-mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image) %>% inner_join(n1b_ratings_vars_pca)
+mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image, m_dist) %>% inner_join(n1b_ratings_vars_pca) %>% select(-Image_Cat)
+```
+
+```{r}
+# All orthogonal/unique variables, excluding American
+scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
+  select(Dim2_Likeable, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
+
+# Get mahalnobis distances
+mdist_df <- get_mdist(scores_df, index_df)
+
+
+# Most similar (across conditions) excluding American
+# See results
+mdist_df %>% arrange((m_dist))
+# Get list of potential matches to check
+mdist_ranks <- mdist_df %>% select(Condition, Image, m_dist) %>% inner_join(n1b_ratings_vars_pca) %>% select(-Image_Cat) %>% 
+  arrange((m_dist)) %>% group_by(Condition) %>%
+  mutate(ingroup_ranks = order(order(m_dist, decreasing=FALSE)), .after=m_dist) #%>% arrange(ingroup_ranks)
+# TODO: pivot to matched rank columns, image value for condition based on rank
+mdist_ranks %>%  pivot_wider(id_cols = ingroup_ranks, names_from = Condition, values_from = c(Image, m_dist))
 ```
 
 ### Get Narrowed Conditions
+
+TODO:
+- Pull in screener categories; filter out
+- How to get most similar rows across categories? Mahalanobis but smallest values
+  - TODO: Try with fewer unique cols, just the most relevant/orthogonal seeming, like feminine, casual and intelligent? 
+
 Select 4-5 photos 
 * Based on Dim1 and Dim2 scores
 * Based on outliers (mahalanobis scores)
