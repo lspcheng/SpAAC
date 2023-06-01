@@ -555,8 +555,7 @@ n1b_subj_p2 %>%
 ```{r}
 # Visualize Age
 n1b_subj_p2 %>%
-  ggplot() +
-  gg_theme() +
+  ggplot() +  gg_theme() +
   geom_histogram(aes(x=Age), binwidth=1, alpha=0.7)
 ```
 
@@ -571,8 +570,7 @@ n1b_subj_p2 %>%
 ```{r}
 # Gender by Age, colored
 n1b_subj_p2 %>%
-  ggplot() +
-  gg_theme() +
+  ggplot() +  gg_theme() +
   geom_histogram(aes(x=Age, fill=GenderCat), binwidth=1, alpha=0.7)
 
 # Visualize Gender
@@ -1399,9 +1397,8 @@ n1b_ratings_releveled <-
   # reorder factors  
   mutate(Rating_Scale = fct_relevel(Rating_Scale, 
   "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
-  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent", )) %>%        # Traits
-   mutate(Rating_Scale = fct_relevel(Rating_Scale, 
-  "Feminine", "Clear speaker","Casual", "Cool", "Nerdy", "Slow speaker", after=Inf))             # Style
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
+  "Feminine", "Clear speaker","Casual", "Cool", "Nerdy", "Slow speaker"))                         # Style
 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_Value, group=Condition, angle_axis_labels=TRUE) 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) 
@@ -1448,16 +1445,548 @@ n1b_ratings_releveled %>% filter(Condition == current_condition) %>%
 
 ```
 
+### Finalize Scores
+Get mean scores per image, to put through a PCA.
+```{r}
+# By-Image means: Get across-participant means per Rating_Scale for each Image 
+n1b_ratings_means <- n1b_ratings_releveled %>% group_by(Condition, Image_Cat, Image, Rating_Group, Rating_Scale) %>%
+  summarize(Rating_Value=mean(Rating_Value), Rating_ZScore = mean(Rating_ZScore)) %>% ungroup()
+
+# Get factors as columns
+# Raw rating values
+n1b_ratings_vars_raw <-
+   n1b_ratings_means %>%  pivot_wider(id_cols=Condition:Image, names_from = Rating_Scale, values_from =  Rating_Value)
+
+# Zscores
+n1b_ratings_vars_zscore <-
+  n1b_ratings_means %>%  pivot_wider(id_cols=Condition:Image, names_from = Rating_Scale, values_from = Rating_ZScore)
+
+# View data
+n1b_ratings_means
+n1b_ratings_vars_raw
+n1b_ratings_vars_zscore
+```
+
+Check correlations between measures to assess collinearity.
+
+Function to get correlation info:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations <- function(df, columns_to_keep){
+  # NOTE: Columns to keep cannot be name of column, only indices or function (e.g. last_col())
+  corr_matrix <-
+    df %>% select(columns_to_keep) %>%
+    cor(., method="pearson")  # Alt: method="spearman"
+  # # View the correlation matrix
+  corr_df <- corr_matrix %>% as_tibble(rownames = "var") # independent variables correlation matrix 
+  print(corr_df)
+  # # Visualize
+  corr_plot <- corrplot(rating_vars_cor,method='number',is.corr = T)
+  print(corr_plot)
+}
+```
+
+Raw rating values:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations(n1b_ratings_vars_raw, columns_to_keep=4:last_col())
+# TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
+```
+The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear, though Friendly and Likable are similar (>0.8) as well.
+
+ZScored rating values:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations(n1b_ratings_vars_zscore, columns_to_keep=4:last_col())
+# TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
+```
+
+The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear.
+
+## Analyze 1
+#### Run PCA
+Notes for PCA Interpretation
+```{r}
+#############################################
+## (1) Checking the number of dimensions
+
+# Parallel Analysis
+# Standard way to decide on the number of factors or components needed in an FA or PCA.
+
+# Eigenvalues & percent variance accounted for
+# One guideline is to only include dimensions that have an eigenvalue of at least 1, but note that...
+# This guideline only applies if using correlation matrix (i.e. scaled units; scale.unit = T)
+# Because we don't want a factor that accounts for less than what a single variable accounts for (single variable=1)
+
+# Scree Plot
+# One guideline is to check starting with the "elbow" value, plus or minus 1
+# Check for where there is an "elbow" where the plot bends, such that subsequent factors don't contribute much
+
+## (2) Interpreting the output factor values
+
+# Factor matrix (raw eigenvectors = the factor score coefficients; sometimes called the factor, but not factor scores)
+# To interpret, focus on the most extreme factor values (or loadings, below)
+# Higher values means that those variables contribute more to the specific dimension/component/factor
+# Dimensions/components/factors can be interpreted based on which variables contribute more
+
+# Factor loadings (eigenvectors scaled by the square root of their associated eigenvalues)
+# Provide similar information about which variables contribute to each dimension/component/factor, but also
+# Can be interpreted as correlations between each variable and the factor
+# One guideline treats all values less than 0.3 as 0, thus drops them from consideration (irrelevant for that factor) 
+
+# Rotated factor matrix
+# Orthogonally rotates factor matrix for ease of interpretation of each dimension
+
+#############################################
+## (3) Checking the individual coordinate scores
+# Individual coordinate scores (principle coordinates)
+# Same as factor scores for each subject and dimension (weighted sum of all of a subjects raw scores, where the weights are the eigenvector values)
+# i.e. values are calculated from the normalized variable scores (Z-scores) multiplied by the eigenvector weights, then summed
+```
+
+##### Select Data
+Select data for PCA.
+```{r}
+# Use Zscores to represent responses without participant bias in scale range 
+#   (e.g., never selecting 1 means their lowest value is represented by 2, but their 2 can be equated to another person's 1)
+# Use Raw scores to represent responses as representing true value 
+#   (e.g., never selecting 1 means the true perceptual range represented by the photos never goes down to 1 for this person, and their 1 is equated to another person's 1)
+
+current_source_data <- n1b_ratings_vars_zscore # Alt: n1b_ratings_vars_raw
+
+## Maximal set
+image_vars_pca <- current_source_data %>% select(-Condition:-Image)
+image_vars_pca
+```
+
+##### Process PCA
+Determine number of components via Parallel analysis.
+```{r }
+## Relevant libraries
+# `PCA` command from `FactoMineR` library (see index for more info)
+# `paran` command from `paran` library
+# `Varimax` command from `GPArotations` library (https://stats.stackexchange.com/questions/59213/how-to-compute-varimax-rotated-principal-components-in-r)
+
+## (1) Run Parallel Analysis with `paran`
+# Standard way to decide on the number of factors or components needed in an FA or PCA.
+# Prints out a scree plot as well, with the randomized line + unadjusted line
+paran(image_vars_pca,
+      graph = TRUE, color = TRUE, 
+      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
+```
+Parallel analysis suggests 2 components retained.
+Scree plots suggest ~3 components, based on the location of the elbow. Could try 2, 3, or 4 components.
+Eigenvalues suggest 2 components, as only the first two comps have a value above 1.
+The _difference in_ eigenvalues suggests 3 components, as up to the third comp has a difference greater than 1. (See: https://stats.stackexchange.com/questions/450752/understanding-how-many-components-to-include-for-pca)
+Interpretability indicates 3 components, such that FrCA serves as its own component (Dim3).
+
+```{r}
+## (2) Run PCA with `FactoMineR`
+# ncp = number of components; adjust after checking the parallel analysis output
+
+# FactoMineR PCA Commands
+#score_PCA        # lists commands
+#score_PCA$var    # variables
+#score_PCA$ind    # individuals
+#score_PCA$call   # summary stats
+
+# Conduct PCA with scaling/standardizing
+score_PCA <- PCA(image_vars_pca, scale.unit = T, ncp =2, graph=T)
+
+## Relevant Raw PCA Output
+# Eigenvalues & percent variance accounted for
+eigenvalues <- score_PCA$eig
+as_tibble(eigenvalues, rownames="components")
+
+# Eigenvectors (=Factor matrix, factor score coefficients, principal directions, principal axes; sometimes called the factor, but NOT factor scores; these are called loadings by some but its incorrect).
+eigenvectors <- score_PCA$var$coord
+as_tibble(eigenvectors, rownames="Score")
+
+# Factor scores for each subject and dimension (also: Individual coordinate scores; principle coordinates)
+rawScores <- score_PCA$ind$coord
+as_tibble(rawScores, rownames="Item")
+
+# Factor loadings (=loadings, correlation loadings, or scaled factor coefficients; eigenvectors scaled by the square root of their associated eigenvalues)
+# Calculate factor loadings using the output eigenvectors and eigenvalues (i.e. divide each eigenvector column value by the appropriate eigenvalue square root).
+rawLoadings <- sweep(eigenvectors,MARGIN=2,STATS=sqrt(eigenvalues[1:ncol(eigenvectors),1]),FUN="/") # margin 1=rows, 2=cols
+as_tibble(rawLoadings, rownames="Score")
+```
 
 
 
-## Analyze
-### Test Rating differences between photos
-### Run PCA(?)
+
+```{r lbqdata-pca2-3}
+## (3) Conduct rotation on the PCA factor loadings with `GPArotation`
+# Rotations are typically done on the retained component factor loadings, not on all components nor on the eigenvectors
+# Performed for ease of interpretation, maximizing factor loadings
+rotLoadings <- Varimax(rawLoadings, normalize=T)$loadings
+as_tibble(rotLoadings, rownames="Score") 
+
+# Recover Rotation matrix from loadings
+# Because the rotLoadings are calculated from rawLoadings %*% rotMatrix, can recover rotMatrix by rotLoadings "divided" by rawLoadings, which in matrix multiplication is multiplying by the inverse (transpose) 
+# Note: For some reason, can't call Varimax(rawLoadings)$rotmat (just get NULL); this recreates the same matrix from Varimax(rawLoadings)
+rotMatrixL <- t(rawLoadings) %*% rotLoadings
+as_tibble(rotMatrixL, rownames="Dimensions")
+
+# Calculate rotated factor scores
+# The formula simply multiplies the normalized variable scores with the rotation matrix to get rotated factor scores
+# First, z-score the raw scores using base R scale()
+# Then, matrix multiply the matrix of zScores with the rotation matrix
+# Result is a matrix with columns=components and rows=each subject
+zScores <- scale(rawScores)
+rotScores <- zScores %*% rotMatrixL
+as_tibble(rotScores, rownames="Item")
+
+```
+
+```{r}
+# For comparison, a different rotation function. Requires normalization. Still a little different but similar enough. Provides rotmat and SS loadings. 
+## Rotate eigenvectors (not typical, according to Stats notes and StackExchange, but reasonable-looking SS loadings+% variance)
+# stats::varimax(eigenvectors)
+## Rotate factor loadings (typical, but unreasonable(?)-looking SS loadings+% variance)
+stats::varimax(rawLoadings)
+```
+
+##### Factor Loadings
+```{r}
+# Replace all factor loading values under |0.3| with 0 for better readability
+
+# Raw Loadings
+as_tibble(rawLoadings, rownames="Variable") %>% 
+  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
+
+# Rotated Loadings
+as_tibble(rotLoadings, rownames="Variable") %>% 
+  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
+```
+
+##### PCA: Raw Plots
+```{r lbqdata-pca2-4, echo=F}
+## (4) Data Visualization of Raw Scores with `factoextra`
+
+# Plot individual factor scores
+fviz_pca_ind(score_PCA, col.ind = "#00AFBB", repel = TRUE)
+
+# Biplot, including individual scores and factor vectors
+fviz_pca_biplot(score_PCA, label = "all", col.ind = "#00AFBB", col.var="black", ggtheme = theme_minimal())
+```
+
+##### PCA: Rotated Plots
+```{r plbqdata-pca2-5, echo=F}
+## (5) Manual Plots of Rotated Scores with `ggplot`
+
+## Create dataframes of the rotated factor loading and factor score matrices
+
+# Convert rotated factor loadings matrix to data frame; add variable number
+rotLoadingsData <- as.data.frame(rotLoadings)
+rotLoadingsData <- mutate(rotLoadingsData, variable = row.names(rotLoadings))
+rotLoadingsData <- mutate(rotLoadingsData, variable = factor(variable))
+#rotLoadingsData
+
+# Convert rotated factor score matrix to data frame; add subject number
+rotScoreData <- as.data.frame(rotScores)
+rotScoreData <- mutate(rotScoreData, subject = 1:n())
+rotScoreData
+
+## Create base plots
+# Loading plot
+loadingplot <- ggplot(rotLoadingsData, aes(x=Dim.1, y=Dim.2))+
+  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
+  geom_text(data=rotLoadingsData, aes(x=Dim.1*4, y=Dim.2*4, label=variable), color="red",check_overlap=T) +
+  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
+  scale_y_continuous(lim=c(-2, 3),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Variables - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
+loadingplot
 
 
+# Scatter plot of Individual factor scores
+dimplot = ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
+  geom_point(na.rm=TRUE, color="#00AFBB") +
+  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
+  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
+  scale_y_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Individuals - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
+dimplot
+
+## Merge loading and score plot = Biplot
+
+# Biplot of factor loadings + ind factor scores
+ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
+  geom_point(na.rm=TRUE, color="#00AFBB") +
+  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
+  
+  # Overlay loading plot (i.e. arrows)
+  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
+  geom_text(data=rotLoadingsData, aes(x=Dim.1*4.5, y=Dim.2*4.5, label=variable), color="red",check_overlap=T, nudge_y = 0)+
+
+  scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
+  scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Biplot - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
 
 
+```
+NOTE: Both ZScore rotated and unrotated are very similar (for pilot data; however, big difference for Raw ratings)
+
+The results of the Zscore rotated PCA with three components retained suggest that:
+* Dim1 is the "culture" or "American" component, with all four of those American-related ratings being highly correlated.
+
+* Dim2 is the "social attractiveness" or "likeability" component, linked to positive traits like Attractive, Likeable (strongest), Friendly, Confident, and Enthusiastic (when rotated), as well as confidence-related stylistic features like Cool and Fast speaker (i.e., non-Slow speaker)
+
+* The other features that act more like their factors rather than a grouped/similar/collinear unit are:
+  * Intelligent
+  * Nerdy (vs Enthusiastic, when not rotated)
+  * Casual
+  * Feminine — definitely seems more like a third dimension
+  
+
+Based on the biplots, where is the best slice to take matched participants from? 
+* Since Dim1 is the relevant distinguishing component, we'd want to take different personae across this dimension — i.e., this should differ significantly across Personae conditions (ethAsian vs. msAsian / msWhite)
+* Since Dim2 (and others) are the "flavor" non-target characteristics to ensure social perceptual similarity on, those should be similar, maybe towards the mean around 0 (i.e., visually, along the horizontal x axis line is where we should pick from).
+
+In addition, use the Ethnicity, GrewUp, and Speech scores to screen for outliers or non-matching aspects. So, we don't want to include even if they might match in ratings but: 
+* e.g., differ in being East Asian vs. Southeast Asian or 
+* e.g., differ in where they are from like always California vs. never California
+
+##### Finalize Data
+```{r}
+# Merge PCA factor scores back to image number and raw scores
+n1b_ratings_vars_pca <-
+  n1b_ratings_vars_zscore %>%
+  cbind(
+    as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
+  ) %>%
+relocate(Condition:Image,
+       Dim1_American=Dim.1, Dim2_Likeable=Dim.2
+       )
+n1b_ratings_vars_pca
+```
+
+```{r}
+# # Check how PCs map onto raw scores
+# # Which photos were selected as FrCA over 50% of the time
+# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(-FrCA) %>% filter(FrCA>0.5) #%>% summarize(max_Dim3 = max(Dim3_NonCalifornian)) # Max Dim3 = 0.6065949
+# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(Dim3_NonCalifornian)
+# 
+# # Which photos were selected as WhAm over 50% of the time
+# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-WhAm) %>% filter(WhAm>0.5) #%>% summarize(min_Dim1 = min(Dim1_White)) # Min Dim1 = 0.2245709	
+# # Which photos were selected as AsAm 
+# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-AsAm)
+# 
+# # Which photos were selected as AsAcc
+# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim2_American, AmAcc, ForAcc, AmCul, EthCul, FrCA) %>% arrange(-AmAcc) %>%
+#   #filter(AmAcc>0.5) %>% 
+#   filter(Image_Cat=="AAW")
+```
+
+```{r}
+# Summary stats of each PC/Dimension
+quick_summarize <- function(df, col){
+  col = enquo(col)
+  df %>%  summarize(across(!!col, list(mean=mean, sd=sd, min=min, max=max, median=median)))
+}
+
+quick_summarize(n1b_ratings_vars_pca, Dim1_American)
+quick_summarize(n1b_ratings_vars_pca, Dim2_Likeable)
+
+```
+
+##### Visualize Data
+Function for labelled scatterplot of variables
+```{r}
+labeled_scatterplot <- function(df, x, y, label, group, show_points=TRUE, full_scale=FALSE, angle_axis_labels=FALSE) {
+  x = enquo(x)
+  y = enquo(y)
+  label = enquo(label)
+  group = enquo(group)
+  min_y <- min(df %>% pull(!!y))
+  max_y <- max(df %>% pull(!!y))
+
+  plot <- df %>% group_by((!!group), (!!x)) %>% 
+    ggplot(aes(x=(!!x), y=(!!y), color=(!!group), fill=(!!group), label=(!!label)))
+  if (show_points == TRUE){
+    plot <- plot + geom_point(alpha=0.7)
+  }
+  plot <- plot +
+    geom_text(alpha=0.9, nudge_x = 0.2, nudge_y = 0.2) +
+    scale_color_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
+    scale_fill_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
+    gg_theme() + theme_minimal()
+  
+  if (full_scale == TRUE){
+  plot <- plot + scale_y_continuous(limits = c(min_y, max_y), breaks = seq(floor(min_y), ceiling(max_y), 1)) 
+  }
+  if (angle_axis_labels == TRUE){
+   plot <- plot + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+     theme(plot.margin = margin(0,0,0,40, unit = "pt"))  # pad left side of plot to read angled labels (t,r,b,l)  
+  }
+  plot
+}
+```
+
+```{r}
+# Get variable names
+colnames(n1b_ratings_vars_pca)
+
+# Double check raw zscore correlations for select variables
+n1b_ratings_vars_pca %>% filter(Condition=="ethAsian") %>%
+  ggplot(aes(y=American, x=`American-accented`)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
+
+n1b_ratings_vars_pca %>% filter(Condition=="msAsian") %>%
+  ggplot(aes(y=American, x=Likeable)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
+```
+
+
+```{r}
+# Double check PCA correlations
+n1b_ratings_vars_pca %>%
+  ggplot() +
+  # facet_wrap(~Image) +
+  geom_point(aes(y=Dim1_American, x=American)) +
+  geom_point(aes(y=Dim1_American, x=`Native speaker of English`), col="blue", alpha=0.7) +
+  geom_point(aes(y=Dim1_American, x=`American-accented`), col="red", alpha=0.7) +
+  geom_point(aes(y=Dim1_American, x=`Aligned with American culture`), col="orange", alpha=0.7) +
+  theme_minimal()
+
+```
+
+Get plot of main Dimensions with the labelled images to review the selections below
+```{r}
+# Main Dimensions
+# Specific Images colored by Condition
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim2_Likeable, label=Image, group=Condition, show_points=FALSE)
+```
+## Assess
+
+**To Check:**
+* ethAsian
+  * AAW-27
+  * 63
+  * 25
+  * 4
+  * 1
+* msAsian
+  * AAW-30
+  * 45
+  * 47
+* msWhite
+  * WAW-51
+  * 16
+  * 23
+  * 12
+  * 56
+  
+```{r}
+# Other
+# Specific Images colored by Condition
+# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Feminine, label=Image, group=Condition, show_points=FALSE)
+# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Intelligent, label=Image, group=Condition, show_points=FALSE)
+```
+### Get Narrowed Conditions
+Select 4-5 photos 
+ 
+#### Examine Distinctiveness / Test Differences
+**Reference Code:** 
+- https://cran.r-project.org/web/packages/emmeans/vignettes/comparisons.html 
+- https://broom.tidymodels.org/reference/tidy.summary_emm.html 
+
+Good, Dim1_American scores are different across the three conditions
+```{r}
+# linear model
+lm_out <- lm(Dim1_American ~ Condition, data=n1b_ratings_vars_pca)
+summary(lm_out)
+( lm_df <- tidy(lm_out) )
+
+# get marginal averages (estimated marginal means / Least-squares means)
+emms <- emmeans(lm_out, "Condition")
+( emms_df <- tidy(emms, conf.int = TRUE) )
+
+# get contrasts
+# tidy(contrast(emms)) # contrast from grand mean(?)
+tidy(pairs(emms))  # contrast between paired groups; equivalent to: contrast(emms, method="pairwise")
+
+# get effect sizes
+eff_size(emms, sigma = sigma(lm_out), edf = 27)
+
+# plot confidence intervals
+#Option 1
+plot(emms, comparisons = TRUE)
+#Option 2
+ggplot(emms_df, aes(Condition, estimate)) +
+  geom_point() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=0.5) + gg_theme()
+```
+Good, Dim2_Likeable are NOT different across conditions
+```{r}
+# linear model
+lm_out <- lm(Dim2_Likeable ~ Condition, data=n1b_ratings_vars_pca)
+summary(lm_out)
+( lm_df <- tidy(lm_out) )
+
+# get marginal averages (estimated marginal means / Least-squares means)
+emms <- emmeans(lm_out, "Condition")
+( emms_df <- tidy(emms, conf.int = TRUE) )
+
+# get contrasts
+# tidy(contrast(emms)) # contrast from grand mean(?)
+tidy(pairs(emms))  # contrast between paired groups; equivalent to: contrast(emms, method="pairwise")
+
+# get effect sizes
+eff_size(emms, sigma = sigma(lm_out), edf = 27)
+
+# plot confidence intervals
+#Option 1
+plot(emms, comparisons = TRUE)
+#Option 2
+ggplot(emms_df, aes(Condition, estimate)) +
+  geom_point() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=0.5) + gg_theme()
+
+
+```
+
+
+```{r}
+summary(lm(Feminine ~ Condition, data=n1b_ratings_vars_pca))
+```
+```{r}
+summary(lm(Intelligent ~ Condition, data=n1b_ratings_vars_pca))
+```
+```{r}
+summary(lm(Nerdy ~ Condition, data=n1b_ratings_vars_pca))
+```
+
+```{r}
+summary(lm(Casual ~ Condition, data=n1b_ratings_vars_pca))
+```
 
 # .
 # REF: Previous Analysis 
@@ -1633,16 +2162,16 @@ n1b_scores_byImage %>%
 Check correlations between measures to assess collinearity. 
 ```{r}
 # Create correlation matrix
-score_vars_cor <- 
+rating_vars_cor <- 
   n1b_scores_byImage %>% select(-Image_Cat, -Image) %>% 
   # Filter out only factors we want to see visualized for now
   #select(RelForEth_Score, RelForAcc, RelEthCul) %>%
   cor(., method="pearson") #method="spearman")
 # View the correlation matrix
-score_vars_cor %>% as_tibble(rownames = "var") # independent variables correlation matrix 
+rating_vars_cor %>% as_tibble(rownames = "var") # independent variables correlation matrix 
 
 # Visualize
-corrplot(score_vars_cor,method='number',is.corr = T)
+corrplot(rating_vars_cor,method='number',is.corr = T)
 
 # TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
 ```
@@ -1697,17 +2226,17 @@ Notes for PCA Interpretation
 Select data for PCA.
 ```{r}
 ## Maximal set
-image_score_vars_all <- n1b_scores_byImage %>% select(-Image_Cat, -Image)
-image_score_vars_all
+image_vars_pca <- n1b_scores_byImage %>% select(-Image_Cat, -Image)
+image_vars_pca
 
 ## Relative set
-image_score_vars_rel <- image_score_vars_all %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul, 
+image_rating_vars_rel <- image_vars_pca %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul, 
                                                         RelAsAm, RelForAcc, RelEthCul)
-image_score_vars_rel
+image_rating_vars_rel
 
 ## Minimal set
-image_score_vars_raw <- image_score_vars_all %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul)
-image_score_vars_raw
+image_rating_vars_raw <- image_vars_pca %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul)
+image_rating_vars_raw
 
 ```
 
@@ -1722,7 +2251,7 @@ Determine number of components via Parallel analysis.
 ## (1) Run Parallel Analysis with `paran`
 # Standard way to decide on the number of factors or components needed in an FA or PCA.
 # Prints out a scree plot as well, with the randomized line + unadjusted line
-paran(image_score_vars_raw,
+paran(image_rating_vars_raw,
       graph = TRUE, color = TRUE, 
       col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
       file = "", width = 640, height = 640, grdevice = "png", seed = 0)
@@ -1744,7 +2273,7 @@ Interpretability indicates 3 components, such that FrCA serves as its own compon
 #score_PCA$call   # summary stats
 
 # Conduct PCA with scaling/standardizing
-score_PCA <- PCA(image_score_vars_raw, scale.unit = T, ncp =3, graph=T)
+score_PCA <- PCA(image_rating_vars_raw, scale.unit = T, ncp =3, graph=T)
 
 ## Relevant Raw PCA Output
 # Eigenvalues & percent variance accounted for
@@ -1924,7 +2453,7 @@ Based on the biplots, there are three rough visual clusters by Dim1 x Dim2 quadr
 ##### Finalize Data
 ```{r}
 # Merge PCA factor scores back to image number and raw scores
-n1b_PCAscores_byImage <- n1b_scores_byImage %>%
+n1b_ratings_vars_pca <- n1b_scores_byImage %>%
   cbind(
     as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
   ) %>%
@@ -1932,41 +2461,41 @@ select(Image_Cat, Image,
        Dim1_White=Dim.1, Dim2_American=Dim.2, Dim3_NonCalifornian=Dim.3,
        FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul
        )
-n1b_PCAscores_byImage
+n1b_ratings_vars_pca
 ```
 
 ```{r}
 # Check how PCs map onto raw scores
 # Which photos were selected as FrCA over 50% of the time
-n1b_PCAscores_byImage %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(-FrCA) %>% filter(FrCA>0.5) #%>% summarize(max_Dim3 = max(Dim3_NonCalifornian)) # Max Dim3 = 0.6065949
-n1b_PCAscores_byImage %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(Dim3_NonCalifornian)
+n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(-FrCA) %>% filter(FrCA>0.5) #%>% summarize(max_Dim3 = max(Dim3_NonCalifornian)) # Max Dim3 = 0.6065949
+n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(Dim3_NonCalifornian)
 
 # Which photos were selected as WhAm over 50% of the time
-n1b_PCAscores_byImage %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-WhAm) %>% filter(WhAm>0.5) #%>% summarize(min_Dim1 = min(Dim1_White)) # Min Dim1 = 0.2245709	
+n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-WhAm) %>% filter(WhAm>0.5) #%>% summarize(min_Dim1 = min(Dim1_White)) # Min Dim1 = 0.2245709	
 # Which photos were selected as AsAm 
-n1b_PCAscores_byImage %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-AsAm)
+n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-AsAm)
 
 # Which photos were selected as AsAcc
-n1b_PCAscores_byImage %>% select(Image_Cat, Image, Dim2_American, AmAcc, ForAcc, AmCul, EthCul, FrCA) %>% arrange(-AmAcc) %>%
+n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim2_American, AmAcc, ForAcc, AmCul, EthCul, FrCA) %>% arrange(-AmAcc) %>%
   #filter(AmAcc>0.5) %>% 
   filter(Image_Cat=="AAW")
 ```
 
 ```{r}
 # Summary stats of each PC/Dimension
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   summarize(
     Dim1_White_mean=mean(Dim1_White), Dim1_White_sd = sd(Dim1_White), 
     Dim1_White_min=min(Dim1_White), Dim1_White_max=max(Dim1_White), 
   )
 
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   summarize(
     Dim2_American_mean=mean(Dim2_American), Dim2_American_sd = sd(Dim2_American),
     Dim2_American_min=min(Dim2_American),  Dim2_American_max=max(Dim2_American)
   )
 
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   summarize(
     Dim3_NonCalifornian_mean=mean(Dim3_NonCalifornian), Dim3_NonCalifornian_sd = sd(Dim3_NonCalifornian),
     Dim3_NonCalifornian_min=min(Dim3_NonCalifornian),  Dim3_NonCalifornian_max=max(Dim3_NonCalifornian)
@@ -1976,25 +2505,25 @@ n1b_PCAscores_byImage %>%
 ##### Visualize Data
 ```{r}
 # Check Raw score correlations
-n1b_PCAscores_byImage %>% #filter(Image_Cat=="AAW") %>%
+n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
   ggplot(aes(y=EthCul, x=AsAm)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_PCAscores_byImage %>% #filter(Image_Cat=="AAW") %>%
+n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
   ggplot(aes(y=EthCul, x=WhAm)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_PCAscores_byImage %>% #filter(Image_Cat=="AAW") %>%
+n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
   ggplot(aes(y=EthCul, x=ForAcc)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_PCAscores_byImage %>% filter(Image_Cat=="AAW") %>%
+n1b_ratings_vars_pca %>% filter(Image_Cat=="AAW") %>%
   ggplot(aes(y=EthCul, x=AmAcc)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
 ```
 
 ```{r}
 # Double check PCA correlations
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot() +
   # facet_wrap(~Image) +
   geom_point(aes(y=Dim3_NonCalifornian, x=FrCA)) +
   theme_minimal()
 
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot() +
   # facet_wrap(~Image) +
   geom_point(aes(y=Dim2_American, x=AmCul)) +
@@ -2002,7 +2531,7 @@ n1b_PCAscores_byImage %>%
   geom_point(aes(y=Dim2_American, x=ForAcc), col="red", alpha=0.7) +
   theme_minimal()
 
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot() +
   # facet_wrap(~Image) +
   geom_point(aes(y=Dim1_White, x=WhAm)) +
@@ -2013,14 +2542,14 @@ n1b_PCAscores_byImage %>%
 
 ```{r}
 # Dim3 not visualized 
-n1b_PCAscores_byImage %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
+n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, color=Image_Cat)) +
   geom_point(alpha=0.7) +
   geom_text(alpha=0.7, nudge_x = 0.2, nudge_y = 0.2) +
   theme_minimal() 
 
 # Dim3 visualized by alpha
-n1b_PCAscores_byImage %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
+n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, alpha=-Dim3_NonCalifornian), color="black") +
   # facet_wrap(~Image) +
   geom_point() +
@@ -2032,7 +2561,7 @@ n1b_PCAscores_byImage %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_
   scale_alpha_continuous(range = c(-2.3, 2.3))
 
 # Dim3 visualized by size
-n1b_PCAscores_byImage %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
+n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, color=Image, size=-Dim3_NonCalifornian)) +
   # facet_wrap(~Image) +
   geom_point() +
@@ -2049,7 +2578,7 @@ Now, for each persona profile, I want to see/select the top (e.g. ten) photos pe
 
 ##### a) Mainstream White
 ```{r}
-msWhite_images <- n1b_PCAscores_byImage %>%
+msWhite_images <- n1b_ratings_vars_pca %>%
   
   # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
   filter(FrCA>0.5) %>%
@@ -2077,7 +2606,7 @@ msWhite_images
 msWhite_images %>% filter(Dim3_NonCalifornian<0)
 ```
 ```{r}
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
   # facet_wrap(~Image) +
   geom_point() +
@@ -2090,7 +2619,7 @@ n1b_PCAscores_byImage %>%
 
 ##### b) Mainstream Asian
 ```{r}
-msAsian_images <- n1b_PCAscores_byImage %>%
+msAsian_images <- n1b_ratings_vars_pca %>%
   
   # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
   filter(FrCA>0.5) %>%
@@ -2116,7 +2645,7 @@ msAsian_images <- n1b_PCAscores_byImage %>%
 msAsian_images
 ```
 ```{r}
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
   # facet_wrap(~Image) +
   geom_point() +
@@ -2132,7 +2661,7 @@ First dataframe matches the previous personae by screening for only those above 
 Also includes a separate dataframe with ALL potential options, not screening by FrCA at all, to see where other images fall as it's possible that FOB/ethnic personae may be less likely to be considered "from California" though it doesn't mean they can't be accepted as "Californian" just that they didn't grow up there (and different people may have interpreted that differently).
 
 ```{r}
-ethAsian_images_all <- n1b_PCAscores_byImage %>%
+ethAsian_images_all <- n1b_ratings_vars_pca %>%
   
   # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
   filter(AsAm>0.5) %>%
@@ -2168,7 +2697,7 @@ ethAsian_images_all %>% filter(FrCA<0.4) # under 0.4
 ```
 
 ```{r}
-n1b_PCAscores_byImage %>%
+n1b_ratings_vars_pca %>%
   ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
   # facet_wrap(~Image) +
   geom_point() +

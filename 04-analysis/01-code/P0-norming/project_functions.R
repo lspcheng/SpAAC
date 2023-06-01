@@ -52,16 +52,18 @@ library(lme4)
 library(lmerTest)
 library(broom)
 library(broom.mixed)
+library(emmeans)
 
 # Resolve package conflicts
 # select <- dplyr::select
 
 
 # 2. Basic Functions ----
+options(scipen=999)
 
 # general standardized ggplot theme
 gg_theme <- function() {
-  theme_bw() +
+  theme_minimal() +
     theme(plot.title=element_text(size=25),
           plot.subtitle=element_text(size=15, face="italic"),
           axis.title=element_text(size=20),
