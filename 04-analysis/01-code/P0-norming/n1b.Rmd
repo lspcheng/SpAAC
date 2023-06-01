@@ -1788,25 +1788,8 @@ n1b_ratings_vars_pca <-
   ) %>%
 relocate(Condition:Image,
        Dim1_American=Dim.1, Dim2_Likeable=Dim.2
-       )
+       ) %>% select(-Item)
 n1b_ratings_vars_pca
-```
-
-```{r}
-# # Check how PCs map onto raw scores
-# # Which photos were selected as FrCA over 50% of the time
-# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(-FrCA) %>% filter(FrCA>0.5) #%>% summarize(max_Dim3 = max(Dim3_NonCalifornian)) # Max Dim3 = 0.6065949
-# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(Dim3_NonCalifornian)
-# 
-# # Which photos were selected as WhAm over 50% of the time
-# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-WhAm) %>% filter(WhAm>0.5) #%>% summarize(min_Dim1 = min(Dim1_White)) # Min Dim1 = 0.2245709	
-# # Which photos were selected as AsAm 
-# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-AsAm)
-# 
-# # Which photos were selected as AsAcc
-# n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim2_American, AmAcc, ForAcc, AmCul, EthCul, FrCA) %>% arrange(-AmAcc) %>%
-#   #filter(AmAcc>0.5) %>% 
-#   filter(Image_Cat=="AAW")
 ```
 
 ```{r}
@@ -1886,106 +1869,120 @@ Get plot of main Dimensions with the labelled images to review the selections be
 # Specific Images colored by Condition
 n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim2_Likeable, label=Image, group=Condition, show_points=FALSE)
 ```
-## Assess
-
-**To Check:**
-* ethAsian
-  * AAW-27
-  * 63
-  * 25
-  * 4
-  * 1
-* msAsian
-  * AAW-30
-  * 45
-  * 47
-* msWhite
-  * WAW-51
-  * 16
-  * 23
-  * 12
-  * 56
-  
 ```{r}
 # Other
 # Specific Images colored by Condition
 # n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Feminine, label=Image, group=Condition, show_points=FALSE)
 # n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Intelligent, label=Image, group=Condition, show_points=FALSE)
 ```
+
+## Assess
+
+### Find Outliers
+Consider: Check for Outliers with Mahalanobis distances
+
+* Use the Mahalanobis distance to assess outliers via visual inspection and selecting a threshold cut-off
+
+```{r}
+scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
+  select(Dim1_American, Dim2_Likeable, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
+  
+# Finding the center point 
+center  = colMeans(scores_df)
+# Finding the covariance matrix
+cov     = cov(scores_df)
+
+# Calculate Mahalnobis distance + identify outliers
+mdist_df <- index_df %>% 
+  cbind(m_dist = mahalanobis(scores_df, center, cov))  %>%
+  mutate(outlier = ifelse(m_dist > 10, TRUE, FALSE))
+  # mutate(pvalue = pchisq(m_dist, df=3, lower.tail=FALSE)) #pval<0.001 outlier
+
+# See results
+mdist_df %>% arrange(desc(m_dist))
+# Get list of potential outliers to check
+mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image) %>% inner_join(n1b_ratings_vars_pca)
+```
+
 ### Get Narrowed Conditions
 Select 4-5 photos 
+* Based on Dim1 and Dim2 scores
+* Based on outliers (mahalanobis scores)
  
-#### Examine Distinctiveness / Test Differences
-**Reference Code:** 
-- https://cran.r-project.org/web/packages/emmeans/vignettes/comparisons.html 
-- https://broom.tidymodels.org/reference/tidy.summary_emm.html 
+### Examine Distinctiveness / Test Differences
+Function to get linear model output and pairwise comparisons
+```{r}
+# LM Output Comparisons Function
+# **Reference Code:** 
+# - https://cran.r-project.org/web/packages/emmeans/vignettes/comparisons.html 
+# - https://broom.tidymodels.org/reference/tidy.summary_emm.html 
 
+lm_emms_pairs <- function(df, formula){
+  # run linear model
+  lm_out <- lm(formula, data=df)
+  print( summary(lm_out) )
+  print( lm_df <- tidy(lm_out) )
+  
+  # get marginal averages (estimated marginal means / Least-squares means)
+  emms <- emmeans(lm_out, "Condition")
+  print( emms_df <- tidy(emms, conf.int = TRUE) )
+  
+  # get contrasts
+  # (?) tidy(contrast(emms)) # contrast from grand mean(?)
+  # pwcs = contrast between paired groups; equivalent to: contrast(emms, method="pairwise") 
+  #   +  bonferroni adjusted for multiple comparisons
+  pwcs <- tidy(pairs(emms)) %>% mutate(bfrn.adj.p.value = tidy(pairs(emms, adjust="bonferroni")) %>% pull(adj.p.value))
+  print(pwcs)
+  
+  # get effect sizes
+  print( tidy(eff_size(emms, sigma = sigma(lm_out), edf = Inf)) )
+  
+  # plot confidence intervals
+  #Option 1
+  print( plot(emms, comparisons = TRUE))
+  #Option 2
+  confint_plot <- ggplot(emms_df, aes(Condition, estimate)) +
+    geom_point() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=0.5) + gg_theme()
+  print( confint_plot )
+}
+
+# Output:
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# (*) not currently sure about the `edf` parameter, currently speifying Inf, narrowing confint unrealistically
+```
+
+#### American
 Good, Dim1_American scores are different across the three conditions
 ```{r}
-# linear model
-lm_out <- lm(Dim1_American ~ Condition, data=n1b_ratings_vars_pca)
-summary(lm_out)
-( lm_df <- tidy(lm_out) )
-
-# get marginal averages (estimated marginal means / Least-squares means)
-emms <- emmeans(lm_out, "Condition")
-( emms_df <- tidy(emms, conf.int = TRUE) )
-
-# get contrasts
-# tidy(contrast(emms)) # contrast from grand mean(?)
-tidy(pairs(emms))  # contrast between paired groups; equivalent to: contrast(emms, method="pairwise")
-
-# get effect sizes
-eff_size(emms, sigma = sigma(lm_out), edf = 27)
-
-# plot confidence intervals
-#Option 1
-plot(emms, comparisons = TRUE)
-#Option 2
-ggplot(emms_df, aes(Condition, estimate)) +
-  geom_point() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=0.5) + gg_theme()
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Dim1_American ~ Condition)
 ```
+#### Likeable
 Good, Dim2_Likeable are NOT different across conditions
 ```{r}
-# linear model
-lm_out <- lm(Dim2_Likeable ~ Condition, data=n1b_ratings_vars_pca)
-summary(lm_out)
-( lm_df <- tidy(lm_out) )
-
-# get marginal averages (estimated marginal means / Least-squares means)
-emms <- emmeans(lm_out, "Condition")
-( emms_df <- tidy(emms, conf.int = TRUE) )
-
-# get contrasts
-# tidy(contrast(emms)) # contrast from grand mean(?)
-tidy(pairs(emms))  # contrast between paired groups; equivalent to: contrast(emms, method="pairwise")
-
-# get effect sizes
-eff_size(emms, sigma = sigma(lm_out), edf = 27)
-
-# plot confidence intervals
-#Option 1
-plot(emms, comparisons = TRUE)
-#Option 2
-ggplot(emms_df, aes(Condition, estimate)) +
-  geom_point() + geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=0.5) + gg_theme()
-
-
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Dim2_Likeable ~ Condition)
 ```
-
-
+#### Feminine
 ```{r}
-summary(lm(Feminine ~ Condition, data=n1b_ratings_vars_pca))
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Feminine ~ Condition)
 ```
+#### Nerdy
 ```{r}
-summary(lm(Intelligent ~ Condition, data=n1b_ratings_vars_pca))
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Nerdy ~ Condition)
 ```
+#### Casual
 ```{r}
-summary(lm(Nerdy ~ Condition, data=n1b_ratings_vars_pca))
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Casual ~ Condition)
 ```
-
+#### Clear speaker
 ```{r}
-summary(lm(Casual ~ Condition, data=n1b_ratings_vars_pca))
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, `Clear speaker` ~ Condition)
 ```
 
 # .
