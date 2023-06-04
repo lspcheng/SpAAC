@@ -14,9 +14,10 @@ if (file.exists("project_functions.R")){
   source("../project_functions.R")
 }
 
-# Location
+# Text Analysis
 library(countrycode)
 library(maps)
+library(tidytext)
 
 # Plots
 library(hrbrthemes)
@@ -24,8 +25,9 @@ library(hrbrthemes)
 # Functions
 quick_summarize <- function(df, col, na.rm=FALSE){
   col = enquo(col)
-  df %>%  summarize(across(!!col, list(median= ~ median(.x, na.rm=na.rm), mean= ~ mean(.x, na.rm=na.rm), 
-                                       sd= ~ sd(.x, na.rm=na.rm), min=min, max=max)))
+  df %>%  summarize(across(!!col, list(median= ~ median(.x, na.rm=na.rm), mean= ~ mean(.x, na.rm=na.rm),
+                                       sd= ~ sd(.x, na.rm=na.rm), min= ~ min(.x, na.rm=na.rm), 
+                                       max= ~ max(.x, na.rm=na.rm))))
 }
 
 ```
@@ -130,11 +132,13 @@ pilot_data_text <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions
 RUN <- "1-2_main"
 main_prolific_1 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674eff562724a9f3b8394.csv") # n1b — 2
 main_prolific_2 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674ebfd3b2b5494abcf01.csv") # n1b — 3
-main_screener <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions +Screener_June+1,+2023_09.17.csv")
+main_prolific_3 <- file.path(int_data_path, NAME, RUN, "prolific_export_6478d1379cc5fe472f276074.csv") # n1b — 4
+
+main_screener <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions +Screener_June+4,+2023_08.43.csv")
 main_data_num <-
-  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+1,+2023_09.18_num.csv")
+  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+4,+2023_09.11.csv")
 main_data_text <-
-  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+1,+2023_09.18_text.csv")
+  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+4,+2023_09.11(1).csv")
 
 # # File paths for: RUN <- "1-3_final"
 # final_prolific <- file.path(int_data_path, NAME, RUN, "prolific_export_639cfab1514594c1843130f3.csv")
@@ -174,94 +178,94 @@ print(current_data_text)
 Using simulated (pre-pilot, test) data, check data labels and prep code for cleaning data (columns, etc). During this iterative process, go back to Qualtrics survey and update codes and labels where necessary to ensure clean output data.
 Pre-pilot set data files.
 ```{r}
-RUN <- "0-1_initialtest"
-
-test_data_num <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+29,+2023_09.45_num.csv")
-test_data_text <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+29,+2023_09.45_text.csv")
+# RUN <- "0-1_initialtest"
+# 
+# test_data_num <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+29,+2023_09.45_num.csv")
+# test_data_text <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+29,+2023_09.45_text.csv")
 ```
 
 Some of this code adapted for wrangling participant data.
 ```{r}
-# NOTE: Unfinished data doesn't appear in the export file until X days later. That's why the data may seem to change if I export new data later.
-
-# Use numeric data for main task
-n1b_data <- read_csv(test_data_num)  %>% 
-  filter(Finished!=0) %>%
-  select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several). See raw data for columns Progress, Duration, Finished, RecordedDate
-  slice(-2)  # Remove unnecessary question header rows (1,2)
-n1b_data
-
-# Use text data for subject data
-n1b_data_text <- read_csv(test_data_text)  %>% 
-  filter(Finished!="False") %>%
-  select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several)
-  slice(-2) # Remove unnecessary question header rows (1,2)
-n1b_data_text
+# # NOTE: Unfinished data doesn't appear in the export file until X days later. That's why the data may seem to change if I export new data later.
+# 
+# # Use numeric data for main task
+# n1b_data <- read_csv(test_data_num)  %>% 
+#   filter(Finished!=0) %>%
+#   select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several). See raw data for columns Progress, Duration, Finished, RecordedDate
+#   slice(-2)  # Remove unnecessary question header rows (1,2)
+# n1b_data
+# 
+# # Use text data for subject data
+# n1b_data_text <- read_csv(test_data_text)  %>% 
+#   filter(Finished!="False") %>%
+#   select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several)
+#   slice(-2) # Remove unnecessary question header rows (1,2)
+# n1b_data_text
 ```
 
 ```{r}
-# Get randomized images order list per subject
-# Check for even distribution
-n1b_data %>%
-  select(contains("Q2.5")) %>% select(contains("DO")) %>% slice(-1) %>%
-  mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
-  pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Photo_Number"), names_sep="_", values_to = "DO") %>% type.convert() %>%
-  arrange(subj, DO) %>% drop_na(DO) %>%
-  pivot_wider(subj, names_from = DO, names_prefix = "Trial", values_from = Photo_Number)
-  
+# # Get randomized images order list per subject
+# # Check for even distribution
+# n1b_data %>%
+#   select(contains("Q2.5")) %>% select(contains("DO")) %>% slice(-1) %>%
+#   mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
+#   pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Photo_Number"), names_sep="_", values_to = "DO") %>% type.convert() %>%
+#   arrange(subj, DO) %>% drop_na(DO) %>%
+#   pivot_wider(subj, names_from = DO, names_prefix = "Trial", values_from = Photo_Number)
+#   
 ```
 
 ```{r}
-# Get informative question labels
-q_labels <- 
-  n1b_data %>%
-  select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-     slice(1) %>%
-  pivot_longer(cols=everything(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
-  # Since number of dashes and <> location aren't consistent, need to remove everything between < > and extra -
-  mutate(q_label = gsub("<.*>", "", q_label)) %>%
-  mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
-mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
-  separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
-q_labels 
+# # Get informative question labels
+# q_labels <- 
+#   n1b_data %>%
+#   select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+#      slice(1) %>%
+#   pivot_longer(cols=everything(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
+#   # Since number of dashes and <> location aren't consistent, need to remove everything between < > and extra -
+#   mutate(q_label = gsub("<.*>", "", q_label)) %>%
+#   mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
+# mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
+#   separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
+# q_labels 
 ```
 
 ```{r}
-# Get question data + merge with informative question labels
-test_data <- n1b_data %>%
-  select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-  slice(-1) %>% # remove second header
-  mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
-  pivot_longer(cols=2:last_col(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "responses") %>%
-  full_join(q_labels, .)
-test_data
+# # Get question data + merge with informative question labels
+# test_data <- n1b_data %>%
+#   select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+#   slice(-1) %>% # remove second header
+#   mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
+#   pivot_longer(cols=2:last_col(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "responses") %>%
+#   full_join(q_labels, .)
+# test_data
 ```
 ```{r}
-# Check question labels for all questions (even those not shown to participants, are NA)
-test_data %>%  group_by(subj) %>%  count() #870
-test_data %>%  group_by(subj, Photo_Number) %>%  count() # 29
-test_data %>%  group_by(subj, Photo_Number, Question) %>%  count() 
-test_data %>%  group_by(subj, Photo_Number, Question, Question_Part) %>%  count()
+# # Check question labels for all questions (even those not shown to participants, are NA)
+# test_data %>%  group_by(subj) %>%  count() #870
+# test_data %>%  group_by(subj, Photo_Number) %>%  count() # 29
+# test_data %>%  group_by(subj, Photo_Number, Question) %>%  count() 
+# test_data %>%  group_by(subj, Photo_Number, Question, Question_Part) %>%  count()
 ```
 ```{r}
-# Get only data shown to participants (i.e., drop NA)
-test_data_clean <- test_data %>%
-  drop_na(responses)
-
-# Check n of total questions by subj and photo
-# For rough check (not very meaningful)
-test_data_clean %>% group_by(subj) %>%  count()
-test_data_clean %>%  group_by(subj, Photo_Number) %>% count() %>% type_convert() %>% arrange(subj, Photo_Number) # 29
-test_data_clean %>% group_by(Photo_Number)%>% count() %>% type_convert() %>% arrange(Photo_Number)
-
-# Check n of trials by subj and photo 
-# For confirming even presentation (randomization) of photos
-# Total presented/answered photos (end goal: 600)
-test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count()
-# Total presented/answered photos per participant (process/end goal: 10 per subject)
-test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(subj)
-# Total presented/answered participants per photo (end goal: 20 per photo)
-test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(Photo_Number) %>% type_convert() %>% arrange(Photo_Number)
+# # Get only data shown to participants (i.e., drop NA)
+# test_data_clean <- test_data %>%
+#   drop_na(responses)
+# 
+# # Check n of total questions by subj and photo
+# # For rough check (not very meaningful)
+# test_data_clean %>% group_by(subj) %>%  count()
+# test_data_clean %>%  group_by(subj, Photo_Number) %>% count() %>% type_convert() %>% arrange(subj, Photo_Number) # 29
+# test_data_clean %>% group_by(Photo_Number)%>% count() %>% type_convert() %>% arrange(Photo_Number)
+# 
+# # Check n of trials by subj and photo 
+# # For confirming even presentation (randomization) of photos
+# # Total presented/answered photos (end goal: 600)
+# test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count()
+# # Total presented/answered photos per participant (process/end goal: 10 per subject)
+# test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(subj)
+# # Total presented/answered participants per photo (end goal: 20 per photo)
+# test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(Photo_Number) %>% type_convert() %>% arrange(Photo_Number)
 
 ```
 
@@ -270,7 +274,19 @@ test_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(Photo_Nu
 
 # Pre-Process Screener Data
 
-## Read, Wrangle
+## (*C) Read, Wrangle
+```{r}
+# Read in Prolific "Demographic data" from the study page
+n1b_prolific_demo <- 
+  read_csv(pilot_prolific) %>% mutate(Run=RUN_LIST[1]) %>%
+  full_join(read_csv(main_prolific_1) %>% mutate(Run=paste(RUN_LIST[2]))) %>%
+  full_join(read_csv(main_prolific_2) %>% mutate(Run=RUN_LIST[2])) %>%
+  full_join(read_csv(main_prolific_3) %>% mutate(Run=RUN_LIST[3])) %>%
+
+  # full_join(read_csv(final_prolific) %>% mutate(Run=RUN_LIST[3])) %>%
+  mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
+n1b_prolific_demo
+```
 
 ```{r}
 n1b_screener_data <- read_csv(current_screener) %>%
@@ -288,17 +304,6 @@ relocate(Device, .after = Ethnicity) %>%
 n1b_screener_data 
 # View(screener_data)
 ```
-```{r}
-# Read in Prolific "Demographic data" from the study page
-n1b_prolific_demo <- 
-  read_csv(pilot_prolific) %>% mutate(Run=RUN_LIST[1]) %>%
-  full_join(read_csv(main_prolific_1) %>% mutate(Run=paste(RUN_LIST[2]))) %>%
-  full_join(read_csv(main_prolific_2) %>% mutate(Run=RUN_LIST[2])) %>%
-  # full_join(read_csv(final_prolific) %>% mutate(Run=RUN_LIST[3])) %>%
-  mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
-n1b_prolific_demo
-```
-
 
 ```{r}
 # Compare screener to prolific demographic
@@ -328,7 +333,7 @@ Check the prescreener data for consistency with the main data.
 #### Duplicates
 ```{r}
 # Check for duplicated participant id issues
-n1b_screener_v_prolific %>% count(`Participant id`)
+n1b_screener_v_prolific %>% count(`Participant id`) %>% arrange(desc(n))
 ```
 
 #### Time Taken
@@ -368,7 +373,7 @@ participant_list
 ```
 
 ```{r}
-current_participant <- "62825aef9d9d5544867a6fc0" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
+current_participant <- "5bf116a61e78580001dc4842" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
 
 n1b_screener_data %>%  filter(PROLIFIC_PID == current_participant) #Prolific_ID
 
@@ -419,48 +424,6 @@ n1b_codes
 
 ## Wrangle
 
-### (*TEMP?) Check Basic Info
-Get just the responses with informative question labels
-```{r}
-# # Get informative question labels
-# q_labels <- 
-#   n1b_data %>%
-#   select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-#      slice(1) %>%
-#   pivot_longer(cols=everything(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
-#   # Since number of dashes and <> location aren't consistent, need to remove everything between < > and extra -
-#   mutate(q_label = gsub("<.*>", "", q_label)) %>%
-#   mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
-# mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
-#   separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
-# q_labels 
-# 
-# # Get question data + merge with informative question labels
-# n1b_response_data <- n1b_data %>%
-#   select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-#   slice(-1) %>% # remove second header
-#   mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
-#   pivot_longer(cols=2:last_col(), names_to=c("Photo_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "responses") %>%
-#   full_join(q_labels, .)
-# n1b_response_data
-```
-Check the number of by-subject and by-photo counts
-```{r}
-# # Get only data shown to participants (i.e., drop NA)
-# n1b_response_data_clean <- n1b_response_data %>%
-#   drop_na(responses)
-# 
-# # Check n of trials by subj and photo 
-# # For confirming even presentation (randomization) of photos
-# 
-# # Total presented/answered photos (end goal: 600)
-# n1b_response_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count()
-# # Total presented/answered photos per participant (process/end goal: 10 per subject)
-# n1b_response_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(subj)
-# # Total presented/answered participants per photo (end goal: 20 per photo)
-# n1b_response_data_clean %>% select(subj, Photo_Number) %>% distinct() %>% count(Photo_Number) %>% type_convert() %>% arrange(Photo_Number)
-
-```
 
 ### Subject Data
 Before moving on, check the Task short-answer reflections and Demographic data + Randomization data.
@@ -517,7 +480,7 @@ n1b_subj_p2
 ```
 
 #### Summary
-#### By-Sample Check
+#### (*R) By-Sample Check
 ```{r}
 # Total Participant entries
 n1b_subj_p2 %>% count()
@@ -612,6 +575,45 @@ n1b_subj_p2_loc <-
   pivot_wider(id_cols=PROLIFIC_PID:Loc, names_from = Info, values_from = Response) 
 # n1b_subj_p2_loc # <- UNCOMMENT to view
 ```
+
+##### (WIP) Network
+```{r}
+n1b_subj_p2_network <- n1b_subj_p2 %>% select(PROLIFIC_PID, contains("Community") | contains("Contacts")) %>%
+  mutate(across(everything(), as.character)) %>%
+  pivot_longer(cols = 2:last_col(), names_to = c("Question", "Ethnicity"), names_sep=" - ", values_to = "Response") %>%
+  filter(!is.na(Response)) %>% filter(Response!="0") %>%
+  pivot_wider(id_cols=c(PROLIFIC_PID, Ethnicity), names_from = Question, values_from = Response) %>% type_convert()
+n1b_subj_p2_network <- n1b_subj_p2_network %>%
+  full_join(n1b_subj_p2_network %>% group_by(PROLIFIC_PID) %>% summarize(total_CloseContacts = sum(CloseContacts, na.rm=TRUE))
+  ) %>%
+  mutate(prop_CloseContactsLocal = CloseContactsLocal/100,
+        prop_CloseContacts = round(CloseContacts/total_CloseContacts, 2),
+         prop_RegularContacts = RegularContacts/100,
+         prop_BroaderCommunity = BroaderCommunity/100) %>%
+  select(PROLIFIC_PID:Ethnicity, n_CloseContacts=CloseContacts, prop_CloseContactsLocal, prop_CloseContacts, prop_RegularContacts, prop_BroaderCommunity)
+n1b_subj_p2_network
+```
+```{r}
+# Q1 -- selections for SocialCommunityNetwork (i.e., all undropped rows)
+n1b_subj_p2_network %>% count(Ethnicity)
+n1b_subj_p2_network %>% add_count(PROLIFIC_PID) %>% count(PROLIFIC_PID,n,  Ethnicity) %>% select(-nn)
+```
+
+```{r}
+# Q3 -- CloseContactsLocal
+n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_CloseContactsLocal, na.rm=TRUE)
+
+# Q2 -- CloseContacts
+n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_CloseContacts, na.rm=TRUE)
+
+# Q4 -- Regular Contacts
+n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_RegularContacts, na.rm=TRUE)
+
+# Q5 -- BroaderCommunity
+n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_BroaderCommunity, na.rm=TRUE)
+```
+
+
 #### (*C) By-Participant Check
 ```{r}
 participant_list <- n1b_screener_v_prolific %>% filter(Run==CURRENT_RUN) %>%  pull(`Participant id`)
@@ -639,7 +641,7 @@ for (i in 1:length(participant_list)){
 
 ```{r}
 # Check single participant
-current_participant <- "62825aef9d9d5544867a6fc0" # OR e.g. participant_list[3]
+current_participant <- "5dbf692c2a1dd63f64ef5ae4" # OR e.g. participant_list[3]
 
 # View subj data by subject
 n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant)
@@ -696,22 +698,6 @@ summary(n1b_responses)
 # View(n1b_responses)
 ```
 
-Sanity Check: Check the number of by-subject and by-photo counts. Does randomization seem to be working alright?
-Can reset the randomization counts based on these numbers, so that started and unfinished surveys don't affect the final counts.
-```{r}
-# Check n of trials by subj and photo 
-# For confirming even presentation (randomization) of photos
-
-# Total presented/answered photos (end goal: 600)
-n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count()
-# Total presented/answered photos per participant (process/end goal: 10 per subject)
-n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count(PROLIFIC_PID)
-# Total presented/answered participants per photo (end goal: 20 per photo)
-n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count(Photo_Number) %>% arrange(Photo_Number)
-
-```
-
-
 #### Summary
 Make a targeted dataframe with just the useful/relevant columns for easier viewing.
 ```{r}
@@ -747,12 +733,28 @@ Error check, i.e., manually view strange things in the data to fix them above
 ```
 
 
-##### (*C) By-Sample Check
+##### (*R) By-Sample Check
+
+Sanity Check: Check the number of by-subject and by-photo counts. Does randomization seem to be working alright?
+Can reset the randomization counts based on these numbers, so that started and unfinished surveys don't affect the final counts.
+```{r}
+# Check n of trials by subj and photo 
+# For confirming even presentation (randomization) of photos
+
+# Total presented/answered photos (end goal: 600)
+n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count()
+# Total presented/answered photos per participant (process/end goal: 10 per subject)
+n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count(PROLIFIC_PID)
+# Total presented/answered participants per photo (end goal: 20 per photo)
+n1b_responses %>% select(PROLIFIC_PID, Photo_Number) %>% distinct() %>% count(Photo_Number) %>% arrange(Photo_Number)
+
+```
 ```{r}
 # Conditions, sample sizes, sample means, time taken, outliers(?)
 # summary(n1b_responses)
 summary(n1b_responses_selected)
 ```
+
 ##### (*C) By-Participant Check
 Get the participants list.
 ```{r}
@@ -763,7 +765,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "62825aef9d9d5544867a6fc0" #participant_list[10] # <- or, REPLACE with PROLIFIC_PID string
+current_participant <- "5dbf692c2a1dd63f64ef5ae4" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
@@ -780,15 +782,10 @@ current_responses %>% filter(Question=="Age") %>%
   pivot_wider(id_cols = c(PROLIFIC_PID, Image), names_from = Question_Part, values_from = Response)
 
 current_responses %>% filter(Question=="Occupation") %>% select(-contains("Question_Part"))
-
 current_responses %>% filter(Question=="Activities") %>% select(-contains("Question_Part"))
-
 current_responses %>% filter(Question=="GrewUp") %>% select(-contains("Question_Part"))
-
 current_responses %>% filter(Question=="Ethnicity") %>% select(-contains("Question_Part"))
-
 current_responses %>% filter(Question=="Speech") %>% select(-contains("Question_Part"))
-
 current_responses %>% filter(Question=="Recognize") %>% select(-contains("Question_Part"))
 
 # Rating responses
@@ -800,7 +797,6 @@ current_ratings %>%
   select(Image, Scale, Response) %>% pivot_wider(id_cols = Image, names_from = Scale, values_from = Response)
 
 current_ratings %>% summary()
-
 current_ratings %>% group_by(Image) %>% quick_summarize(Response, na.rm=TRUE)
 current_ratings %>% group_by(Scale) %>% quick_summarize(Response, na.rm=TRUE)
 current_ratings %>% quick_summarize(Response, na.rm=TRUE)
@@ -819,21 +815,31 @@ Sanity check that no people were recognized.
 ```{r}
 n1b_responses_selected %>% filter(Question=="Recognize") %>% count(Response)
 ```
-### Descriptors
+### (WIP) Descriptors
+Try adding sentiments to each word entry: https://www.tidytextmining.com/sentiment.html
+(See also: https://m-clark.github.io/text-analysis-with-R/sentiment-analysis.htm)
 ```{r}
+library(tidytext)
 n1b_descriptors <-
-  # n1b_responses %>% 
-  # select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
   n1b_responses_selected %>%
   filter(Question=="Impressions") %>%
-  select(- PROLIFIC_PID:-Question_Part) %>%
+  select(-Question:-Question_Part) %>%
   # text cleaning
   mutate(Response = tolower(Response)) %>%
   mutate(Response = mgsub(Response, c("-"), c(""), fixed=TRUE)) %>%
-  mutate(Response = mgsub(Response, c("inetlligent"), c("intelligent"), fixed=TRUE)) %>% # typos
-  # get counts
+  mutate(Response = mgsub(Response, c("inetlligent", "independant"), c("intelligent", "independent"), fixed=TRUE)) %>% # typos
+  # Add counts
   add_count(Image, name="total_image_n") %>% add_count(Response, name="total_word_n") %>% 
-    add_count(Image, Response, name="image_word_n")
+    add_count(Image, Response, name="image_word_n") %>%
+  # Add sentiments
+  rename(word=Response) %>% 
+  left_join(get_sentiments("bing")) %>% left_join(get_sentiments("afinn"))  %>%
+  rename(Response=word, sentiment_score=value) %>%
+  # mutate(sentiment = ifelse(is.na(sentiment), "neutral", sentiment),
+         # sentiment_score = ifelse(is.na(sentiment_score), 0, sentiment_score))
+  mutate(sentiment = case_when((is.na(sentiment) & (sentiment_score > 0)) ~ "positive",
+                               (is.na(sentiment) & (sentiment_score < 0)) ~ "negative",
+                               TRUE ~ sentiment))
 n1b_descriptors
 ```
 ```{r}
@@ -841,6 +847,28 @@ n1b_descriptors
 # n1b_descriptors %>%  filter(Response == str_match(Response, ".* .*"))
 ```
 
+#### Sentiment
+```{r}
+# Summarize sentiment data
+n1b_descriptors %>% count(sentiment)
+n1b_descriptors %>% count(sentiment_score)
+n1b_descriptors %>% quick_summarize(sentiment_score, na.rm=TRUE)
+
+# By group
+n1b_descriptors %>% drop_na(sentiment) %>% add_count(Condition, name="group_n") %>% count(Condition, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n)
+n1b_descriptors %>% group_by(Condition)  %>% quick_summarize(sentiment_score, na.rm=TRUE) %>% rename_with( ~ gsub("_score", "", .x))
+```
+
+```{r}
+#By image
+n1b_descriptors %>% drop_na(sentiment) %>% add_count(Image, name="group_n") %>% 
+  count(Image, Condition, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n) %>%
+  pivot_wider(id_cols=Image:Condition, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum)
+
+n1b_descriptors %>% group_by(Image)  %>% quick_summarize(sentiment_score, na.rm=TRUE) %>% rename_with( ~ gsub("_score", "", .x))
+```
+
+#### Sets
 ```{r}
 # Total descriptor words
 n1b_descriptors %>% count(name="total_words")
@@ -966,7 +994,7 @@ n1b_grewup <-
   # text cleaning
   mutate(Response = str_trim(tolower(Response))) %>%
   mutate(Response = gsub("(.*)\\s*,\\s*usa", "\\1", Response)) %>% # keep everything before ', usa'
-  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "america|^us$", "(?:^|\\W)ca(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "wisconsin"))) %>% 
+  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "america|^us$|^united states$", "(?:^|\\W)ca(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "wisconsin"))) %>% 
   # Add categorization into US or Asia or Europe
   mutate(Region = case_when(
     Response %in% c("san francisco", "los angeles", "boston", "beverly hills") ~ "USA",
@@ -975,6 +1003,7 @@ n1b_grewup <-
     str_detect(Response, "(?:^|\\W)usa(?:$|\\W)") ~ "USA", # if USA or <other>, defaults to US
     str_detect(Response,"(?:^|\\W)canada(?:$|\\W)") ~ "Canada",
     str_detect(Response, "(?<!\\w)asia(?!\\w)") ~ "Asia",
+    str_detect(Response, "(?<!\\w)europe(?!\\w)") ~ "Europe",
     TRUE ~ NA
   )) 
 n1b_grewup <- n1b_grewup %>%
@@ -1000,7 +1029,8 @@ n1b_grewup %>% filter(is.na(Response_Cat) )
 ```
 
 ```{r}
-world.cities %>% filter(country.etc=="USA") %>% mutate(name=tolower(name)) %>% filter(str_detect(name, "washington"))
+# Check for errors
+# world.cities %>% filter(country.etc=="USA") %>% mutate(name=tolower(name)) %>% filter(str_detect(name, "washington"))
 ```
 
 ```{r}
@@ -1130,11 +1160,11 @@ n1b_speech <-
     TRUE ~ NA
   )) %>%
   mutate(Accented = case_when(
-    str_detect(Response, "(?:^|\\W)(accented|with a(.+\\s)accent|(aapi|hawaiian|asian) accent|broken english)(?:$|\\W)") ~ "Accented",
+    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.+\\s)accent|(aapi|hawaiian|asian) accent|broken english)(?:$|\\W)") ~ "Accented",
     TRUE ~ NA
   )) %>%
   mutate(Unaccented = case_when(
-    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|california) accent|(california) style|normal)(?:$|\\W)") ~ "Unaccented",
+    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|california|neutral) accent|(california) style|normal)(?:$|\\W)") ~ "Unaccented",
     # str_detect(Response, "(?:^|\\W)((fluent|clear) english)(?:$|\\W)") ~ "Unaccented",
     TRUE ~ NA
   )) %>%
@@ -1169,11 +1199,11 @@ n1b_speech %>% count(Condition, Response_Cat, sort=TRUE) %>% pivot_wider(names_f
 
 ```{r}
 # Check category of photos per condition
-n1b_speech %>% filter(Condition=="msWhite") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+n1b_speech %>% filter(Condition=="msWhite") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
-n1b_speech %>% filter(Condition=="msAsian") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+n1b_speech %>% filter(Condition=="msAsian") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
-n1b_speech %>% filter(Condition=="ethAsian") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+n1b_speech %>% filter(Condition=="ethAsian") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 ```
 
 #### Styles
@@ -1242,21 +1272,19 @@ n1b_ratings
 Summary stats
 ```{r}
 # Check summary stats of data overall
-n1b_ratings %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
+n1b_ratings %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
 # n1b_ratings %>% summarize(min=min(Rating_ZScore), max=max(Rating_ZScore), mean=mean(Rating_ZScore), median=median(Rating_ZScore))
 
 # by rating group
-n1b_ratings %>% group_by(Rating_Group) %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
+n1b_ratings %>% group_by(Rating_Group) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
 
 # by condition
-n1b_ratings %>% group_by(Condition, Rating_Group) %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
-n1b_ratings %>% group_by(Condition, Rating_Scale) %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
-# n1b_ratings %>% group_by(Condition, Rating_Scale) %>% summarize(min=min(Rating_ZScore), max=max(Rating_ZScore), mean=mean(Rating_ZScore), median=median(Rating_ZScore))
+n1b_ratings %>% group_by(Condition, Rating_Group) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+n1b_ratings %>% group_by(Condition, Rating_Scale) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
 
 # by image
-n1b_ratings %>% group_by(Image, Rating_Group) %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
-n1b_ratings %>% group_by(Image, Rating_Scale) %>% summarize(min=min(Rating_Value), max=max(Rating_Value), mean=mean(Rating_Value), median=median(Rating_Value))
-# n1b_ratings %>% group_by(Image, Rating_Scale) %>% summarize(min=min(Rating_ZScore), max=max(Rating_ZScore), mean=mean(Rating_ZScore), median=median(Rating_ZScore))
+n1b_ratings %>% group_by(Image, Rating_Group) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+n1b_ratings %>% group_by(Image, Rating_Scale) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
 
 ```
 
@@ -1376,7 +1404,7 @@ n1b_ratings_releveled <-
   mutate(Rating_Scale = fct_relevel(Rating_Scale, 
   "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
   "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
-  "Feminine", "Clear speaker","Casual", "Cool", "Nerdy", "Slow speaker"))                         # Style
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))                         # Style
 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_Value, group=Condition, angle_axis_labels=TRUE) 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) 
@@ -1567,7 +1595,7 @@ Interpretability indicates 3 components, such that FrCA serves as its own compon
 #score_PCA$call   # summary stats
 
 # Conduct PCA with scaling/standardizing
-score_PCA <- PCA(image_vars_pca, scale.unit = T, ncp =3, graph=T)
+score_PCA <- PCA(image_vars_pca, scale.unit = T, ncp =4, graph=T)
 
 ## Relevant Raw PCA Output
 # Eigenvalues & percent variance accounted for
@@ -1766,7 +1794,7 @@ n1b_ratings_vars_pca <-
     as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
   ) %>%
 relocate(Condition:Image,
-       Dim1_American=Dim.1, Dim2_Likeable=Dim.2, Dim3=Dim.3
+       Dim1_American=Dim.1, Dim2_Likeable=Dim.2, Dim3_Feminine=Dim.3, Dim4_Nerdy=Dim.4
        ) %>% select(-Item)
 n1b_ratings_vars_pca
 ```
@@ -1775,7 +1803,8 @@ n1b_ratings_vars_pca
 # Summary stats of each PC/Dimension
 quick_summarize(n1b_ratings_vars_pca, Dim1_American)
 quick_summarize(n1b_ratings_vars_pca, Dim2_Likeable)
-quick_summarize(n1b_ratings_vars_pca, Dim3)
+quick_summarize(n1b_ratings_vars_pca, Dim3_Feminine)
+quick_summarize(n1b_ratings_vars_pca, Dim4_Nerdy)
 ```
 
 ##### Visualize Data
@@ -1841,9 +1870,15 @@ Get plot of main Dimensions with the labelled images to review the selections be
 ```{r}
 # Main Dimensions
 # Specific Images colored by Condition
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2_Likeable, y=Dim3, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim3, label=Image, group=Condition, show_points=FALSE)
 n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim2_Likeable, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim3_Feminine, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2_Likeable, y=Dim3_Feminine, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2_Likeable, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim3_Feminine, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+
 ```
 ```{r}
 # Other
@@ -1878,7 +1913,7 @@ return(mdist_df)
 ```{r}
 # All orthogonal/unique variables
 scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
-  select(Dim1_American, Dim2_Likeable, Dim3) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+  select(Dim1_American, Dim2_Likeable, Dim3_Feminine, Dim4_Nerdy) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
 index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
 
 # Get mahalnobis distances
@@ -1894,7 +1929,7 @@ mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image, m_dist) %>% inne
 ```{r}
 # All orthogonal/unique variables, excluding American
 scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
-  select(Dim2_Likeable, Dim3) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+  select(Dim2_Likeable, Dim3_Feminine, Dim4_Nerdy) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
 index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
 
 # Get mahalnobis distances
@@ -1906,10 +1941,24 @@ mdist_df <- get_mdist(scores_df, index_df)
 mdist_df %>% arrange((m_dist))
 # Get list of potential matches to check
 mdist_ranks <- mdist_df %>% select(Condition, Image, m_dist) %>% inner_join(n1b_ratings_vars_pca) %>% select(-Image_Cat) %>% 
+  mutate(m_dist_bins = case_when(
+    m_dist < 1 ~ 1, # 0-1
+    m_dist < 2 ~ 2, # 1-2
+    m_dist < 4 ~ 3, # 2-4
+    m_dist < 7 ~ 4, # 4-7
+    m_dist >= 7 ~ 5, # 7+
+    TRUE ~ NA
+  ), .after=m_dist) %>%
   arrange((m_dist)) %>% group_by(Condition) %>%
-  mutate(ingroup_ranks = order(order(m_dist, decreasing=FALSE)), .after=m_dist) #%>% arrange(ingroup_ranks)
-# TODO: pivot to matched rank columns, image value for condition based on rank
+  mutate(ingroup_ranks = order(order(m_dist, decreasing=FALSE)), .after=m_dist_bins) #%>% arrange(ingroup_ranks)
+mdist_ranks
+
+# Option 1: Pivot to matched rank columns, image value for condition based on rank
 mdist_ranks %>%  pivot_wider(id_cols = ingroup_ranks, names_from = Condition, values_from = c(Image, m_dist))
+
+# Option 2: Bin columns, image value for condition based on rank
+mdist_ranks %>% count(Condition, m_dist_bins) %>% pivot_wider(names_from = Condition, values_from = n)
+mdist_ranks %>% pivot_wider(id_cols = c(m_dist_bins, Image), names_from = Condition, values_from = c(m_dist))
 ```
 
 ### Get Narrowed Conditions
@@ -1981,8 +2030,14 @@ lm_emms_pairs(n1b_ratings_vars_pca, Dim2_Likeable ~ Condition)
 Good, Dim2_Likeable are NOT different across conditions
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs(n1b_ratings_vars_pca, Dim3 ~ Condition)
+lm_emms_pairs(n1b_ratings_vars_pca, Dim3_Feminine ~ Condition)
 ```
+#### Dim4
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Dim4_Nerdy ~ Condition)
+```
+
 #### Feminine
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
