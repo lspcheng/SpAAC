@@ -124,27 +124,27 @@ Final set (n=10 + 3) data files
 ```{r}
 # Set File paths
 RUN <- "1-1_pilot"
-pilot_prolific <- file.path(int_data_path, NAME, RUN, "prolific_export_638fb8ef63b505b75b7a60e2.csv")
-pilot_screener <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions +Screener_May+30,+2023_08.29.csv")
-pilot_data_num <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+30,+2023_08.30.csv")
-pilot_data_text <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_May+30,+2023_08.30(1).csv")
+
+pilot_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
+pilot_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE)
+pilot_data_num <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE) 
+pilot_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE) 
 
 RUN <- "1-2_main"
-main_prolific_1 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674eff562724a9f3b8394.csv") # n1b — 2
-main_prolific_2 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674ebfd3b2b5494abcf01.csv") # n1b — 3
-main_prolific_3 <- file.path(int_data_path, NAME, RUN, "prolific_export_6478d1379cc5fe472f276074.csv") # n1b — 4
-
-main_screener <- file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions +Screener_June+4,+2023_08.43.csv")
-main_data_num <-
-  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+4,+2023_09.11.csv")
-main_data_text <-
-  file.path(int_data_path, NAME, RUN, "Visual+Style+Impressions_June+4,+2023_09.11(1).csv")
+main_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
+# main_prolific_1 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674eff562724a9f3b8394.csv") # n1b — 2
+# main_prolific_2 <- file.path(int_data_path, NAME, RUN, "prolific_export_647674ebfd3b2b5494abcf01.csv") # n1b — 3
+# main_prolific_3 <- file.path(int_data_path, NAME, RUN, "prolific_export_6478d1379cc5fe472f276074.csv") # n1b — 4
+# main_prolific_4 <- file.path(int_data_path, NAME, RUN, "prolific_export_647de66d14bd4b43fe5c7f15.csv") # n1b — 4
+main_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE) 
+main_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
+main_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
 
 # # File paths for: RUN <- "1-3_final"
-# final_prolific <- file.path(int_data_path, NAME, RUN, "prolific_export_639cfab1514594c1843130f3.csv")
-# # final_screener <- file.path(int_data_path, NAME, RUN, "Visual+Style+Selection +Screener_January+6,+2023_08.27.csv")
-# # final_data_num <- file.path(int_data_path, NAME, RUN, "Visual+Style+Selection_January+6,+2023_08.30.csv")
-# # final_data_text <- file.path(int_data_path, NAME, RUN, "Visual+Style+Selection_January+6,+2023_08.30(1).csv")
+# final_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
+# final_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE) 
+# final_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
+# final_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
 
 # Get Current File paths
 RUN_LIST <- c("pilot", "main", "final") # "test"
@@ -275,14 +275,12 @@ Some of this code adapted for wrangling participant data.
 # Pre-Process Screener Data
 
 ## (*C) Read, Wrangle
+
 ```{r}
 # Read in Prolific "Demographic data" from the study page
 n1b_prolific_demo <- 
-  read_csv(pilot_prolific) %>% mutate(Run=RUN_LIST[1]) %>%
-  full_join(read_csv(main_prolific_1) %>% mutate(Run=paste(RUN_LIST[2]))) %>%
-  full_join(read_csv(main_prolific_2) %>% mutate(Run=RUN_LIST[2])) %>%
-  full_join(read_csv(main_prolific_3) %>% mutate(Run=RUN_LIST[3])) %>%
-
+  plyr::ldply(pilot_prolific, read_csv) %>% mutate(Run=RUN_LIST[1]) %>%
+  full_join(plyr::ldply(main_prolific, read_csv) %>% mutate(Run=RUN_LIST[2]))%>%
   # full_join(read_csv(final_prolific) %>% mutate(Run=RUN_LIST[3])) %>%
   mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
 n1b_prolific_demo
@@ -321,15 +319,18 @@ n1b_screener_v_prolific <-
 # Show full data
 n1b_screener_v_prolific
 
-# Remove Run==NA rows, where no Prolific data (i.e., generally, returned participants)
-# n1b_screener_v_prolific <- n1b_screener_v_prolific %>%  drop_na(Run)
+# Check and Remove Run==NA rows, where no Prolific data (i.e., generally, returned participants)
+n1b_screener_v_prolific_NA <- n1b_screener_v_prolific %>% filter(is.na(Run))
+n1b_screener_v_prolific_NA
+
+n1b_screener_v_prolific <- n1b_screener_v_prolific %>%  drop_na(Run)
 n1b_screener_v_prolific
 ```
 
 
 ## Check, Summarize
 Check the prescreener data for consistency with the main data.
-### Sample Check
+### (*C) Sample Check
 #### Duplicates
 ```{r}
 # Check for duplicated participant id issues
@@ -373,7 +374,7 @@ participant_list
 ```
 
 ```{r}
-current_participant <- "5bf116a61e78580001dc4842" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
+current_participant <- "64136da866ff27f7bf98cfe0" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
 
 n1b_screener_data %>%  filter(PROLIFIC_PID == current_participant) #Prolific_ID
 
@@ -475,12 +476,13 @@ n1b_subj_p2 <- n1b_subj %>% select(PROLIFIC_PID, Age:VERSION) %>%
   mutate(Gender=tolower(Gender), Ethnicity=tolower(Ethnicity)) %>%
   #mutate(Gender=gsub(" ", "", Gender), Ethnicity=gsub("-", " ", Ethnicity)) %>%
   mutate(Gender=mgsub(Gender, c("^female|^woman", "^male|^man"), c("f", "m"), fixed=FALSE)) %>%
+  mutate(Ethnicity=mgsub(Ethnicity, c("han ", "(mandarin)", "and honk-kongese"), c("", "", "; hongkongese"), fixed=TRUE)) %>%
   mutate(Ethnicity=mgsub(Ethnicity, c("(\\s|\\-)american", "/"), c("", ", "), fixed=FALSE)) # remove american
 n1b_subj_p2
 ```
 
 #### Summary
-#### (*R) By-Sample Check
+#### (*R) Sample Check
 ```{r}
 # Total Participant entries
 n1b_subj_p2 %>% count()
@@ -582,7 +584,7 @@ n1b_subj_p2_network <- n1b_subj_p2 %>% select(PROLIFIC_PID, contains("Community"
   mutate(across(everything(), as.character)) %>%
   pivot_longer(cols = 2:last_col(), names_to = c("Question", "Ethnicity"), names_sep=" - ", values_to = "Response") %>%
   filter(!is.na(Response)) %>% filter(Response!="0") %>%
-  pivot_wider(id_cols=c(PROLIFIC_PID, Ethnicity), names_from = Question, values_from = Response) %>% type_convert()
+  pivot_wider(id_cols=c(PROLIFIC_PID, Ethnicity), names_from = Question, values_from = Response, values_fill='0') %>% type_convert()
 n1b_subj_p2_network <- n1b_subj_p2_network %>%
   full_join(n1b_subj_p2_network %>% group_by(PROLIFIC_PID) %>% summarize(total_CloseContacts = sum(CloseContacts, na.rm=TRUE))
   ) %>%
@@ -590,16 +592,19 @@ n1b_subj_p2_network <- n1b_subj_p2_network %>%
         prop_CloseContacts = round(CloseContacts/total_CloseContacts, 2),
          prop_RegularContacts = RegularContacts/100,
          prop_BroaderCommunity = BroaderCommunity/100) %>%
-  select(PROLIFIC_PID:Ethnicity, n_CloseContacts=CloseContacts, prop_CloseContactsLocal, prop_CloseContacts, prop_RegularContacts, prop_BroaderCommunity)
+  select(PROLIFIC_PID:Ethnicity, n_CloseContacts=CloseContacts, prop_CloseContactsLocal, prop_CloseContacts, prop_RegularContacts, prop_BroaderCommunity) %>%
+  mutate(across(where(is.numeric), ~ ifelse(is.na(.x), 0, .x)))
 n1b_subj_p2_network
-```
-```{r}
-# Q1 -- selections for SocialCommunityNetwork (i.e., all undropped rows)
-n1b_subj_p2_network %>% count(Ethnicity)
-n1b_subj_p2_network %>% add_count(PROLIFIC_PID) %>% count(PROLIFIC_PID,n,  Ethnicity) %>% select(-nn)
+
+summary(n1b_subj_p2_network)
 ```
 
 ```{r}
+# View per Ethnicity data summary
+# Q1 -- selections for SocialCommunityNetwork (i.e., all undropped rows)
+n1b_subj_p2_network %>% count(Ethnicity)
+n1b_subj_p2_network %>% add_count(PROLIFIC_PID) %>% count(PROLIFIC_PID,n,  Ethnicity) %>% select(-nn)
+
 # Q3 -- CloseContactsLocal
 n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_CloseContactsLocal, na.rm=TRUE)
 
@@ -613,6 +618,65 @@ n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_RegularCont
 n1b_subj_p2_network %>% group_by(Ethnicity) %>% quick_summarize(prop_BroaderCommunity, na.rm=TRUE)
 ```
 
+```{r}
+# Get Asian-specific experience
+# Filter to only East and Southeast Asian experience
+n1b_subj_p2_asian <- n1b_subj_p2_network %>% filter(Ethnicity=="East Asian"|Ethnicity=="Southeast Asian") %>%
+  mutate(n_CloseContactsLocal = n_CloseContacts*prop_CloseContactsLocal, .after=n_CloseContacts)
+n1b_subj_p2_asian
+
+# Total N for Asian (absolute)
+n1b_subj_p2_asian %>% group_by(PROLIFIC_PID) %>% summarize(n_CloseContacts = sum(n_CloseContacts), n_CloseContactsLocal = round(sum(n_CloseContactsLocal)))
+
+# Total prop for Asian (relative)
+n1b_asian_network <- n1b_subj_p2_asian %>%
+  # Get local prop of total, not just of subcategory/row
+  mutate(prop_LocalCloseContacts = prop_CloseContactsLocal * prop_CloseContacts, .after=prop_CloseContactsLocal) %>%
+  # Get total props across both east and southeast asian = "Asian"
+  group_by(PROLIFIC_PID) %>% summarize(prop_AsianLocalCC = sum (prop_LocalCloseContacts), prop_AsianCC = sum(prop_CloseContacts), prop_AsianRC = sum(prop_RegularContacts), prop_AsianBC = sum(prop_BroaderCommunity)) %>%
+  # Get unweighted total Asian estimate
+  mutate(prop_Asian = (prop_AsianCC + prop_AsianRC + prop_AsianBC)/3)
+n1b_asian_network
+```
+
+```{r}
+# Get sample summary
+n1b_asian_network %>% summarize(across(where(is.numeric), mean))
+
+# # Q3 -- CloseContactsLocal
+n1b_asian_network  %>% quick_summarize(prop_AsianLocalCC, na.rm=TRUE)
+n1b_asian_network  %>% quick_summarize(prop_AsianCC, na.rm=TRUE)
+n1b_asian_network  %>% quick_summarize(prop_AsianRC, na.rm=TRUE)
+n1b_asian_network  %>% quick_summarize(prop_AsianBC, na.rm=TRUE)
+n1b_asian_network  %>% quick_summarize(prop_Asian, na.rm=TRUE)
+```
+```{r}
+n1b_asian_network %>%
+  ggplot(aes(x=prop_Asian, y=prop_AsianCC, size=prop_AsianRC)) + gg_theme() +
+  geom_point(alpha=0.2) 
+
+n1b_asian_network %>%
+  ggplot(aes(x=prop_AsianCC, y=prop_AsianRC, size=prop_AsianBC)) + gg_theme() +
+  geom_point(alpha=0.2) + 
+  labs(title="Asian Network", x="Close Contacts", y="Regular Contacts", size="Broader Community")
+
+n1b_asian_network %>%
+  ggplot(aes(x=prop_AsianBC, y=prop_AsianRC, size=prop_AsianCC)) + gg_theme() +
+  geom_point(alpha=0.2) + 
+  labs(title="Asian Network", x="Broader Community", y="Regular Contacts", size="Close Contacts")
+
+n1b_asian_network %>%
+  ggplot(aes(x=prop_AsianBC, y=prop_AsianCC, size=prop_AsianRC)) + gg_theme() +
+  geom_point(alpha=0.2) + 
+  labs(title="Asian Network", x="Broader Community", y="Close Contacts", size="Regular Contacts") 
+```
+Notes: 
+- Most people seem to have a minimum proportion of Asian Close Contacts at 0.25 (one exception of 0).
+- All correlate somewhat, but Regular and Broader seem most connected, then Regular and Close
+- A number of people at all Asian contacts across the board
+- There seems to be a bit of a split between 50% or more Asian in the Broader community linked to more Asian regular Contacts and Close Contacts — i.e., almost nobody has under 50% Close/Regular Contacts when large Community 
+
+- Possibly can use CloseContacts as an estimate of interactive exposure + RegularContacts OR BroaderCommunity for a more general estimate, if needed. Otherwise, one estimate would probably be enough
 
 #### (*C) By-Participant Check
 ```{r}
@@ -641,7 +705,7 @@ for (i in 1:length(participant_list)){
 
 ```{r}
 # Check single participant
-current_participant <- "5dbf692c2a1dd63f64ef5ae4" # OR e.g. participant_list[3]
+current_participant <- "610c239f6459fc6ffbc31764" # OR e.g. participant_list[3]
 
 # View subj data by subject
 n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant)
@@ -651,9 +715,15 @@ n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
   filter(!(is.na(`from Age`)))
 ```
 <!-- UPDATE THIS STATEMENT AS NEEDED:  -->
-All participants were born in, spent the majority of their childhood in, and were living in California* at the time.
+<!-- All participants were born in, spent the majority of their childhood in, and were living in California* at the time. -->
+All participants were born in and/or grew up in and were living in California* at the time (based on the screener).
 ```{r}
 # Notes on Participant Locations (if needed).
+
+# 63d007388da4ef5b301762f9 -- declined to answer
+# 6365408f2a24d08a0f2a66ae -- declined to answer
+# 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
+# 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
 ```
 
 
@@ -765,7 +835,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "5dbf692c2a1dd63f64ef5ae4" #participant_list[10] # 
+current_participant <- "6277fd1a3a086f8af7867fa0" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
@@ -938,28 +1008,29 @@ msWhite_words %>% filter(n>1)  %>%  filter(Response %in% pull(msWhite_words_only
 ### Age
 Get proportion selections per age category for each image.
 ```{r}
- n1b_age <- n1b_responses %>% 
-  select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
+ n1b_age <- n1b_responses_selected %>% 
   filter(Question=="Age") %>% 
-  pivot_wider(id_cols = c(PROLIFIC_PID, Image), names_from = Question_Part, values_from = Response) %>% 
+  pivot_wider(id_cols = c(PROLIFIC_PID, Condition, Image), names_from = Question_Part, values_from = Response) %>% 
   mutate(across(Teens:`Over 40`, ~ as.numeric(as.character(.x)))) %>% 
   # Get proportions out of total responses (props add up to over 100 b/c multiple selections)
-  add_count(Image) %>% group_by(Image, n) %>% 
+  add_count(Image) %>% group_by(Condition, Image, n) %>% 
   summarize(across(Teens:`Over 40`, sum)) %>% 
   mutate(across(Teens:`Over 40`, ~ .x/n)) %>%
   pivot_longer(Teens:`Over 40`, names_to = "Age", values_to = "prop") %>%
   mutate(Age=gsub("Teens", "10s", Age)) %>%
   # Drop values where none selected
-  filter(prop>0) %>%  arrange(-prop, .by_group=TRUE) %>% #ungroup() %>%
+  filter(prop>0) %>%  arrange(-prop, .by_group=TRUE) %>% 
   filter(prop>=0.75) # Option 1: Keep values where more than 75% of participants selected
   # slice_max(prop) # Option 2: Keep only highest value (including ties)
+n1b_age <- n1b_age %>%
+  full_join(
+    # Get age consensus based on majority decision
+   n1b_age %>% pivot_wider(Image:n, names_from = Age, values_from = prop) %>% 
+   # relocate(`10s`, .before=`20s`) %>%
+   mutate(across(2:last_col(), ~ ifelse(!is.na(.x), cur_column(), NA) )) %>%
+   unite(perceived_age, 3:last_col(), sep=',', na.rm=TRUE)
+  ) %>% ungroup
 n1b_age
-
-# Get age consensus based on majority decision
-n1b_age %>% pivot_wider(Image:n, names_from = Age, values_from = prop) %>% 
-  # relocate(`10s`, .before=`20s`) %>%
-  mutate(across(2:last_col(), ~ ifelse(!is.na(.x), cur_column(), NA) )) %>%
-  unite(Perceived_Age, 3:last_col(), sep=',', na.rm=TRUE)
 ```
 
 ### Occupation
@@ -994,15 +1065,15 @@ n1b_grewup <-
   # text cleaning
   mutate(Response = str_trim(tolower(Response))) %>%
   mutate(Response = gsub("(.*)\\s*,\\s*usa", "\\1", Response)) %>% # keep everything before ', usa'
-  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "america|^us$|^united states$", "(?:^|\\W)ca(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "wisconsin"))) %>% 
+  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "america|^us$|^in the us$|^united states$", "(?:^|\\W)(ca|cali)(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "(?:^|\\W)az(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "arizona", "wisconsin"))) %>% 
   # Add categorization into US or Asia or Europe
   mutate(Region = case_when(
-    Response %in% c("san francisco", "los angeles", "boston", "beverly hills") ~ "USA",
+    Response %in% c("san francisco", "los angeles", "boston", "beverly hills", "san fernando valley", "las vegas") ~ "USA",
     str_detect(Response, paste0("(?:^|\\W)", paste(tolower(state.name), collapse = '|'), "(?:$|\\W)")) ~ "USA",
-    str_detect(Response, "(?:^|\\W)(mid(\\s*)west|(east|west) coast|the west|(west|east)ern states)(?:$|\\W)") ~ "USA", 
+    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west) coast|the west|(west|east)ern states)(?:$|\\W)") ~ "USA", 
     str_detect(Response, "(?:^|\\W)usa(?:$|\\W)") ~ "USA", # if USA or <other>, defaults to US
     str_detect(Response,"(?:^|\\W)canada(?:$|\\W)") ~ "Canada",
-    str_detect(Response, "(?<!\\w)asia(?!\\w)") ~ "Asia",
+    str_detect(Response, "(?<!\\w)(asia(n*))(?!\\w)") ~ "Asia",
     str_detect(Response, "(?<!\\w)europe(?!\\w)") ~ "Europe",
     TRUE ~ NA
   )) 
@@ -1075,12 +1146,12 @@ n1b_ethnicity <-
   n1b_responses_selected %>% filter(Question=="Ethnicity") %>% select(-Question_Part) %>%
   # text cleaning
   mutate(Response = tolower(str_trim(Response))) %>%
-  mutate(Response = mgsub(Response, c("china|chiense", "flippino"), c("chinese", "filipino"))) %>% 
+  mutate(Response = mgsub(Response, c("china|chiense", "flippino|philipino|philipno"), c("chinese", "filipino"))) %>% 
 
   # Add categorization into race
   mutate(Asian = case_when(
-    str_detect(Response, "(?:^|\\W)(asian|chinese|filipino)(?:$|\\W)") ~ "Asian",
-    str_detect(Response, "(?:^|\\W)(hong kong|singapore|japan|korean|taiwan|vietnam|thai|hmong|malaysian)") ~ "Asian",
+    str_detect(Response, "(?:^|\\W)(asia(n*)|chinese|filipin(o|a))(?:$|\\W)") ~ "Asian",
+    str_detect(Response, "(?:^|\\W)(hong kong|singapore|japan|korean|taiwan|vietnam|thai|hmong|lao|malaysian)") ~ "Asian",
     TRUE ~ NA
   )) %>%
   mutate(White = case_when(
@@ -1120,12 +1191,12 @@ n1b_ethnicity %>% count(Condition, Response_Cat, sort=TRUE) %>% pivot_wider(name
 ```
 
 ```{r}
-# Check Location category of photos per condition
-n1b_ethnicity %>% filter(Condition=="msWhite") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+# Check  category of photos per condition
+n1b_ethnicity %>% filter(Condition=="msWhite") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
-n1b_ethnicity %>% filter(Condition=="msAsian") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+n1b_ethnicity %>% filter(Condition=="msAsian") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
-n1b_ethnicity %>% filter(Condition=="ethAsian") %>% count(Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+n1b_ethnicity %>% filter(Condition=="ethAsian") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 ```
 **Review Comments:**
 msWhite photos were all identified as White (or American) at least once (Other responses [n=2]).
@@ -1156,15 +1227,15 @@ n1b_speech <-
   # Consider: shorten long statements by extracting the keyword (e.g. straightforward)
 # Add categorization into accentedness
   mutate(OtherAccent = case_when(
-    str_detect(Response, "(?:^|\\W)((english|southern|mid(\\s*|-*)west(ern)*) accent)(?:$|\\W)") ~ "OtherAccent",
+    str_detect(Response, "(?:^|\\W)((english|southern( drawl)*|mid(\\s*|-*)west(ern)*) accent)(?:$|\\W)") ~ "OtherAccent",
     TRUE ~ NA
   )) %>%
   mutate(Accented = case_when(
-    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.+\\s)accent|(aapi|hawaiian|asian) accent|broken english)(?:$|\\W)") ~ "Accented",
+    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.+\\s)accent|(aapi|hawaiian|asian|foreign|heritage('s)*|chinese) accent|(broken|poor(-ish)*) english)(?:$|\\W)") ~ "Accented",
     TRUE ~ NA
   )) %>%
   mutate(Unaccented = case_when(
-    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|california|neutral) accent|(california) style|normal)(?:$|\\W)") ~ "Unaccented",
+    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|california|neutral) accent|typical american|(california) style|normal|perfect english|native speaker)(?:$|\\W)") ~ "Unaccented",
     # str_detect(Response, "(?:^|\\W)((fluent|clear) english)(?:$|\\W)") ~ "Unaccented",
     TRUE ~ NA
   )) %>%
@@ -1206,6 +1277,13 @@ n1b_speech %>% filter(Condition=="msAsian") %>% count(Condition, Image, Response
 n1b_speech %>% filter(Condition=="ethAsian") %>% count(Condition, Image, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 ```
 
+```{r}
+# Check specific photos/labels
+n1b_speech %>% mutate(Response=as.character(Response)) %>% 
+  filter(str_detect(Response, "(?:^|\\W)(south)"))
+```
+NOTE: WAW-1 was mentioned by 2 participants as possibly having a southern accent == good for my distractor stimuli (or avoid, because this photo will behave differently?)
+
 #### Styles
 ```{r}
 n1b_speech <- n1b_speech %>%
@@ -1213,6 +1291,7 @@ n1b_speech <- n1b_speech %>%
   mutate(Style = case_when(
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(softly|soft spoken|quiet|mild|high)") ~ "Delicate", # possibly polite
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(deliberate|formal|polite)") ~ "Reserved",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(casual|conversational|slang)") ~ "Casual",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(fast|quick|rapid)") ~ "Fast",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(slow|drawl)") ~ "Slow",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(direct|straight|straightforward|clear manner|concise)") ~ "Direct",
@@ -1408,8 +1487,17 @@ n1b_ratings_releveled <-
 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_Value, group=Condition, angle_axis_labels=TRUE) 
 parallel_plot(n1b_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) 
-
 ```
+
+Notes:
+- msAsian shouldn't be less attractive—pick matching where possible
+- msWhite shouldn't be less likable—pick matching where possible
+- msAsian shouldn't be more Friendly
+
+- I think Casual shouldn't differ between MS groups, if possible
+- I think Feminine shouldn't differ for msAsian only, if possible (but maybe that is part of the persona look?)
+
+
 ```{r}
 # Condition Distribution + Median Violin Plots by Rating_Scale
 n1b_ratings_releveled %>% filter(Rating_Group == "Culture") %>%
@@ -1451,8 +1539,46 @@ n1b_ratings_releveled %>% filter(Condition == current_condition) %>%
 
 ```
 
-### Finalize Scores
-Get mean scores per image, to put through a PCA.
+## Process
+### Get By-Image Data
+Get general screening filters per image, merge into one.
+```{r}
+n1b_percepts_general <- 
+  n1b_descriptors %>% group_by(Image) %>% summarize(sentiment_score=mean(sentiment_score, na.rm=TRUE)) %>%
+  full_join(
+    n1b_descriptors %>% drop_na(sentiment) %>% add_count(Image, name="group_n") %>% 
+  count(Image, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n, -n) %>%
+  pivot_wider(id_cols=Image, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum) %>%
+  rename(positive_prop=positive, negative_prop=negative)
+  ) %>%
+  full_join(
+    n1b_age %>% select(Image, perceived_age)
+  )
+
+# n1b_occupation
+# n1b_activities
+n1b_percepts_general
+```
+
+Get persona screening filters per image, merge into one.
+```{r}
+n1b_percepts_personae <- 
+  n1b_grewup %>% count(Image, Response_Cat) %>% drop_na(Response_Cat) %>% add_count(Image, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Image, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Image, from_asia_prop=Asia, from_us_prop=USA) %>%
+  full_join(
+    n1b_ethnicity %>% count(Image, Response_Cat) %>% add_count(Image, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Image, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Image, asian_prop=Asian, white_prop=White)
+  ) %>%
+  full_join(
+    n1b_speech %>% count(Image, Response_Cat) %>% add_count(Image, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Image, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Image, accented_prop=Accented, unaccented_prop=Unaccented)
+  )
+n1b_percepts_personae
+
+```
+
+
+Get mean general+persona rating scores per image, to put through a PCA.
 ```{r}
 # By-Image means: Get across-participant means per Rating_Scale for each Image 
 n1b_ratings_means <- n1b_ratings_releveled %>% group_by(Condition, Image_Cat, Image, Rating_Group, Rating_Scale) %>%
@@ -1506,8 +1632,8 @@ get_correlations(n1b_ratings_vars_zscore, columns_to_keep=4:last_col())
 
 The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear.
 
-## Analyze 1
-#### Run PCA
+
+### Run PCA
 Notes for PCA Interpretation
 ```{r}
 #############################################
@@ -1547,7 +1673,7 @@ Notes for PCA Interpretation
 # i.e. values are calculated from the normalized variable scores (Z-scores) multiplied by the eigenvector weights, then summed
 ```
 
-##### Select Data
+#### Select Data
 Select data for PCA.
 ```{r}
 # Use Zscores to represent responses without participant bias in scale range 
@@ -1562,7 +1688,7 @@ image_vars_pca <- current_source_data %>% select(-Condition:-Image)
 image_vars_pca
 ```
 
-##### Process PCA
+#### Process PCA
 Determine number of components via Parallel analysis.
 ```{r }
 ## Relevant libraries
@@ -1651,7 +1777,7 @@ as_tibble(rotScores, rownames="Item")
 stats::varimax(rawLoadings)
 ```
 
-##### Factor Loadings
+#### Factor Loadings
 ```{r}
 # Replace all factor loading values under |0.3| with 0 for better readability
 
@@ -1664,7 +1790,7 @@ as_tibble(rotLoadings, rownames="Variable") %>%
   mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
 ```
 
-##### PCA: Raw Plots
+#### PCA: Raw Plots
 ```{r lbqdata-pca2-4, echo=F}
 ## (4) Data Visualization of Raw Scores with `factoextra`
 
@@ -1675,7 +1801,7 @@ fviz_pca_ind(score_PCA, col.ind = "#00AFBB", repel = TRUE)
 fviz_pca_biplot(score_PCA, label = "all", col.ind = "#00AFBB", col.var="black", ggtheme = theme_minimal())
 ```
 
-##### PCA: Rotated Plots
+#### PCA: Rotated Plots
 ```{r plbqdata-pca2-5, echo=F}
 ## (5) Manual Plots of Rotated Scores with `ggplot`
 
@@ -1745,8 +1871,8 @@ ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
   geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
   geom_text(data=rotLoadingsData, aes(x=Dim.1*4.5, y=Dim.2*4.5, label=variable), color="red",check_overlap=T, nudge_y = 0)+
 
-  scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
+  # scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
+  # scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
   geom_hline(yintercept=0, linetype="dashed") +
   geom_vline(xintercept=0, linetype="dashed") +
   labs(title="Biplot - PCA", x="Dim 1", y="Dim 2") +
@@ -1785,7 +1911,7 @@ In addition, use the Ethnicity, GrewUp, and Speech scores to screen for outliers
 * e.g., differ in being East Asian vs. Southeast Asian or 
 * e.g., differ in where they are from like always California vs. never California
 
-##### Finalize Data
+#### Combine Data
 ```{r}
 # Merge PCA factor scores back to image number and raw scores
 n1b_ratings_vars_pca <-
@@ -1794,20 +1920,20 @@ n1b_ratings_vars_pca <-
     as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
   ) %>%
 relocate(Condition:Image,
-       Dim1_American=Dim.1, Dim2_Likeable=Dim.2, Dim3_Feminine=Dim.3, Dim4_Nerdy=Dim.4
+       Dim1=Dim.1, Dim2=Dim.2, Dim3=Dim.3, Dim4=Dim.4
        ) %>% select(-Item)
 n1b_ratings_vars_pca
 ```
 
 ```{r}
 # Summary stats of each PC/Dimension
-quick_summarize(n1b_ratings_vars_pca, Dim1_American)
-quick_summarize(n1b_ratings_vars_pca, Dim2_Likeable)
-quick_summarize(n1b_ratings_vars_pca, Dim3_Feminine)
-quick_summarize(n1b_ratings_vars_pca, Dim4_Nerdy)
+quick_summarize(n1b_ratings_vars_pca, Dim1)
+quick_summarize(n1b_ratings_vars_pca, Dim2)
+quick_summarize(n1b_ratings_vars_pca, Dim3)
+quick_summarize(n1b_ratings_vars_pca, Dim4)
 ```
 
-##### Visualize Data
+#### Visualize Data
 Function for labelled scatterplot of variables
 ```{r}
 labeled_scatterplot <- function(df, x, y, label, group, show_points=TRUE, full_scale=FALSE, angle_axis_labels=FALSE) {
@@ -1858,10 +1984,10 @@ n1b_ratings_vars_pca %>% filter(Condition=="msAsian") %>%
 n1b_ratings_vars_pca %>%
   ggplot() +
   # facet_wrap(~Image) +
-  geom_point(aes(y=Dim1_American, x=American)) +
-  geom_point(aes(y=Dim1_American, x=`Native speaker of English`), col="blue", alpha=0.7) +
-  geom_point(aes(y=Dim1_American, x=`American-accented`), col="red", alpha=0.7) +
-  geom_point(aes(y=Dim1_American, x=`Aligned with American culture`), col="orange", alpha=0.7) +
+  geom_point(aes(y=Dim1, x=American)) +
+  geom_point(aes(y=Dim1, x=`Native speaker of English`), col="blue", alpha=0.7) +
+  geom_point(aes(y=Dim1, x=`American-accented`), col="red", alpha=0.7) +
+  geom_point(aes(y=Dim1, x=`Aligned with American culture`), col="orange", alpha=0.7) +
   theme_minimal()
 
 ```
@@ -1870,27 +1996,69 @@ Get plot of main Dimensions with the labelled images to review the selections be
 ```{r}
 # Main Dimensions
 # Specific Images colored by Condition
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim2_Likeable, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim3_Feminine, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim2, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim3, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim4, label=Image, group=Condition, show_points=FALSE)
 
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2_Likeable, y=Dim3_Feminine, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2_Likeable, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim3, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim4, label=Image, group=Condition, show_points=FALSE)
 
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim3_Feminine, y=Dim4_Nerdy, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Image, group=Condition, show_points=FALSE)
 
 ```
 ```{r}
 # Other
 # Specific Images colored by Condition
-# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Feminine, label=Image, group=Condition, show_points=FALSE)
-# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1_American, y=Intelligent, label=Image, group=Condition, show_points=FALSE)
+# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Feminine, label=Image, group=Condition, show_points=FALSE)
+# n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Intelligent, label=Image, group=Condition, show_points=FALSE)
 ```
+
+### Merge By-Image Data
+```{r}
+# Merge finalized ratings data with other processed and finalized data per image
+n1b_byimage_data <-  n1b_ratings_vars_pca %>% full_join(n1b_percepts_personae) %>% full_join(n1b_percepts_general)
+n1b_byimage_data
+```
+```{r}
+colnames(n1b_byimage_data)
+```
+
 
 ## Assess
 
-### Find Outliers
-Consider: Check for Outliers with Mahalanobis distances
+### Find Outliers: Percepts
+```{r}
+# Ethnicity
+n1b_byimage_data %>% filter(asian_prop > 0.5)
+n1b_byimage_data %>% filter(white_prop >= 0.5)
+
+# GrewUp
+n1b_byimage_data %>% filter(from_asia_prop > 0.5)
+n1b_byimage_data %>% filter(from_us_prop >= 0.5)
+
+# Speech
+n1b_byimage_data %>% filter(accented_prop > 0.2)
+n1b_byimage_data %>% filter(unaccented_prop > 0.2)
+
+# Descriptors
+n1b_byimage_data %>% select(Condition:Image, sentiment_score) %>% mutate(mean=mean(sentiment_score), `sd`=sd(sentiment_score)) %>% filter(sentiment_score < mean-(3*sd) | sentiment_score > mean+(3*sd))
+# n1b_byimage_data %>% select(Condition:Image, positive_prop) %>% mutate(mean=mean(positive_prop), `sd`=sd(positive_prop)) %>% filter(positive_prop < mean-(3*sd) | positive_prop > mean+(3*sd))
+# n1b_byimage_data %>% select(Condition:Image, negative_prop) %>% mutate(mean=mean(negative_prop), `sd`=sd(negative_prop)) %>% filter(negative_prop < mean-(3*sd) | negative_prop > mean+(3*sd))
+```
+
+```{r}
+# Ethnicity x Grewup x Speech
+n1b_byimage_data %>% ggplot(aes(x=asian_prop, y=from_asia_prop, size=accented_prop, color=Condition)) + geom_point(alpha=0.7) + gg_theme()
+n1b_byimage_data %>% ggplot(aes(x=asian_prop, y=from_asia_prop, color=Condition, label=Image)) + geom_text(alpha=0.7) + gg_theme() +
+  scale_x_continuous(limits=c(-0.1, 1.1), breaks = c(0,0.25, 0.5, 0.75, 1))
+
+# Descriptor Sentiment
+n1b_byimage_data %>% ggplot(aes(x=sentiment_score, y=positive_prop, color=Condition)) + geom_point() + gg_theme()
+n1b_byimage_data %>% ggplot(aes(x=sentiment_score, y=positive_prop, color=Condition, label=Image)) + geom_text() + gg_theme() 
+```
+
+### Find Outliers: Ratings
+Check for Outliers with Mahalanobis distances for numerical ratings
 
 * Use the Mahalanobis distance to assess outliers/matches via visual inspection and selecting a threshold cut-off
 
@@ -1904,7 +2072,7 @@ cov     = cov(scores_df)
 # Calculate Mahalnobis distance + identify outliers
 mdist_df <- index_df %>% 
   cbind(m_dist = mahalanobis(scores_df, center, cov))  %>%
-  mutate(outlier = ifelse(m_dist > 10, TRUE, FALSE))
+  mutate(outlier = ifelse(m_dist > 6, TRUE, FALSE))
   # mutate(pvalue = pchisq(m_dist, df=3, lower.tail=FALSE)) #pval<0.001 outlier
 return(mdist_df)
 }
@@ -1913,7 +2081,7 @@ return(mdist_df)
 ```{r}
 # All orthogonal/unique variables
 scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
-  select(Dim1_American, Dim2_Likeable, Dim3_Feminine, Dim4_Nerdy) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+  select(Dim1, Dim2, Dim3, Dim4) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
 index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
 
 # Get mahalnobis distances
@@ -1929,24 +2097,30 @@ mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image, m_dist) %>% inne
 ```{r}
 # All orthogonal/unique variables, excluding American
 scores_df <- n1b_ratings_vars_pca %>% select(-Condition:-Image) %>% 
-  select(Dim2_Likeable, Dim3_Feminine, Dim4_Nerdy) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+  select(Dim2, Dim3, Dim4) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
 index_df <- n1b_ratings_vars_pca %>% select(Condition:Image)
 
 # Get mahalnobis distances
 mdist_df <- get_mdist(scores_df, index_df)
 
-
+# Most different (across conditions) excluding American
+# See results
+mdist_df %>% arrange(desc(m_dist))
+# Get list of potential outliers to check
+mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Image, m_dist) %>% inner_join(n1b_ratings_vars_pca) %>% select(-Image_Cat)
+```
+```{r}
 # Most similar (across conditions) excluding American
 # See results
 mdist_df %>% arrange((m_dist))
 # Get list of potential matches to check
 mdist_ranks <- mdist_df %>% select(Condition, Image, m_dist) %>% inner_join(n1b_ratings_vars_pca) %>% select(-Image_Cat) %>% 
   mutate(m_dist_bins = case_when(
-    m_dist < 1 ~ 1, # 0-1
-    m_dist < 2 ~ 2, # 1-2
-    m_dist < 4 ~ 3, # 2-4
-    m_dist < 7 ~ 4, # 4-7
-    m_dist >= 7 ~ 5, # 7+
+    m_dist < 1 ~ "0-1", # 0-1
+    m_dist < 2 ~ "1-2", # 1-2
+    m_dist < 4 ~ "2-4", # 2-4
+    m_dist < 6 ~ "4-6", # 4-6
+    m_dist >= 6 ~ "6+", # 6+
     TRUE ~ NA
   ), .after=m_dist) %>%
   arrange((m_dist)) %>% group_by(Condition) %>%
@@ -1963,14 +2137,84 @@ mdist_ranks %>% pivot_wider(id_cols = c(m_dist_bins, Image), names_from = Condit
 
 ### Get Narrowed Conditions
 
+Select 4-5 photos 
+* Based on Dim1 scores difference
+* Based on outliers (mahalanobis scores)
+
+
 TODO:
 - Pull in screener categories; filter out
 - How to get most similar rows across categories? Mahalanobis but smallest values
-  - TODO: Try with fewer unique cols, just the most relevant/orthogonal seeming, like feminine, casual and intelligent? 
+  - TODO: Try with fewer unique cols, just the most relevant/orthogonal seeming
 
-Select 4-5 photos 
-* Based on Dim1 and Dim2 scores
-* Based on outliers (mahalanobis scores)
+
+```{r}
+# # WIP simplified slice_mean function
+# slice_mean <- function(df, col, n, mean_group=NULL, filter_group=NULL, filter_string=NULL){
+#   col <- enquo(col)
+#   if (!is.null(mean_group)){    mean_group <- enquo(mean_group)  }
+#   if (!is.null(filter_group)){    filter_group <- enquo(filter_group)  }
+#   if (is.null(mean_group)){
+#     df <- df %>% mutate(mean=round(mean(!!col),7), .before=!!col) 
+#   } else {
+#     df <- df %>% group_by(!!mean_group) %>% mutate(mean=round(mean(!!col),7), .before=!!col) %>% ungroup()
+#   }
+#   if (!is.null(filter_group)){
+#     df <- df %>% filter(!!filter_group==filter_string)
+#   }
+#   df %>% mutate(dist_mean = abs(mean-!!col), .before=!!col) %>%
+#   slice_min(dist_mean, n=n)
+# }
+# 
+# n1b_byimage_data %>% slice_mean(Dim1, n=5)
+# n1b_byimage_data %>% slice_mean(Dim1, n=5, mean_group=Condition)
+# n1b_byimage_data %>% slice_mean(Dim1, n=5, filter_group=Condition, filter_string="msAsian")
+# n1b_byimage_data %>% slice_mean(Dim1, n=5, mean_group=Condition, filter_group=Condition, filter_string="msAsian")
+
+```
+
+```{r}
+# rightmost = msWhite
+n1b_msWhite <- n1b_byimage_data %>% filter(Condition=="msWhite") %>% slice_max(Dim1, n=10)
+
+# leftmost = ethAsian
+n1b_ethAsian <- n1b_byimage_data %>% filter(Condition=="ethAsian") %>% slice_min(Dim1, n=5)
+
+# Options for msAsian
+# leftmost within category for msAsian
+n1b_msAsian <- n1b_byimage_data %>% filter(Condition=="msAsian") %>% slice_min(Dim1, n=5)
+# rightmost within category for msAsian
+n1b_msAsian <- n1b_byimage_data %>% filter(Condition=="msAsian") %>% slice_max(Dim1, n=5)
+# closest to group mean  within category for msAsian
+n1b_msAsian <- n1b_byimage_data %>% 
+  group_by(Condition) %>% mutate(mean=round(mean(Dim1),7)) %>% ungroup() %>% mutate(dist_mean = abs(mean-Dim1)) %>%
+  filter(Condition=="msAsian") %>%
+  slice_min(dist_mean, n=5) %>% select(-mean:-dist_mean)
+# closest to grand mean  within category for msAsian
+n1b_msAsian <- n1b_byimage_data %>% 
+  mutate(mean=round(mean(Dim1),7)) %>% mutate(dist_mean = abs(mean-Dim1)) %>%
+  filter(Condition=="msAsian") %>%
+  slice_min(dist_mean, n=5) %>% select(-mean:-dist_mean)
+
+n1b_selected_images <-  n1b_msWhite %>% rbind(n1b_ethAsian) %>% rbind(n1b_msAsian)
+n1b_selected_images
+```
+ 
+```{r}
+# Condition Mean Parallel Plots by Rating_Scale
+n1b_selected_images %>% pivot_longer(American:Intelligent, names_to = "Rating_Scale", values_to = "Rating_ZScore") %>%
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale,
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))    %>%                      # Style
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) 
+
+# Dimensions
+n1b_selected_images %>% pivot_longer(Dim1:Dim4, names_to = "Dimension", values_to = "Score") %>%
+  parallel_plot(x=Dimension, y=Score, group=Condition, angle_axis_labels=FALSE) 
+```
+ 
  
 ### Examine Distinctiveness / Test Differences
 Function to get linear model output and pairwise comparisons
@@ -2014,1119 +2258,60 @@ lm_emms_pairs <- function(df, formula){
 # (*) not currently sure about the `edf` parameter, currently speifying Inf, narrowing confint unrealistically
 ```
 
-#### American
-Good, Dim1_American scores are different across the three conditions
+#### Dim1
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs(n1b_ratings_vars_pca, Dim1_American ~ Condition)
+lm_emms_pairs(n1b_ratings_vars_pca, Dim1 ~ Condition)
+lm_emms_pairs(n1b_selected_images, Dim1 ~ Condition)
 ```
-#### Likeable
-Good, Dim2_Likeable are NOT different across conditions
+#### Dim2
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs(n1b_ratings_vars_pca, Dim2_Likeable ~ Condition)
+lm_emms_pairs(n1b_ratings_vars_pca, Dim2 ~ Condition)
+lm_emms_pairs(n1b_selected_images, Dim2 ~ Condition)
 ```
 #### Dim3
-Good, Dim2_Likeable are NOT different across conditions
+Good, Dim3 are NOT different across conditions
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs(n1b_ratings_vars_pca, Dim3_Feminine ~ Condition)
+lm_emms_pairs(n1b_ratings_vars_pca, Dim3 ~ Condition)
+lm_emms_pairs(n1b_selected_images, Dim3 ~ Condition)
 ```
 #### Dim4
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs(n1b_ratings_vars_pca, Dim4_Nerdy ~ Condition)
+lm_emms_pairs(n1b_ratings_vars_pca, Dim4 ~ Condition)
+lm_emms_pairs(n1b_selected_images, Dim4 ~ Condition)
 ```
 
 #### Feminine
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
 lm_emms_pairs(n1b_ratings_vars_pca, Feminine ~ Condition)
+lm_emms_pairs(n1b_selected_images, Feminine ~ Condition)
 ```
+#### Feminine
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs(n1b_ratings_vars_pca, Intelligent ~ Condition)
+lm_emms_pairs(n1b_selected_images, Intelligent ~ Condition)
+```
+
 #### Nerdy
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
 lm_emms_pairs(n1b_ratings_vars_pca, Nerdy ~ Condition)
+lm_emms_pairs(n1b_selected_images, Nerdy ~ Condition)
 ```
 #### Casual
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
 lm_emms_pairs(n1b_ratings_vars_pca, Casual ~ Condition)
+lm_emms_pairs(n1b_selected_images, Casual ~ Condition)
 ```
 #### Clear speaker
 ```{r}
 # (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
 lm_emms_pairs(n1b_ratings_vars_pca, `Clear speaker` ~ Condition)
-```
-
-# .
-# REF: Previous Analysis 
-NOTE: This is data specific—Reference the old code below only if needed.
-
-Summarize the relevant response data. Key question is which photos are most often selected for the important descriptors. Here, I sum the total times an image was selected for a particular descriptor, get the proportion of selections per photo per descriptor, and rank the photos by proportion within descriptor. 
-```{r}
-# Total Responses by Descriptor (general summary)
-# n1b_responses_selected %>%
-#   group_by(Descriptor_Set, Descriptor) %>%
-#   summarize(n_seen=n(), n_select=sum(Response, na.rm=TRUE)) %>%
-#   mutate(prop_select=n_select/n_seen) %>%
-#   ungroup()
-
-# Total Responses by Descriptor x Image (key)
-n1b_props_byImage <- n1b_responses_selected %>%
-  group_by(Condition, Image_Cat, Image) %>%
-  summarize(n_seen=n(), n_select=sum(Response, na.rm=TRUE)) %>%
-  mutate(prop_select=n_select/n_seen) %>%
-  ungroup() %>%
-  group_by(Descriptor) %>%
-  mutate(rank_select = rank(-prop_select, ties.method="min")) %>%
-  ungroup()
-n1b_props_byImage
-```
-
-Select images with only highest-ranking per Descriptor to view.
-```{r}
-n1b_props_byImage %>%
-  group_by(Descriptor) %>%
-  arrange(rank_select) %>%
-  slice_max(order_by = prop_select, n=10) %>% # If there's more than 10 listed, that's because all those have the exact same proportion as those at or above 10th place.
-  filter(Descriptor=="AmAcc")
-```
-  
-#### Image Category
-Sanity Check — specifically check AAW vs. WAW photos and AsAm vs. WhAm
-```{r}
-# Photos — Race
-n1b_props_byImage %>% 
-  group_by(Image_Cat) %>%
-  summarize(mean_prop = mean(prop_select))
-
-# Photos — Race x Descriptor
-n1b_props_byImage %>% 
-  # Get mean values
-  group_by(Image_Cat, Descriptor_Set, Descriptor) %>%
-  filter(Descriptor_Set=="Race") %>%
-  summarize(mean_prop = mean(prop_select)) %>%
-  ungroup() %>%
-  # Reshape to wide for easier viewing
-  select(-Descriptor_Set) %>%
-  pivot_wider(names_from=Descriptor, values_from=mean_prop)
-```
-## Calculate
-
-**Goal:**
-* Identify specific subset (~8~10 per Condition) of top scoring Images (photos, faces) on the relevant dimensions. 
-  * --> In the next norming stage, get full ratings to exclude outliers and get 4-8 per Condition. 
-  * --> Then, record 8-16 voices --> Norm for ratings to exclude outliers and get ~8~12 voices
-
-**Design**
-REGION descriptor = FrCA
-ASIAN descriptors = AsAm / ForAcc / EthCul
-AMERICAN descriptors = WhAm / AmAcc / AmCul
-
-**Analysis Steps**
-1. Raw Proportion Scores (FrCA; AsAm, WhAm; ForAcc, AmAcc, EthCul, AmCul)
-  * All positive values
-  
-2. Relative Proportion Scores (RelAsAm; RelForAcc; RelEthCul)
-  * = ASIAN + (-AMERICAN), where positive values mean higher relative ASIAN proportion, negative values mean higher relative AMERICAN proportion, near-zero values mean approx. equal ASIAN-AMERICAN proportions. In other words, AMERICAN proportions were converted to negative (as if the opposite end of a scale) and summed.
-  
-3. (?) Combined Proportion Scores
-  * = RawScore * RelScore, where large positive values = high raw and relative ASIAN proportions, etc. 
-  * Alternatively, could just filter by both Raw and Relative Scores
-
-4. Composite Relative Personae Score (RelForEth_Score)
-  * RelForAcc + RelEthCul — equally (un)weighted sum, where high positive values mean higher relative ForAcc and EthCul scores indicating strong perception of FOB-like qualities. Negative values mean more Whitewashed-like qualities. Intermediate values mean more bicultural/"regular Asian"-like qualities.
-
-5. (?) Composite Persona Scores (Ethnic_Score, Bicultural_Score, Mainstream_Score)
-
-NOTE: Make sure to check correlations between these different scores to see whether they show the expected differences, or whether some of these considerations are actually a non-issue because of the way the data falls out (i.e., some composite scores are highly correlated to other options.)
-
-
-Index questions
-- settings/switches are binary questions (e.g. Fr)
-Polar opposite questions
-- PCA
-
-**Analysis Brainstorm:**
-* Should I just do an unweighted combination of each (Rel)Score? Or should I run a PCA/factor analysis/Clustering analysis?
-
-<!-- **Analysis Decisions Rationale:** -->
-<!-- COMPOSITE PERSONAE SCORING -->
-<!-- * What are the relevant dimensions, and in what order or ranking do they place in importance? This will be important to understanding how to pick the photos. -->
-
-<!--   * Where does California/Region play in? Given that it does not factor into the FOB/Asian personae, it should not be an equal contributor. Rather, it should be a screening factor, such that if there are any outliers (e.g. clearly NOT seen as Californian), I remove them. Also, if there is a tie, I could pick the one(s) with a higher OR more consistent/average Californian score. -->
-
-<!--   * Similarly, AsAm/Race could also function as a screener. Although being Asian is an aspect of the FOB/Mainstream persona, it's not as important that they look "more or less" Asian American, as long as it's a reasonably high proportion. If all scores were high, then the one with the highest score would also be high on AsAm; but, importantly, if some score were lower, you wouldn't know which one was lower from a composite value, so it's possible that they are still a good representation of FOB (e.g., lower on AsAm but high on Accent and Culture) OR worse, that they high a high score but are NOT a good representation of FOB (e.g., very high on AsAm, but middling/low on Accent and Culture). -->
-      <!-- * Still, I could try to assess a 3-part composite personae score WITH Race and see how that compares. -->
-
-<!--   * Regardless, we know that the important continuous factors are the persona features of (Foreign)Accent and (Ethnic)Culture, and those are two ways of getting at the same thing (i.e., two indicators of FOB/ethnic-oriented persona/identity). So, those can be grouped together, and a continuous joint value representing degree of FOB-persona alignment would be the value to assess. -->
-
-  <!-- * It's interesting too, though, that all the descriptors might be best separate if we view AmAcc and ForAcc to be a strong indicator of localness vs. foreignness. So, if someone is seen as being aligned with ethnic culture but clearly look like they have an AmAcc, then would they be more likely to be considered a strongly "bicultural middle"/"regular or stereotypical Asian" than a FOB? This is actually unclear, as the most canonical "bicultural middle"/"regular or stereotypical Asian" would probably be strongly AmAcc but middling on Culture, showing that they look like they would have access to both cultures. (In contrast, then, someone high on AmAcc AND EthCul would be noncanonical, maybe a bad exemplar of the personae I want.) However, this still shows how Accent might also be considered another level of screening/filtering, where EthCul gives the most information from a gradient perspective, and AmAcc could be considered first. Alternatively, I could use the composite score with AmAcc as a filtering/tie-breaking option (which is similar to using Accent and Culure as separate scores, but is a bit more holistic and doesn't require any hard cut-off ahead of time, since this is a likely highly variable concept that will need interpreting.) -->
-
-<!-- RAW SCORE CALCULAITONS -->
-<!-- * For the paired Descriptors, do I need to weight them against each other? e.g., for AsAm and WhAm, do I need to make a combined/weighted/mean/ratio value that will get at people who are (a) high-AsAm + low-WhAm, (b) low AsAm + high-WhAm, (c) high on both, (d) low on both. I don't only care about high values—-I think it's important to consider all combinations because of the one case where they are high on both. If that was the case, I would want to know that, and probably exclude them.  -->
-<!--    * I think that means I need a continuum? Convert WhAm selections to negative (-1), then add them together, and if they are high on both OR low on both (or otherwise equivalent on both), they will be near zero, and I wouldn't want to use them. -->
-<!--    * for the Culture case, I might WANT to know and use the ones near zero who look like BOTH. And with Accent, it might be that FOBs could be possibly both, and thus near zero. -->
-
-```{r}
-#*Factors for comparison:*
-#Images
-#* Race — AAW vs. WAW
-
-#Descriptors
-#* Race — AsAm vs. WhAm
-#* Region — FrCA
-#* Accent — AmAcc vs. ForAcc
-#* Culture — AmCul vs. EthCul
-
-#Aggregate Descriptor Combinations — Persona-Consistent Totals
-#* Ethnic — AsAm + ForAcc + EthCul 
-#* Bicultural(!Bicultural) — AsAm + AmAcc + EthCul (>=AmCul)
-#* Bicultural(!Whitewashed) — AsAm + AmAcc + AmCul
-#* Mainstream — WhAm + AmAcc + AmCul
-```
-
-
-#### Descriptor Personae Scoring
-Calculate descriptor combination scores.
-```{r}
-# Descriptor Combinations
-n1b_scores_byImage <- n1b_props_byImage %>% 
-  # Get mean values
-  group_by(Image_Cat, Image, Descriptor) %>% # filter(Descriptor_Set=="Race") %>%
-  summarize(mean_prop = mean(prop_select)) %>%
-  ungroup() %>%
-  # Reshape to one-row-per-image
-  pivot_wider(names_from = Descriptor, values_from = mean_prop) %>%
-  # Create relative paired variables ## TBD In development
-  mutate('RelAsAm' = AsAm + (-WhAm),        # + more AsAm, - more WhAm
-         'RelForAcc' = ForAcc + (-AmAcc),   # + more ForAcc, - more WhAm
-         'RelEthCul' = EthCul + (-AmCul),    # + more EthCul, - more AmCul
-         .after=Image) %>%
-  # Calculate unweighted composite/combo scores; without AsAm / WhAm
-  mutate(RelForEth_Score = RelForAcc + RelEthCul, #(very pos. = Ethnic-like, very neg. = Mainstream-like)
-         Ethnic_Score = ForAcc + EthCul, 
-         Bicultural_Score = AmAcc + ((EthCul+AmCul)/2), # include both OR averaged Cul = should be high on both
-         Mainstream_Score = AmAcc + AmCul,
-         .after=Image) %>%
-  relocate(RelForEth_Score, 
-           Ethnic_Score, Bicultural_Score, Mainstream_Score,
-           RelForAcc, ForAcc, AmAcc,
-           RelEthCul, EthCul, AmCul,
-           RelAsAm, AsAm, WhAm,
-           FrCA,
-           .after=Image)
-n1b_scores_byImage
-```
-View and check select scores for my own purposes.
-```{r}
-n1b_scores_byImage %>%
-  select(AsAm, WhAm, RelAsAm)
-
-n1b_scores_byImage %>%
-  select(RelForEth_Score, RelForAcc, RelEthCul, ForAcc, EthCul) %>%
-  arrange(-RelForEth_Score) 
-```
-
-#### Finalize Scores
-Check correlations between measures to assess collinearity. 
-```{r}
-# Create correlation matrix
-rating_vars_cor <- 
-  n1b_scores_byImage %>% select(-Image_Cat, -Image) %>% 
-  # Filter out only factors we want to see visualized for now
-  #select(RelForEth_Score, RelForAcc, RelEthCul) %>%
-  cor(., method="pearson") #method="spearman")
-# View the correlation matrix
-rating_vars_cor %>% as_tibble(rownames = "var") # independent variables correlation matrix 
-
-# Visualize
-corrplot(rating_vars_cor,method='number',is.corr = T)
-
-# TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
-```
-
-Group highly correlated measures together, either by dropping one or averaging across. This should be the finalized dataframe/factors to use.
-```{r}
-#TBD
-```
-
-
-#### Run PCA
-Notes for PCA Interpretation
-```{r}
-#############################################
-## (1) Checking the number of dimensions
-
-# Parallel Analysis
-# Standard way to decide on the number of factors or components needed in an FA or PCA.
-
-# Eigenvalues & percent variance accounted for
-# One guideline is to only include dimensions that have an eigenvalue of at least 1, but note that...
-# This guideline only applies if using correlation matrix (i.e. scaled units; scale.unit = T)
-# Because we don't want a factor that accounts for less than what a single variable accounts for (single variable=1)
-
-# Scree Plot
-# One guideline is to check starting with the "elbow" value, plus or minus 1
-# Check for where there is an "elbow" where the plot bends, such that subsequent factors don't contribute much
-
-## (2) Interpreting the output factor values
-
-# Factor matrix (raw eigenvectors = the factor score coefficients; sometimes called the factor, but not factor scores)
-# To interpret, focus on the most extreme factor values (or loadings, below)
-# Higher values means that those variables contribute more to the specific dimension/component/factor
-# Dimensions/components/factors can be interpreted based on which variables contribute more
-
-# Factor loadings (eigenvectors scaled by the square root of their associated eigenvalues)
-# Provide similar information about which variables contribute to each dimension/component/factor, but also
-# Can be interpreted as correlations between each variable and the factor
-# One guideline treats all values less than 0.3 as 0, thus drops them from consideration (irrelevant for that factor) 
-
-# Rotated factor matrix
-# Orthogonally rotates factor matrix for ease of interpretation of each dimension
-
-#############################################
-## (3) Checking the individual coordinate scores
-# Individual coordinate scores (principle coordinates)
-# Same as factor scores for each subject and dimension (weighted sum of all of a subjects raw scores, where the weights are the eigenvector values)
-# i.e. values are calculated from the normalized variable scores (Z-scores) multiplied by the eigenvector weights, then summed
-```
-
-##### Select Data
-Select data for PCA.
-```{r}
-## Maximal set
-image_vars_pca <- n1b_scores_byImage %>% select(-Image_Cat, -Image)
-image_vars_pca
-
-## Relative set
-image_rating_vars_rel <- image_vars_pca %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul, 
-                                                        RelAsAm, RelForAcc, RelEthCul)
-image_rating_vars_rel
-
-## Minimal set
-image_rating_vars_raw <- image_vars_pca %>% select(FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul)
-image_rating_vars_raw
-
-```
-
-##### Process PCA
-Determine number of components via Parallel analysis.
-```{r }
-## Relevant libraries
-# `PCA` command from `FactoMineR` library (see index for more info)
-# `paran` command from `paran` library
-# `Varimax` command from `GPArotations` library (https://stats.stackexchange.com/questions/59213/how-to-compute-varimax-rotated-principal-components-in-r)
-
-## (1) Run Parallel Analysis with `paran`
-# Standard way to decide on the number of factors or components needed in an FA or PCA.
-# Prints out a scree plot as well, with the randomized line + unadjusted line
-paran(image_rating_vars_raw,
-      graph = TRUE, color = TRUE, 
-      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
-      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
-```
-Parallel analysis suggests 2 components retained.
-Scree plots suggest ~3 components, based on the location of the elbow. Could try 2, 3, or 4 components.
-Eigenvalues suggest 2 components, as only the first two comps have a value above 1.
-The _difference in_ eigenvalues suggests 3 components, as up to the third comp has a difference greater than 1. (See: https://stats.stackexchange.com/questions/450752/understanding-how-many-components-to-include-for-pca)
-Interpretability indicates 3 components, such that FrCA serves as its own component (Dim3).
-
-```{r}
-## (2) Run PCA with `FactoMineR`
-# ncp = number of components; adjust after checking the parallel analysis output
-
-# FactoMineR PCA Commands
-#score_PCA        # lists commands
-#score_PCA$var    # variables
-#score_PCA$ind    # individuals
-#score_PCA$call   # summary stats
-
-# Conduct PCA with scaling/standardizing
-score_PCA <- PCA(image_rating_vars_raw, scale.unit = T, ncp =3, graph=T)
-
-## Relevant Raw PCA Output
-# Eigenvalues & percent variance accounted for
-eigenvalues <- score_PCA$eig
-as_tibble(eigenvalues, rownames="components")
-
-# Eigenvectors (=Factor matrix, factor score coefficients, principal directions, principal axes; sometimes called the factor, but NOT factor scores; these are called loadings by some but its incorrect).
-eigenvectors <- score_PCA$var$coord
-as_tibble(eigenvectors, rownames="Score")
-
-# Factor scores for each subject and dimension (also: Individual coordinate scores; principle coordinates)
-rawScores <- score_PCA$ind$coord
-as_tibble(rawScores, rownames="Item")
-
-# Factor loadings (=loadings, correlation loadings, or scaled factor coefficients; eigenvectors scaled by the square root of their associated eigenvalues)
-# Calculate factor loadings using the output eigenvectors and eigenvalues (i.e. divide each eigenvector column value by the appropriate eigenvalue square root).
-rawLoadings <- sweep(eigenvectors,MARGIN=2,STATS=sqrt(eigenvalues[1:ncol(eigenvectors),1]),FUN="/") # margin 1=rows, 2=cols
-as_tibble(rawLoadings, rownames="Score")
-```
-
-
-
-
-```{r lbqdata-pca2-3}
-## (3) Conduct rotation on the PCA factor loadings with `GPArotation`
-# Rotations are typically done on the retained component factor loadings, not on all components nor on the eigenvectors
-# Performed for ease of interpretation, maximizing factor loadings
-rotLoadings <- Varimax(rawLoadings, normalize=T)$loadings
-as_tibble(rotLoadings, rownames="Score") 
-
-# Recover Rotation matrix from loadings
-# Because the rotLoadings are calculated from rawLoadings %*% rotMatrix, can recover rotMatrix by rotLoadings "divided" by rawLoadings, which in matrix multiplication is multiplying by the inverse (transpose) 
-# Note: For some reason, can't call Varimax(rawLoadings)$rotmat (just get NULL); this recreates the same matrix from Varimax(rawLoadings)
-rotMatrixL <- t(rawLoadings) %*% rotLoadings
-as_tibble(rotMatrixL, rownames="Dimensions")
-
-# Calculate rotated factor scores
-# The formula simply multiplies the normalized variable scores with the rotation matrix to get rotated factor scores
-# First, z-score the raw scores using base R scale()
-# Then, matrix multiply the matrix of zScores with the rotation matrix
-# Result is a matrix with columns=components and rows=each subject
-zScores <- scale(rawScores)
-rotScores <- zScores %*% rotMatrixL
-as_tibble(rotScores, rownames="Item")
-
-```
-
-```{r}
-# For comparison, a different rotation function. Requires normalization. Still a little different but similar enough. Provides rotmat and SS loadings. 
-## Rotate eigenvectors (not typical, according to Stats notes and StackExchange, but reasonable-looking SS loadings+% variance)
-# stats::varimax(eigenvectors)
-## Rotate factor loadings (typical, but unreasonable(?)-looking SS loadings+% variance)
-stats::varimax(rawLoadings)
-```
-
-##### Factor Loadings
-```{r}
-# Replace all factor loading values under |0.4| with 0 for better readability
-
-# Raw Loadings
-as_tibble(rawLoadings, rownames="Variable") %>% 
-  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.4, 0, .x)))
-
-# Rotated Loadings
-as_tibble(rotLoadings, rownames="Variable") %>% 
-  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.4, 0, .x)))
-```
-
-##### PCA: Raw Plots
-```{r lbqdata-pca2-4, echo=F}
-## (4) Data Visualization of Raw Scores with `factoextra`
-
-# Plot individual factor scores
-fviz_pca_ind(score_PCA, col.ind = "#00AFBB", repel = TRUE)
-
-# Biplot, including individual scores and factor vectors
-fviz_pca_biplot(score_PCA, label = "all", col.ind = "#00AFBB", col.var="black", ggtheme = theme_minimal())
-```
-
-##### PCA: Rotated Plots
-```{r plbqdata-pca2-5, echo=F}
-## (5) Manual Plots of Rotated Scores with `ggplot`
-
-## Create dataframes of the rotated factor loading and factor score matrices
-
-# Convert rotated factor loadings matrix to data frame; add variable number
-rotLoadingsData <- as.data.frame(rotLoadings)
-rotLoadingsData <- mutate(rotLoadingsData, variable = row.names(rotLoadings))
-rotLoadingsData <- mutate(rotLoadingsData, variable = factor(variable))
-#rotLoadingsData
-
-# Convert rotated factor score matrix to data frame; add subject number
-rotScoreData <- as.data.frame(rotScores)
-rotScoreData <- mutate(rotScoreData, subject = 1:72)
-rotScoreData
-
-## Create base plots
-# Loading plot
-loadingplot <- ggplot(rotLoadingsData, aes(x=Dim.1, y=Dim.2))+
-  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
-  geom_text(data=rotLoadingsData, aes(x=Dim.1*4, y=Dim.2*4, label=variable), color="red",check_overlap=T) +
-  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-2, 3),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Variables - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-loadingplot
-
-
-# Scatter plot of Individual factor scores
-dimplot = ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
-  geom_point(na.rm=TRUE, color="#00AFBB") +
-  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
-  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Individuals - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-dimplot
-
-## Merge loading and score plot = Biplot
-
-# Biplot of factor loadings + ind factor scores
-ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
-  geom_point(na.rm=TRUE, color="#00AFBB") +
-  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
-  
-  # Overlay loading plot (i.e. arrows)
-  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
-  geom_text(data=rotLoadingsData, aes(x=Dim.1*4.5, y=Dim.2*4.5, label=variable), color="red",check_overlap=T, nudge_y = 0)+
-
-  scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Biplot - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-
-
-```
-The results of the rotated PCA with three components retained suggest that:
-* Dim1 is a "race"-linked component, where WhAm is opposite to AsAm and EthCul aligns closely with AsAm in this data (there is also the case of Latina/Hispanic-interpreted individuals with high EthCul but low AsAm and WhAm, which is probably part of the lack of full alignment). We might think of this as the "what is your family background" dimension, where ethnic cultural activities seems to be tied to what your racial/ethnic background is regardless of where you grew up.
-* Dim2 is a "culture"-linked component where ForAcc is opposite to AmCul and AmAcc tracks closely with AmCul. We might think of it as the "did you grow up in the US speaking American English" dimension, where your accent is tied to location but not necessarily tied to ethnic activities (though, I'm not sure exactly how participants interpreted the ethnic activities question for people who they perceived to be "foreign" ethnic rather than "American" ethnic).
-* Dim3 is the "location"-linked component mapping most closely to FrCA but it doesn't align exactly, so I'm not sure whether it should be interpreted as Californian identity excluding factors associated with race and culture?
-
-Based on the biplots, there are three rough visual clusters by Dim1 x Dim2 quadrants. 
-* The first cluster is high/positive on Dim1 (Whiteness) and high/positive on Dim2 (Americanness), representing people who are interpreted as local White Americans who grew up in the US. Some of the White-interpreted people score more negative on Dim2, suggesting those seem less clearly American.
-* The second cluster is low on Dim1 (=more Asianness) and high/positive on Dim2 (Americanness), seeming to represent people who are interpreted as local Asian Americans who grew up in the US (and namely speak English with an American accent).
-* The third cluster is moderate-low on Dim1 (=more Asianness... but maybe lower on AsAm because see them as Asian but not American AND/OR lower on EthCul scoring due to foreign interpretation?) and low/negative on Dim2 (=more Foreignness... maybe linked to not growing up in the US or FOBbiness with a ForAcc). In actuality, there may not be a single cluster here, or even clear separation from the second cluster but more of a continuum (which would be expected). Still, this 'group' is interpreted as less likely to be labeled "Asian American" and less likely to have an "American Accent" (or more likely to have a "Foreign Accent"). There might be considere two sub-groups here as well: Those that are the most likely to have ForAcc (lowest point along Dim2) and less likely labelled "Asian American" vs. Those that are less likely to have ForAcc (closer to Dim2=0) and more likely labelled "Asian American".
-
-##### Finalize Data
-```{r}
-# Merge PCA factor scores back to image number and raw scores
-n1b_ratings_vars_pca <- n1b_scores_byImage %>%
-  cbind(
-    as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
-  ) %>%
-select(Image_Cat, Image, 
-       Dim1_White=Dim.1, Dim2_American=Dim.2, Dim3_NonCalifornian=Dim.3,
-       FrCA, AsAm, WhAm, ForAcc, AmAcc, EthCul, AmCul
-       )
-n1b_ratings_vars_pca
-```
-
-```{r}
-# Check how PCs map onto raw scores
-# Which photos were selected as FrCA over 50% of the time
-n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(-FrCA) %>% filter(FrCA>0.5) #%>% summarize(max_Dim3 = max(Dim3_NonCalifornian)) # Max Dim3 = 0.6065949
-n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim3_NonCalifornian, FrCA) %>% arrange(Dim3_NonCalifornian)
-
-# Which photos were selected as WhAm over 50% of the time
-n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-WhAm) %>% filter(WhAm>0.5) #%>% summarize(min_Dim1 = min(Dim1_White)) # Min Dim1 = 0.2245709	
-# Which photos were selected as AsAm 
-n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim1_White, AsAm, WhAm, EthCul, AmCul, FrCA) %>% arrange(-AsAm)
-
-# Which photos were selected as AsAcc
-n1b_ratings_vars_pca %>% select(Image_Cat, Image, Dim2_American, AmAcc, ForAcc, AmCul, EthCul, FrCA) %>% arrange(-AmAcc) %>%
-  #filter(AmAcc>0.5) %>% 
-  filter(Image_Cat=="AAW")
-```
-
-```{r}
-# Summary stats of each PC/Dimension
-n1b_ratings_vars_pca %>%
-  summarize(
-    Dim1_White_mean=mean(Dim1_White), Dim1_White_sd = sd(Dim1_White), 
-    Dim1_White_min=min(Dim1_White), Dim1_White_max=max(Dim1_White), 
-  )
-
-n1b_ratings_vars_pca %>%
-  summarize(
-    Dim2_American_mean=mean(Dim2_American), Dim2_American_sd = sd(Dim2_American),
-    Dim2_American_min=min(Dim2_American),  Dim2_American_max=max(Dim2_American)
-  )
-
-n1b_ratings_vars_pca %>%
-  summarize(
-    Dim3_NonCalifornian_mean=mean(Dim3_NonCalifornian), Dim3_NonCalifornian_sd = sd(Dim3_NonCalifornian),
-    Dim3_NonCalifornian_min=min(Dim3_NonCalifornian),  Dim3_NonCalifornian_max=max(Dim3_NonCalifornian)
-  )
-```
-
-##### Visualize Data
-```{r}
-# Check Raw score correlations
-n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
-  ggplot(aes(y=EthCul, x=AsAm)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
-  ggplot(aes(y=EthCul, x=WhAm)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_ratings_vars_pca %>% #filter(Image_Cat=="AAW") %>%
-  ggplot(aes(y=EthCul, x=ForAcc)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-n1b_ratings_vars_pca %>% filter(Image_Cat=="AAW") %>%
-  ggplot(aes(y=EthCul, x=AmAcc)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-```
-
-```{r}
-# Double check PCA correlations
-n1b_ratings_vars_pca %>%
-  ggplot() +
-  # facet_wrap(~Image) +
-  geom_point(aes(y=Dim3_NonCalifornian, x=FrCA)) +
-  theme_minimal()
-
-n1b_ratings_vars_pca %>%
-  ggplot() +
-  # facet_wrap(~Image) +
-  geom_point(aes(y=Dim2_American, x=AmCul)) +
-  geom_point(aes(y=Dim2_American, x=AmAcc), col="blue", alpha=0.7) +
-  geom_point(aes(y=Dim2_American, x=ForAcc), col="red", alpha=0.7) +
-  theme_minimal()
-
-n1b_ratings_vars_pca %>%
-  ggplot() +
-  # facet_wrap(~Image) +
-  geom_point(aes(y=Dim1_White, x=WhAm)) +
-  geom_point(aes(y=Dim1_White, x=AsAm), col="blue", alpha=0.7) +
-  geom_point(aes(y=Dim1_White, x=EthCul), col="red", alpha=0.7) +
-  theme_minimal()
-```
-
-```{r}
-# Dim3 not visualized 
-n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, color=Image_Cat)) +
-  geom_point(alpha=0.7) +
-  geom_text(alpha=0.7, nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() 
-
-# Dim3 visualized by alpha
-n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, alpha=-Dim3_NonCalifornian), color="black") +
-  # facet_wrap(~Image) +
-  geom_point() +
-  geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  # geom_point() +
-  # geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() +
-  # scale_color_manual(values = c("AAW-5" = "red")) +
-  scale_alpha_continuous(range = c(-2.3, 2.3))
-
-# Dim3 visualized by size
-n1b_ratings_vars_pca %>% #summarize(max=max(Dim3_NonCalifornian), min=min(Dim3_NonCalifornian))
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image, color=Image, size=-Dim3_NonCalifornian)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  # geom_point() +
-  # geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() +
-  scale_color_manual(values = c("AAW-5" = "red"))
-```
-
-
-## Assess 
-Now, for each persona profile, I want to see/select the top (e.g. ten) photos per combination by score. Then, go look at the photos and assess whether this all makes sense and I can use those photos for the next norming phase!
-
-##### a) Mainstream White
-```{r}
-msWhite_images <- n1b_ratings_vars_pca %>%
-  
-  # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
-  filter(FrCA>0.5) %>%
-  filter(WhAm>0.5) %>%
-  # Filter for Dim1xDim2 quadrant — top right
-  filter(Dim1_White>0) %>% # right
-  filter(Dim2_American>0) %>% # top
-  
-  # Ranking
-  mutate(Dim1_rank = rank(-Dim1_White, ties.method="min"), # low
-         Dim2_rank = rank(-Dim2_American, ties.method="min"),
-         Dim3_rank = rank(Dim3_NonCalifornian, ties.method="min"),
-         .before=FrCA) %>%
-  mutate(Overall_rank = (Dim1_rank+Dim2_rank)/2,  #Overall_rank = (Dim1_rank+Dim2_rank+Dim3_rank)/3, 
-         .before=FrCA) %>%
-  
-  # Color
-  mutate(Color="purple") %>%
-  
-  # Arrange by rank
-  arrange(Dim2_rank)
-  # arrange(Overall_rank)
-msWhite_images
-
-msWhite_images %>% filter(Dim3_NonCalifornian<0)
-```
-```{r}
-n1b_ratings_vars_pca %>%
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  # geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  geom_point(data=msWhite_images, aes(color=Color, alpha=-Overall_rank)) +
-  geom_text(data=msWhite_images, aes(color=Color, alpha=-Overall_rank), nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() +
-  scale_color_identity(aes(color=Color))
-```
-
-##### b) Mainstream Asian
-```{r}
-msAsian_images <- n1b_ratings_vars_pca %>%
-  
-  # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
-  filter(FrCA>0.5) %>%
-  filter(AsAm>0.5) %>%
-  # Filter for Dim1xDim2 quadrant — top left
-  filter(Dim1_White<0) %>% # left
-  filter(Dim2_American>0) %>% # top
-  
-  # Ranking
-  mutate(Dim1_rank = rank(Dim1_White, ties.method="min"), # low
-         Dim2_rank = rank(-Dim2_American, ties.method="min"),
-         Dim3_rank = rank(Dim3_NonCalifornian, ties.method="min"),
-         .before=FrCA) %>%
-  mutate(Overall_rank = (Dim1_rank+Dim2_rank)/2,  #Overall_rank = (Dim1_rank+Dim2_rank+Dim3_rank)/3, 
-         .before=FrCA) %>%
-  
-  # Color
-  mutate(Color="orange") %>%
-  
-  # Arrange by rank
-  arrange(Dim2_rank)
-  # arrange(Overall_rank)
-msAsian_images
-```
-```{r}
-n1b_ratings_vars_pca %>%
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  # geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  geom_point(data=msAsian_images, aes(color=Color, alpha=-Dim2_rank)) +
-  geom_text(data=msAsian_images, aes(color=Color, alpha=-Dim2_rank), nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() +
-  scale_color_identity(aes(color=Color))
-```
-
-##### c) Ethnic Asian
-First dataframe matches the previous personae by screening for only those above 50% FrCA selections.
-Also includes a separate dataframe with ALL potential options, not screening by FrCA at all, to see where other images fall as it's possible that FOB/ethnic personae may be less likely to be considered "from California" though it doesn't mean they can't be accepted as "Californian" just that they didn't grow up there (and different people may have interpreted that differently).
-
-```{r}
-ethAsian_images_all <- n1b_ratings_vars_pca %>%
-  
-  # Filters based on raw absolute/'objective' proportions (i.e., relative to external real world judgments and not just in dataset)
-  filter(AsAm>0.5) %>%
-  # Filter for Dim1xDim2 quadrant — bottom left
-  filter(Dim1_White<0) %>% # left
-  filter(Dim2_American<0) %>% # bottom
-  
-  # Ranking
-  mutate(Dim1_rank = rank(Dim1_White, ties.method="min"), # low
-         Dim2_rank = rank(Dim2_American, ties.method="min"),
-         Dim3_rank = rank(Dim3_NonCalifornian, ties.method="min"),
-         .before=FrCA) %>%
-  mutate(Overall_rank = (Dim1_rank+Dim2_rank)/2,  #Overall_rank = (Dim1_rank+Dim2_rank+Dim3_rank)/3, 
-         .before=FrCA) %>%
-    
-  # Color
-  mutate(Color=ifelse(FrCA>=0.5, "red", "blue")) %>%
-  # Arrange by rank
-  
-  # Filter by rank
-  arrange(Dim2_rank)
-  # arrange(Overall_rank)
-ethAsian_images_all
-
-ethAsian_images <- ethAsian_images_all %>%
-  filter(FrCA>0.5)
-ethAsian_images
-
-# View only those rows in a certain range of FrCA proportions
-ethAsian_images_all %>% filter(between(FrCA, 0.4, 0.5)) # between
-ethAsian_images_all %>% filter(FrCA<0.4) # under 0.4
-
-```
-
-```{r}
-n1b_ratings_vars_pca %>%
-  ggplot(aes(x=Dim1_White, y=Dim2_American, label=Image)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  # geom_text(nudge_x = 0.2, nudge_y = 0.2) +
-  geom_point(data=ethAsian_images_all, aes(color=Color, alpha=-Dim3_rank)) +
-  geom_text(data=ethAsian_images_all, aes(color=Color, alpha=-Dim3_rank), nudge_x = 0.2, nudge_y = 0.2) +
-  theme_minimal() +
-  scale_color_identity(aes(color=Color))
-```
-
-### Combine, Summarize, Visualize
-```{r}
-# Combine per-persona image data -- screened but not selected/excluded 
-# Save to hardcopy in case want to revisit unselected options.
-n1b_PCAscores_screenedImages <-
-  msWhite_images %>%  mutate(Persona="msWhite", .before=Image_Cat) %>% # Select msWhite top 10
-  full_join(
-    msAsian_images %>% mutate(Persona="msAsian", .before=Image_Cat)   # Add msAsian top 10
-  ) %>%
-  full_join(
-    ethAsian_images_all %>% mutate(Persona="ethAsian", .before=Image_Cat) # Add ethAsian top 10
-  ) %>%
-  mutate(Persona_Race = ifelse(Persona=="msWhite", "White", "Asian"),
-         Persona_Orientation = ifelse(Persona=="ethAsian", "Ethnic", "Mainstream"),
-         .after=Persona)
-n1b_PCAscores_screenedImages
-write_csv(n1b_PCAscores_screenedImages, file=file.path(pipeline, "out", "n1b_PCAscores_screenedImages.csv"))
-```
-
-```{r}
-# Combine per-persona image data -- selected top 10 only (exclusions apply)
-# Save to hardcopy to add to Google Sheets Visual Stimuli 
-n1b_PCAscores_selectedImages <-
-  # Select msWhite top 10
-  msWhite_images %>%  mutate(Persona="msWhite", .before=Image_Cat) %>%
-  filter(Dim3_NonCalifornian<0) %>% # Manual exclusion (see Experiments Project Home > Analysis Log)
-  slice_min(Dim2_rank, n=10) %>%
-  # Add msAsian top 10
-  full_join(
-    msAsian_images %>% mutate(Persona="msAsian", .before=Image_Cat) %>% 
-    slice_min(Dim2_rank, n=10)
-  ) %>%
-  # Add ethAsian top 10
-  full_join(
-    ethAsian_images %>% mutate(Persona="ethAsian", .before=Image_Cat) %>%
-    slice_min(Dim2_rank, n=7) %>%  # top 7 where FrCA>50
-    filter(!(Image %in% c("AAW-10"))) # Manual exclusion (see Experiments Project Home > Analysis Log)
-  )  %>%
-  full_join(
-    ethAsian_images_all %>% mutate(Persona="ethAsian", .before=Image_Cat) %>% 
-    slice_min(Dim2_rank, n=5) %>% # supplement top 5 where FrCA>40
-    filter(!(Image %in% c("AAW-54"))) # Manual exclusion (see Experiments Project Home > Analysis Log))
-  ) %>%
-  mutate(Persona_Race = ifelse(Persona=="msWhite", "White", "Asian"),
-         Persona_Orientation = ifelse(Persona=="ethAsian", "Ethnic", "Mainstream"),
-         .after=Persona)
-n1b_PCAscores_selectedImages
-write_csv(n1b_PCAscores_selectedImages, file=file.path(pipeline, "out", "n1b_PCAscores_selectedImages.csv"))
-
-```
-
-
-```{r}
-# Calculate means per persona
-personae_means <- n1b_PCAscores_selectedImages %>%
-  group_by(Persona, Persona_Race, Persona_Orientation) %>% select(-Dim1_rank:-Overall_rank) %>%  summarize(across(where(is.numeric), mean))
-personae_means
-
-# Convert to long
-personae_means_long <- personae_means %>% 
-  pivot_longer(cols=Dim1_White:last_col(), names_to = "Score", values_to = "Value") %>%
-  mutate(Score_Type = ifelse(Score %in% c("Dim1_White", "Dim2_American", "Dim3_NonCalifornian"), "PCA", "Raw"), .before=Score) %>%
-  mutate(Score=fct_relevel(Score, "AsAm", "WhAm", "ForAcc", "AmAcc", "EthCul", "AmCul", "FrCA", ))
-
-# Plot
-personae_means_long %>%  filter(Score_Type=="PCA") %>%
-  ggplot(aes(x=Persona, y=Value, fill=Score)) +
-  theme_minimal() +
-  geom_col(position="dodge", alpha=0.8)+
-  scale_fill_brewer(palette = "Set2")
-
-personae_means_long %>%  filter(Score_Type=="Raw") %>%
-  ggplot(aes(x=Persona, y=Value, fill=Score)) +
-  theme_minimal() +
-  geom_col(position="dodge", alpha=0.8) +
-  scale_fill_brewer(palette = "Paired")
-
-
-```
-
-
-## Visualize
-Older code, before PCA was added. Review later for usefulness.
-#### Pre-Scored Data
-Showing a single selected image, raw values based on proportions.
-```{r}
-n1b_props_byImage %>%
-  mutate(Descriptor=fct_relevel(Descriptor, "FrCA", "AsAm", "WhAm", "ForAcc", "AmAcc", "EthCul", "AmCul")) %>%
-
-  filter(Image=="AAW-1" ) %>%
-  ggplot(aes(y=prop_select, x=Descriptor)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-```
-Showing all images, raw values based on proportions.
-```{r}
-n1b_props_byImage %>%
-  filter(Image_Cat=="WAW" ) %>%
-  ggplot(aes(y=prop_select, x=Descriptor)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-
-n1b_props_byImage %>%
-  filter(Image_Cat=="AAW" ) %>%
-  ggplot(aes(y=prop_select, x=Descriptor)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-```
-
-#### Scored Data
-##### Correlation Scatters
-Check correlations in visualization between scores.
-```{r}
-colnames(n1b_scores_byImage)
-```
-
-Sanity Check: Relative vs. Raw Scores (Race)
-```{r}
-n1b_scores_byImage %>%
-  ggplot(aes(y=AsAm, x=WhAm)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-
-n1b_scores_byImage %>%
-  ggplot(aes(y=RelAsAm, x=AsAm)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-
-n1b_scores_byImage %>%
-  ggplot(aes(y=RelAsAm, x=WhAm)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-```
-Rel vs. Raw Composite Scores
-```{r}
-n1b_scores_byImage %>%
-  ggplot(aes(y=RelForEth_Score, x=Ethnic_Score)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-
-n1b_scores_byImage %>%
-  ggplot(aes(y=RelForEth_Score, x=Bicultural_Score)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-
-n1b_scores_byImage %>%
-  ggplot(aes(y=RelForEth_Score, x=Mainstream_Score)) +
-  # facet_wrap(~Image) +
-  geom_point() +
-  theme_minimal()
-```
-
-
-##### By-Image Bars
-By Individual Image: Visualize selection proportions by image for each of the descriptors.
-```{r}
-# Select an image to view by code
-current_image = "AAW-1"
-
-# Only Raw Scores
-n1b_scores_byImage %>%
-  pivot_longer(cols=3:last_col(), names_to = "Score", values_to = "Value") %>%
-  filter(Score %in% c("FrCA", "AsAm", "WhAm", "ForAcc", "AmAcc", "EthCul", "AmCul")) %>%
-  mutate(Score=fct_relevel(Score, 
-                           "FrCA", "AsAm", "WhAm", "ForAcc", "AmAcc", "EthCul", "AmCul",
-                           )) %>%
-
-  filter(Image==current_image) %>%
-  ggplot(aes(y=Value, x=Score)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-
-# Only Rel Scores
-n1b_scores_byImage %>%
-  pivot_longer(cols=3:last_col(), names_to = "Score", values_to = "Value") %>%
-  filter(Score %in% c("RelAsAm", "RelForAcc", "RelEthCul", "RelForEth_Score")) %>%
-  mutate(Score=fct_relevel(Score, 
-                           "RelAsAm", "RelForAcc", "RelEthCul","RelForEth_Score"
-                           )) %>%
-
-  filter(Image==current_image) %>%
-  ggplot(aes(y=Value, x=Score)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-
-# Only Composite Scores
-n1b_scores_byImage %>%
-  pivot_longer(cols=3:last_col(), names_to = "Score", values_to = "Value") %>%
-  filter(Score %in% c("Ethnic_Score", "Bicultural_Score", "Mainstream_Score")) %>%
-  mutate(Score=fct_relevel(Score, 
-                           "Ethnic_Score", "Bicultural_Score", "Mainstream_Score",
-                           )) %>%
-
-  filter(Image==current_image) %>%
-  ggplot(aes(y=Value, x=Score)) +
-  facet_wrap(~Image) +
-  geom_col() +
-  theme_minimal()
-```
-
-
-
-# .
-# Graveyard
-Code snippets or temporary code that you don't need but don't want to delete just yet
-
-```{r}
-#SS Loadings
-# with factor score matrix, by squaring and summing, get eigenvalues
-as_tibble(eigenvectors, rownames="Score")%>% mutate(across(where(is.numeric), ~.^2)) %>% summarize(across(where(is.numeric), sum)) %>%
-  pivot_longer(everything(), names_to = "comp", values_to = "Squared") %>%
-  mutate(PercentVariance = Squared/7) %>%
-  summarize(across(where(is.numeric), sum))
-# with factor loadings, by squaring and summing, get 1 for all.
-as_tibble(rawLoadings, rownames="Score") %>% mutate(across(where(is.numeric), ~.^2)) %>% summarize(across(where(is.numeric), sum)) %>%
-  #mutate(TotalSum=rowSums(.)) %>%
-  #mutate(TotalVariance=TotalSum/7)
-  pivot_longer(everything(), names_to = "comp", values_to = "Squared") %>%
-  mutate(PercentVariance = Squared/7) %>%
-  summarize(across(where(is.numeric), sum))
-
-```
-
-```{r}
-# Try rotation on the eigenvectors anyway (even though not typically done), to see if I can get reasonable looking SS loadings and PercentVariance. Yes, however, this result is different from rotating on the loadings.
-rotLoadings <- Varimax(eigenvectors, normalize=T)$loadings
-as_tibble(rotLoadings, rownames="Score") 
-
-rotMatrixL <- t(eigenvectors) %*% rotLoadings
-as_tibble(rotMatrixL, rownames="Dimensions")
-
-zScores <- scale(rawScores)
-rotScores <- zScores %*% rotMatrixL
-as_tibble(rotScores, rownames="Item")
-
-as_tibble(rotLoadings, rownames="Score")%>% mutate(across(where(is.numeric), ~.^2)) %>% summarize(across(where(is.numeric), sum)) %>%
-  pivot_longer(everything(), names_to = "comp", values_to = "Squared") %>%
-  mutate(PercentVariance = Squared/7) #%>%
-  #summarize(across(where(is.numeric), sum)) #total% same as original
-```
-```{r}
-n1b_scores_byImage %>%
-  select(Image_Cat, Image, 
-         FrCA,
-         RelAsAm, WhAm, #AsAm, 
-         RelForEth_Score,
-         Mainstream_Score, #Ethnic_Score,
-         RelForAcc, RelEthCul,
-         AmAcc, AmCul #ForAcc, EthCul
-         ) %>%
-  filter(FrCA>0.5) %>% # Keep Plausibly Californian
-  filter(RelAsAm<0 & WhAm>0.5) %>% # Keep Plausibly White American (and more WhAm than AsAm)
-  
-  # Get ranks
-  mutate(RelForEth_rank = rank(RelForEth_Score, ties.method="min"), # low
-         Mainstream_rank = rank(-Mainstream_Score, ties.method="min"),    # high
-         
-         RelAsAm_rank = rank(RelAsAm, ties.method="min"),           # low 
-         RelForAcc_rank = rank(RelForAcc, ties.method="min"),       # low 
-         RelEthCul_rank = rank(RelEthCul, ties.method="min"),       # low 
-         
-         WhAm_rank = rank(-WhAm, ties.method="min"),                # high
-         AmAcc_rank = rank(-AmAcc, ties.method="min"),              # high
-         AmCul_rank = rank(-AmCul, ties.method="min"),              # high
-         .after=Mainstream_Score) %>%
-  mutate(Overall_rank = ((RelForEth_rank+Mainstream_rank)/2), 
-         .after=Mainstream_Score) %>%
-  
-  # Show top values
-  arrange(Overall_rank) # order by X
-  # slice_max(order_by=Mainstream_Score, n=10) # only show top X
-```
-
-
-##### b) Ethnic Asian
-```{r}
-n1b_scores_byImage %>%
-  select(Image_Cat, Image, 
-         FrCA,
-         RelAsAm, AsAm, #WhAm, 
-         RelForEth_Score,
-         Ethnic_Score, #Mainstream_Score,
-         RelForAcc, RelEthCul,
-         ForAcc, EthCul #AmAcc, AmCul
-         ) %>%
-  filter(FrCA>0.5) %>% # Keep Plausibly Californian
-  filter(RelAsAm>0 & AsAm>0.5) %>% # Keep Plausibly Asian American (and more AsAm than WhAm)
-  
-  # Get ranks
-  mutate(RelForEth_rank = rank(-RelForEth_Score, ties.method="min"), # high
-         Ethnic_rank = rank(-Ethnic_Score, ties.method="min"),   # high
-         
-         RelAsAm_rank = rank(-RelAsAm, ties.method="min"),           # high
-         RelForAcc_rank = rank(-RelForAcc, ties.method="min"),       # high
-         RelEthCul_rank = rank(-RelEthCul, ties.method="min"),       # high
-         
-         AsAm_rank = rank(-AsAm, ties.method="min"),                 # high
-         ForAcc_rank = rank(-ForAcc, ties.method="min"),             # high
-         EthCul_rank = rank(-EthCul, ties.method="min"),             # high
-         .after=Ethnic_Score) %>%
-  mutate(Overall_rank = ((RelForEth_rank+Ethnic_rank)/2), 
-         .after=Ethnic_Score) %>%
-  
-  # Show top values
-  arrange(Overall_rank) # order by X
-  # slice_max(order_by=Mainstream_Score, n=10) # only show top X
-```
-
-##### c) Mainstream Asian
-```{r}
-n1b_scores_byImage %>%
-  select(Image_Cat, Image, 
-         FrCA,
-         RelAsAm, AsAm, #WhAm, 
-         RelForEth_Score,
-         Bicultural_Score, #Ethnic_Score, #Mainstream_Score,
-         RelForAcc, RelEthCul,
-         ForAcc, EthCul #AmAcc, AmCul
-         ) %>%
-  filter(FrCA>0.5) %>% # Keep Plausibly Californian
-  filter(RelAsAm>0 & AsAm>0.5) %>% # Keep Plausibly Asian American (and more AsAm than WhAm)
-  
-  # Get ranks
-  mutate(RelForEth_rank = rank(RelForEth_Score, ties.method="min"),  # low <-- consider rank of absolute value from low (near 0)
-         Bicultural_rank = rank(-Bicultural_Score, ties.method="min"),     # high
-         
-         RelAsAm_rank = rank(-RelAsAm, ties.method="min"),           # high
-         RelForAcc_rank = rank(RelForAcc, ties.method="min"),        # low  (<-- consider rank of absolute value from low (near 0))
-         RelEthCul_rank = rank(RelEthCul, ties.method="min"),        # low <-- consider rank of absolute value from low (near 0)
-         
-         AsAm_rank = rank(-AsAm, ties.method="min"),                 # high
-         ForAcc_rank = rank(ForAcc, ties.method="min"),              # low (<-- consider rank of absolute value from low (near 0))
-         EthCul_rank = rank(EthCul, ties.method="min"),              # low <-- consider rank of absolute value from low (near 0)
-         .after=Bicultural_Score) %>%
-  mutate(Overall_rank = ((RelForEth_rank+Bicultural_rank)/2), 
-         .after=Bicultural_Score) %>%
-  
-  # Show top values
-  arrange(Overall_rank) # order by X
-  # slice_max(order_by=Mainstream_Score, n=10) # only show top X
+lm_emms_pairs(n1b_selected_images, `Clear speaker` ~ Condition)
 ```
