@@ -116,7 +116,7 @@ Select these advanced options:
 
 NOTE: Must include the -99 because it will result in -99 for pages where nothing was selected, which I can then convert to 0 (else, it will be NA, which I couldn't separate from unseen NAs, i.e., unpresented blocks).
 
-### (*C) Set Filenames
+### (*) Set Filenames
 Pilot set (n=8) data files.
 Main set (n=...) data files
 Final set (n=10 + 3) data files
@@ -274,7 +274,7 @@ Some of this code adapted for wrangling participant data.
 
 # Pre-Process Screener Data
 
-## (*C) Read, Wrangle
+## (*) Read, Wrangle
 
 ```{r}
 # Read in Prolific "Demographic data" from the study page
@@ -313,7 +313,8 @@ n1b_screener_v_prolific <-
     Time_in_min,
     State_Born, `U.s state/territory of birth`,
     State_Current, `Current u.s state of residence`,
-    Ethnicity_screen=Ethnicity.x, Ethnicity_prolific=Ethnicity.y, `Ethnicity simplified` 
+    Ethnicity_screen=Ethnicity.x, Ethnicity_prolific=Ethnicity.y, `Ethnicity simplified`,
+    Device
     #, .after=`Participant id`
   ) 
 # Show full data
@@ -350,21 +351,20 @@ n1b_screener_v_prolific %>%
 #### Region
 ```{r}
 # Sample Counts: Region
-n1b_screener_data %>%
-  count(State_Current,State_Born)
+n1b_screener_v_prolific %>%  count(`Current u.s state of residence`, `U.s state/territory of birth`)
+n1b_screener_v_prolific %>%  count(State_Current,State_Born)
 ```
 #### Ethnicity
 ```{r}
 # Sample Counts: Ethnicity
-n1b_screener_data %>%
-  count(Ethnicity)
+n1b_screener_v_prolific %>%  count(Ethnicity_prolific)
+n1b_screener_v_prolific %>%  count(Ethnicity_screen)
 ```
 
 #### Device
 ```{r}
 # Sample Counts: Device
-n1b_screener_data %>%
-  count(Device)
+n1b_screener_v_prolific %>%  count(Device)
 ```
 
 ####  (*C) By-Participant Check
@@ -578,7 +578,7 @@ n1b_subj_p2_loc <-
 # n1b_subj_p2_loc # <- UNCOMMENT to view
 ```
 
-##### (WIP) Network
+##### Network
 ```{r}
 n1b_subj_p2_network <- n1b_subj_p2 %>% select(PROLIFIC_PID, contains("Community") | contains("Contacts")) %>%
   mutate(across(everything(), as.character)) %>%
@@ -649,6 +649,10 @@ n1b_asian_network  %>% quick_summarize(prop_AsianCC, na.rm=TRUE)
 n1b_asian_network  %>% quick_summarize(prop_AsianRC, na.rm=TRUE)
 n1b_asian_network  %>% quick_summarize(prop_AsianBC, na.rm=TRUE)
 n1b_asian_network  %>% quick_summarize(prop_Asian, na.rm=TRUE)
+
+# Visualize (WIP)
+# n1b_asian_network %>% pivot_longer() %>%
+#   ggplot(aes(x=prop_AsianCC)) + geom_boxplot()
 ```
 ```{r}
 n1b_asian_network %>%
@@ -672,7 +676,7 @@ n1b_asian_network %>%
 ```
 Notes: 
 - Most people seem to have a minimum proportion of Asian Close Contacts at 0.25 (one exception of 0).
-- All correlate somewhat, but Regular and Broader seem most connected, then Regular and Close
+- All correlate somewhat, Regular and Close seem most related? (Regular and Broader somewhat)
 - A number of people at all Asian contacts across the board
 - There seems to be a bit of a split between 50% or more Asian in the Broader community linked to more Asian regular Contacts and Close Contacts — i.e., almost nobody has under 50% Close/Regular Contacts when large Community 
 
@@ -705,7 +709,7 @@ for (i in 1:length(participant_list)){
 
 ```{r}
 # Check single participant
-current_participant <- "610c239f6459fc6ffbc31764" # OR e.g. participant_list[3]
+current_participant <- "5b5955e7f2333f00013176b2" # OR e.g. participant_list[3]
 
 # View subj data by subject
 n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant)
@@ -724,6 +728,7 @@ All participants were born in and/or grew up in and were living in California* a
 # 6365408f2a24d08a0f2a66ae -- declined to answer
 # 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
 # 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
+# 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
 ```
 
 
@@ -838,7 +843,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "6277fd1a3a086f8af7867fa0" #participant_list[10] # 
+current_participant <- "5b5955e7f2333f00013176b2" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
