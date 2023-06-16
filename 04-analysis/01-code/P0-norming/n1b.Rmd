@@ -279,8 +279,8 @@ Some of this code adapted for wrangling participant data.
 ```{r}
 # Read in Prolific "Demographic data" from the study page
 n1b_prolific_demo <- 
-  plyr::ldply(pilot_prolific, read_csv) %>% mutate(Run=RUN_LIST[1]) %>%
-  full_join(plyr::ldply(main_prolific, read_csv) %>% mutate(Run=RUN_LIST[2]))%>%
+  plyr::ldply(pilot_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[1]) %>%
+  full_join(plyr::ldply(main_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[2])) %>%
   # full_join(read_csv(final_prolific) %>% mutate(Run=RUN_LIST[3])) %>%
   mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
 n1b_prolific_demo
@@ -729,6 +729,7 @@ All participants were born in and/or grew up in and were living in California* a
 # 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
 # 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
 # 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
+# 5b117f18c61ce0000126305a -- born and grew up in Virginia from 0-12; but 12-30 live in San Diego
 ```
 
 
@@ -843,7 +844,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "5b5955e7f2333f00013176b2" #participant_list[10] # 
+current_participant <- "5b117f18c61ce0000126305a" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
