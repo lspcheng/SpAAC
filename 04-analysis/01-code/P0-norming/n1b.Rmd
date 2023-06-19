@@ -3,6 +3,13 @@ title: "n1b"
 output: html_document
 ---
 
+During data collection, this notebook can generally just be run automatically (Run All) once new data are downloaded and placed in the correct location in the appropriate format (though manual uncommenting will be needed across the stages of data collection.)
+
+Key:
+(*) = Manual updates when running data from next data collection Stage (pilot --> main --> final)
+(*C) = Manual check prior to approving submissions on Prolific
+(*R) = Manaal check for randomization processes, to be referenced for resetting counts if skewed.
+
 # Preamble
 ## Packages
 ```{r setup}
@@ -12,22 +19,6 @@ if (file.exists("project_functions.R")){
   
 } else { # try one directory up
   source("../project_functions.R")
-}
-
-# Text Analysis
-library(countrycode)
-library(maps)
-library(tidytext)
-
-# Plots
-library(hrbrthemes)
-
-# Functions
-quick_summarize <- function(df, col, na.rm=FALSE){
-  col = enquo(col)
-  df %>%  summarize(across(!!col, list(median= ~ median(.x, na.rm=na.rm), mean= ~ mean(.x, na.rm=na.rm),
-                                       sd= ~ sd(.x, na.rm=na.rm), min= ~ min(.x, na.rm=na.rm), 
-                                       max= ~ max(.x, na.rm=na.rm))))
 }
 
 ```
@@ -654,7 +645,21 @@ n1b_asian_network  %>% quick_summarize(prop_Asian, na.rm=TRUE)
 # n1b_asian_network %>% pivot_longer() %>%
 #   ggplot(aes(x=prop_AsianCC)) + geom_boxplot()
 ```
+
 ```{r}
+# Mean Bar plots
+n1b_asian_network_long <- n1b_asian_network %>% pivot_longer(2:last_col(), names_to = "measure", values_to = "proportion", names_prefix = "prop_") %>%
+  mutate(measure = fct_relevel(measure, "Asian", "AsianCC", "AsianRC", "AsianBC"))
+
+n1b_asian_network_long %>% filter(measure!="AsianLocalCC") %>%
+  summary_mean_plot(x=measure, y=proportion, full_scale = TRUE, scale_steps = 0.25) + labs(title="Overall Asian Network/Experience")
+
+n1b_asian_network_long %>% filter(measure %in% c("AsianCC", "AsianLocalCC")) %>%
+  summary_mean_plot(x=measure, y=proportion, full_scale = TRUE, scale_steps = 0.25) + labs(title="Overall Asian Network/Experience")
+```
+
+```{r}
+# Individual scatter plots
 n1b_asian_network %>%
   ggplot(aes(x=prop_Asian, y=prop_AsianCC, size=prop_AsianRC)) + gg_theme() +
   geom_point(alpha=0.2) 
@@ -681,6 +686,9 @@ Notes:
 - There seems to be a bit of a split between 50% or more Asian in the Broader community linked to more Asian regular Contacts and Close Contacts — i.e., almost nobody has under 50% Close/Regular Contacts when large Community 
 
 - Possibly can use CloseContacts as an estimate of interactive exposure + RegularContacts OR BroaderCommunity for a more general estimate, if needed. Otherwise, one estimate would probably be enough
+
+
+
 
 #### (*C) By-Participant Check
 ```{r}
