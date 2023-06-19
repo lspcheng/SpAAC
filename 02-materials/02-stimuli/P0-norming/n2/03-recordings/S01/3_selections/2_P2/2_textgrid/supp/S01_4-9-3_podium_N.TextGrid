@@ -1,0 +1,47 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 1.1454195011338015 
+tiers? <exists> 
+size = 4 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 1.1454195011338015 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.1454195011338015 
+            text = "3" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "word" 
+        xmin = 0 
+        xmax = 1.1454195011338015 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.1454195011338015 
+            text = "4-9_podium-polaroid" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variant" 
+        xmin = 0 
+        xmax = 1.1454195011338015 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.1454195011338015 
+            text = "prelateral /ou/-backing - original" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 1.1454195011338015 
+        points: size = 1 
+        points [1]:
+            number = 0.5672601903348209 
+            mark = "<I" 
