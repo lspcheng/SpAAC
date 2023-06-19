@@ -2,7 +2,7 @@ File type = "ooTextFile"
 Object class = "TextGrid"
 
 xmin = 0 
-xmax = 16.773015873015872 
+xmax = 16.48591836734694 
 tiers? <exists> 
 size = 1 
 item []: 
@@ -10,53 +10,53 @@ item []:
         class = "IntervalTier" 
         name = "labels" 
         xmin = 0 
-        xmax = 16.773015873015872 
+        xmax = 16.48591836734694 
         intervals: size = 12 
         intervals [1]:
             xmin = 0 
-            xmax = 1.5404761904761906 
+            xmax = 1.4281632653061225 
             text = "S06_7-9-1_tattletales_M" 
         intervals [2]:
-            xmin = 1.5404761904761906 
-            xmax = 3.09655328798186 
+            xmin = 1.4281632653061225 
+            xmax = 2.96859410430839 
             text = "S06_8-8-1_restlessness_M" 
         intervals [3]:
-            xmin = 3.09655328798186 
-            xmax = 4.309569160997733 
+            xmin = 2.96859410430839 
+            xmax = 4.198616780045351 
             text = "S06_5-2-1_moody_M" 
         intervals [4]:
-            xmin = 4.309569160997733 
-            xmax = 5.663968253968255 
+            xmin = 4.198616780045351 
+            xmax = 5.439795918367347 
             text = "S06_7-10-1_chattering_M" 
         intervals [5]:
-            xmin = 5.663968253968255 
-            xmax = 7.1767800453514745 
+            xmin = 5.439795918367347 
+            xmax = 6.867414965986394 
             text = "S06_5-9-1_soothingly_M" 
         intervals [6]:
-            xmin = 7.1767800453514745 
-            xmax = 8.347823129251701 
+            xmin = 6.867414965986394 
+            xmax = 8.20265306122449 
             text = "S06_7-3-1_padding_M" 
         intervals [7]:
-            xmin = 8.347823129251701 
-            xmax = 9.702925170068028 
+            xmin = 8.20265306122449 
+            xmax = 9.657369614512472 
             text = "S06_6-8-1_randomness_M" 
         intervals [8]:
-            xmin = 9.702925170068028 
-            xmax = 11.225804988662132 
+            xmin = 9.657369614512472 
+            xmax = 10.997573696145125 
             text = "S06_5-8-1_scooted_M" 
         intervals [9]:
-            xmin = 11.225804988662132 
-            xmax = 12.502857142857144 
+            xmin = 10.997573696145125 
+            xmax = 12.18530612244898 
             text = "S06_6-2-1_channeled_M" 
         intervals [10]:
-            xmin = 12.502857142857144 
-            xmax = 13.7559410430839 
+            xmin = 12.18530612244898 
+            xmax = 13.433378684807256 
             text = "S06_6-9-1_banditry_M" 
         intervals [11]:
-            xmin = 13.7559410430839 
-            xmax = 15.242063492063492 
+            xmin = 13.433378684807256 
+            xmax = 14.981678004535146 
             text = "S06_8-9-1_wistfulness_M" 
         intervals [12]:
-            xmin = 15.242063492063492 
-            xmax = 16.773015873015872 
+            xmin = 14.981678004535146 
+            xmax = 16.48591836734694 
             text = "S06_8-2-1_fastball_M" 

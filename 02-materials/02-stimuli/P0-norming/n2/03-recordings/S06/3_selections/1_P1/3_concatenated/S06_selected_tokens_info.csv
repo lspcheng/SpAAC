@@ -119,8 +119,6 @@ S06_6-10-1_sanity_M,S06,6-10-1,6,10,1,sanity,M
 S06_6-10-3_sanity_N,S06,6-10-3,6,10,3,sanity,N
 S06_7-1-1_battles_M,S06,7-1-1,7,1,1,battles,M
 S06_7-1-3_battles_N,S06,7-1-3,7,1,3,battles,N
-S06_7-2-1_madden_M,S06,7-2-1,7,2,1,madden,M
-S06_7-2-3_madden_N,S06,7-2-3,7,2,3,madden,N
 S06_7-3-1_padding_M,S06,7-3-1,7,3,1,padding,M
 S06_7-3-3_padding_N,S06,7-3-3,7,3,3,padding,N
 S06_7-5-1_shattered_M,S06,7-5-1,7,5,1,shattered,M
@@ -139,6 +137,8 @@ S06_8-1-1_coastguard_M,S06,8-1-1,8,1,1,coastguard,M
 S06_8-1-3_coastguard_N,S06,8-1-3,8,1,3,coastguard,N
 S06_8-2-1_fastball_M,S06,8-2-1,8,2,1,fastball,M
 S06_8-2-3_fastball_N,S06,8-2-3,8,2,3,fastball,N
+S06_8-3-1_lastly_M,S06,8-3-1,8,3,1,lastly,M
+S06_8-3-3_lastly_N,S06,8-3-3,8,3,3,lastly,N
 S06_8-4-1_restful_M,S06,8-4-1,8,4,1,restful,M
 S06_8-4-3_restful_N,S06,8-4-3,8,4,3,restful,N
 S06_8-5-1_softball_M,S06,8-5-1,8,5,1,softball,M
