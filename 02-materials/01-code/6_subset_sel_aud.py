@@ -15,7 +15,7 @@ def main(args):
     base_path = os.path.join("..", "02-stimuli", "P0-norming", "n2", "03-recordings")
 
     # Get processed speaker list
-    token_file_paths = glob.glob(os.path.join(base_path, "**", "*selected_tokens_info.csv"), recursive=True)
+    token_file_paths = glob.glob(os.path.join(base_path, "**", "1_P1", "**", "*selected_tokens_info.csv"), recursive=True)
     token_file_info = sorted([(os.path.normpath(p).split(os.path.sep)[-5], os.path.normpath(p).split(os.path.sep)[-1], p) for p in token_file_paths])
 
     speaker_list = [info[0] for info in token_file_info]
