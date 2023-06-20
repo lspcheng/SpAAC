@@ -15,7 +15,7 @@ def main(args):
     base_path = os.path.join("..", "02-stimuli", "P0-norming", "n2", "03-recordings")
 
     # Get processed speaker list
-    token_file_paths = glob.glob(os.path.join(base_path, "**", "*selected_tokens_info.csv"), recursive=True)
+    token_file_paths = glob.glob(os.path.join(base_path, "**", "1_P1", "**", "*selected_tokens_info.csv"), recursive=True)
     token_file_info = sorted([(os.path.normpath(p).split(os.path.sep)[-5], os.path.normpath(p).split(os.path.sep)[-1], p) for p in token_file_paths])
 
     speaker_list = [info[0] for info in token_file_info]
@@ -34,6 +34,7 @@ def main(args):
         aggregate_manual_out_path = os.path.join(base_path, "1_aggregate", "1_ratings", "1_manual")
         aggregate_norming_out_path = os.path.join(base_path, "1_aggregate", "1_norming", "temp")
 
+        # Set aggregate path
         if args.variableN:
             aggregate_path = aggregate_auto_out_path
         elif args.random:
@@ -53,7 +54,7 @@ def main(args):
             if not os.path.exists(aggregate_manual_out_path):
                 os.makedirs(aggregate_manual_out_path)
 
-    # Generate random list
+    # Generate random list if it doesn't already exist
     if args.random:
         random_filepath = os.path.join(os.path.dirname(__file__), f"N2_random_items.csv")
 
@@ -104,7 +105,7 @@ def main(args):
         if args.verbose:
             print(random_items_df)
 
-    # Extract selected files
+    # Extract selected files (regardless of aggregate or not)
     for speaker in speaker_list:
         speaker_path = os.path.join(base_path, speaker)
 
@@ -136,8 +137,10 @@ def main(args):
             else:
                 os.makedirs(subset_out_path)
 
+        # Run random token selection + concatenate
+        # Always save to local speaker folders
+        # If args.aggregate, additionally save to aggregate folder
         if args.random:
-
             subset_concat_out_path = os.path.join(speaker_path, "3_selections", "0_N2", "2_concatenated")
             if not os.path.exists(subset_concat_out_path):
                 os.makedirs(subset_concat_out_path)
@@ -173,9 +176,12 @@ def main(args):
                 concat_sounds.save(os.path.join(subset_concat_out_path, f"{speaker}_random_tokens.wav"), format="WAV")
                 concat_tgs.save(os.path.join(subset_concat_out_path, f"{speaker}_random_tokens.TextGrid"))
 
+                # Save copy of file to aggregate
                 if args.aggregate:
                     concat_sounds.save(os.path.join(aggregate_norming_out_path, f"{speaker}_random_tokens.wav"), format="WAV")
 
+        # Run variable subset token selection + coding script preparation
+        # Save to local speaker folder or if args.aggregate, to aggregate folder
         if args.variableN:
 
             for vN in args.variableN:
@@ -217,8 +223,8 @@ if __name__ == '__main__':
 
     parser.set_defaults(func=None)
     parser.add_argument('-s', '--speaker', default=None, type=lambda s: [item for item in s.split(',')], help='speaker code (delimited list input); if empty, all speakers')
-    parser.add_argument('-p', '--path', default=None, type=str, help='output path')
-    parser.add_argument('-r', '--random', default=0, type=int, help='generate random sample')
+    # parser.add_argument('-p', '--path', default=None, type=str, help='output path')
+    parser.add_argument('-r', '--random', default=6, type=int, help='generate random sample and save random tokens (individual and concatenated); takes integer argument as random seed (default: 6)')
     parser.add_argument('-n', '--variableN', default=None, type=lambda s: [int(item) for item in s.split(',')], help='variableNs to subset (delimited list input)')
     parser.add_argument('-a', '--aggregate', action='store_true', help='aggregate by-speaker output into separate directory')
     parser.add_argument('-o', '--overwrite', action='store_true', help='overwrite extracted output directory')

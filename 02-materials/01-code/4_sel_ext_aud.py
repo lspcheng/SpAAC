@@ -190,7 +190,7 @@ def main(args):
             variableN, rowN, variantN = item_code.split('-')
 
             data_row = {'filename': token_filename, 'speaker': spk, 'item_code': item_code, 'variableN': variableN, 'rowN': rowN, 'variantN': variantN, 'word': word, 'variant': variant}
-            out_df = out_df.append(data_row, ignore_index=True, sort=False)
+            out_df = pd.concat([out_df, pd.DataFrame.from_records([data_row])])
 
             call(concat_tgs, "Set interval text", 1, int_n+1, token_filename)
 
