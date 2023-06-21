@@ -285,12 +285,13 @@ n1b_screener_data <- read_csv(current_screener) %>%
   slice(-1:-2) %>%
   unite("Ethnicity", Ethnicity_9:Ethnicity_14, sep=",", na.rm=TRUE, remove=FALSE) %>%
 relocate(Device, .after = Ethnicity) %>%
-  rename(`Participant id` = Prolific_ID)
+  rename(`Participant id` = Prolific_ID) %>%
+  drop_na(State_Current)
 
   #TEMP: Remove returned/non-consent participants, bad participants, outliers while checking, before deleting
 # n1b_screener_data <- n1b_screener_data %>% filter(!(PROLIFIC_PID%in% c("62a15df1dd6fa394ea04f063"))) <- REPLACE if needed
   
-n1b_screener_data 
+n1b_screener_data
 # View(screener_data)
 ```
 
@@ -728,7 +729,7 @@ n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
 ```
 <!-- UPDATE THIS STATEMENT AS NEEDED:  -->
 <!-- All participants were born in, spent the majority of their childhood in, and were living in California* at the time. -->
-All participants were born in and/or grew up in and were living in California* at the time (based on the screener).
+All participants were born in and/or spent time before 18 in and were living in California* at the time (based on the screener; except one ).
 ```{r}
 # Notes on Participant Locations (if needed).
 
@@ -852,7 +853,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "5b117f18c61ce0000126305a" #participant_list[10] # 
+current_participant <- "610b119f54dcb01ad6a9783f" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 

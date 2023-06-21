@@ -224,6 +224,7 @@ labeled_scatterplot <- function(df, x, y, label, group, show_points=TRUE, full_s
   group = enquo(group)
   min_y <- min(df %>% pull(!!y))
   max_y <- max(df %>% pull(!!y))
+  y_range <- max_y-min_y
   
   plot <- df %>% group_by((!!group), (!!x)) %>% 
     ggplot(aes(x=(!!x), y=(!!y), color=(!!group), fill=(!!group), label=(!!label)))
@@ -231,7 +232,7 @@ labeled_scatterplot <- function(df, x, y, label, group, show_points=TRUE, full_s
     plot <- plot + geom_point(alpha=0.7)
   }
   plot <- plot +
-    geom_text(alpha=0.9, nudge_x = 0.2, nudge_y = 0.2) +
+    geom_text(alpha=0.9, nudge_x = y_range/30, nudge_y = y_range/30) +
     scale_color_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
     scale_fill_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
     gg_theme() + theme_minimal()

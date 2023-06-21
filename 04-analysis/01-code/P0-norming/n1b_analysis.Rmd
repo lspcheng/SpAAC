@@ -637,7 +637,7 @@ n1b_ratings_releveled %>% filter(Rating_Group == "Style") %>%
   violin_plot(x=Rating_Scale, y=Rating_Value, group=Condition, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
 ```
 
-#### By Image
+##### By Image
 ```{r}
 # Add all images mean plots to find outliers to drop (or matched pairs to keep)
 
@@ -1532,7 +1532,7 @@ n1b_selected_ratings %>% group_by(Persona_Group, Rating_Scale) %>%
 
 ```
 ```{r}
-n1b_selected_images %>% group_by(persona_group) %>% summarize(across)
+# n1b_selected_images %>% group_by(Persona_Group) %>% summarize(across)
 ```
 
 
