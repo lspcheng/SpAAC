@@ -4,7 +4,7 @@ Object class = "TextGrid"
 xmin = 0 
 xmax = 1040.18768707483 
 tiers? <exists> 
-size = 3 
+size = 4 
 item []: 
     item [1]:
         class = "IntervalTier" 
@@ -34,10 +34,10 @@ item []:
             text = "silent" 
         intervals [6]:
             xmin = 4.457843537414991 
-            xmax = 4.945843537414991 
+            xmax = 4.93784353741499 
             text = "" 
         intervals [7]:
-            xmin = 4.945843537414991 
+            xmin = 4.93784353741499 
             xmax = 5.849843537414991 
             text = "silent" 
         intervals [8]:
@@ -50,10 +50,10 @@ item []:
             text = "silent" 
         intervals [10]:
             xmin = 7.121843537414991 
-            xmax = 7.71384353741499 
+            xmax = 7.7058435374149905 
             text = "" 
         intervals [11]:
-            xmin = 7.71384353741499 
+            xmin = 7.7058435374149905 
             xmax = 8.40184353741499 
             text = "silent" 
         intervals [12]:
@@ -134,10 +134,10 @@ item []:
             text = "" 
         intervals [31]:
             xmin = 21.049843537414993 
-            xmax = 21.865843537414992 
+            xmax = 21.87384353741499 
             text = "silent" 
         intervals [32]:
-            xmin = 21.865843537414992 
+            xmin = 21.87384353741499 
             xmax = 22.545843537414992 
             text = "" 
         intervals [33]:
@@ -266,10 +266,10 @@ item []:
             text = "silent" 
         intervals [64]:
             xmin = 42.56984353741499 
-            xmax = 43.20184353741499 
+            xmax = 43.19384353741499 
             text = "" 
         intervals [65]:
-            xmin = 43.20184353741499 
+            xmin = 43.19384353741499 
             xmax = 43.60984353741499 
             text = "silent" 
         intervals [66]:
@@ -394,10 +394,10 @@ item []:
             text = "silent" 
         intervals [96]:
             xmin = 64.905843537415 
-            xmax = 65.593843537415 
+            xmax = 65.585843537415 
             text = "" 
         intervals [97]:
-            xmin = 65.593843537415 
+            xmin = 65.585843537415 
             xmax = 66.601843537415 
             text = "silent" 
         intervals [98]:
@@ -474,18 +474,18 @@ item []:
             text = "silent" 
         intervals [116]:
             xmin = 79.889843537415 
-            xmax = 80.497843537415 
+            xmax = 80.489843537415 
             text = "" 
         intervals [117]:
-            xmin = 80.497843537415 
+            xmin = 80.489843537415 
             xmax = 80.96184353741499 
             text = "silent" 
         intervals [118]:
             xmin = 80.96184353741499 
-            xmax = 81.641843537415 
+            xmax = 81.633843537415 
             text = "" 
         intervals [119]:
-            xmin = 81.641843537415 
+            xmin = 81.633843537415 
             xmax = 82.121843537415 
             text = "silent" 
         intervals [120]:
@@ -546,18 +546,18 @@ item []:
             text = "silent" 
         intervals [134]:
             xmin = 92.489843537415 
-            xmax = 93.073843537415 
+            xmax = 93.06584353741499 
             text = "" 
         intervals [135]:
-            xmin = 93.073843537415 
+            xmin = 93.06584353741499 
             xmax = 93.649843537415 
             text = "silent" 
         intervals [136]:
             xmin = 93.649843537415 
-            xmax = 94.353843537415 
+            xmax = 94.34584353741499 
             text = "" 
         intervals [137]:
-            xmin = 94.353843537415 
+            xmin = 94.34584353741499 
             xmax = 94.777843537415 
             text = "silent" 
         intervals [138]:
@@ -606,10 +606,10 @@ item []:
             text = "" 
         intervals [149]:
             xmin = 103.249843537415 
-            xmax = 103.745843537415 
+            xmax = 103.753843537415 
             text = "silent" 
         intervals [150]:
-            xmin = 103.745843537415 
+            xmin = 103.753843537415 
             xmax = 104.561843537415 
             text = "" 
         intervals [151]:
@@ -666,18 +666,18 @@ item []:
             text = "silent" 
         intervals [164]:
             xmin = 114.657843537415 
-            xmax = 115.617843537415 
+            xmax = 115.609843537415 
             text = "" 
         intervals [165]:
-            xmin = 115.617843537415 
+            xmin = 115.609843537415 
             xmax = 115.93784353741499 
             text = "silent" 
         intervals [166]:
             xmin = 115.93784353741499 
-            xmax = 116.83384353741499 
+            xmax = 116.825843537415 
             text = "" 
         intervals [167]:
-            xmin = 116.83384353741499 
+            xmin = 116.825843537415 
             xmax = 117.081843537415 
             text = "silent" 
         intervals [168]:
@@ -698,10 +698,10 @@ item []:
             text = "silent" 
         intervals [172]:
             xmin = 120.873843537415 
-            xmax = 121.70584353741499 
+            xmax = 121.697843537415 
             text = "" 
         intervals [173]:
-            xmin = 121.70584353741499 
+            xmin = 121.697843537415 
             xmax = 121.945843537415 
             text = "silent" 
         intervals [174]:
@@ -750,10 +750,10 @@ item []:
             text = "" 
         intervals [185]:
             xmin = 130.60984353741497 
-            xmax = 130.977843537415 
+            xmax = 130.98584353741498 
             text = "silent" 
         intervals [186]:
-            xmin = 130.977843537415 
+            xmin = 130.98584353741498 
             xmax = 131.49784353741498 
             text = "" 
         intervals [187]:
@@ -798,10 +798,10 @@ item []:
             text = "" 
         intervals [197]:
             xmin = 137.93784353741498 
-            xmax = 138.26584353741498 
+            xmax = 138.273843537415 
             text = "silent" 
         intervals [198]:
-            xmin = 138.26584353741498 
+            xmin = 138.273843537415 
             xmax = 138.82584353741498 
             text = "" 
         intervals [199]:
@@ -822,10 +822,10 @@ item []:
             text = "" 
         intervals [203]:
             xmin = 141.44984353741498 
-            xmax = 141.713843537415 
+            xmax = 141.82584353741498 
             text = "silent" 
         intervals [204]:
-            xmin = 141.713843537415 
+            xmin = 141.82584353741498 
             xmax = 142.37784353741498 
             text = "" 
         intervals [205]:
@@ -870,26 +870,26 @@ item []:
             text = "" 
         intervals [215]:
             xmin = 148.601843537415 
-            xmax = 148.88984353741498 
+            xmax = 148.89784353741499 
             text = "silent" 
         intervals [216]:
-            xmin = 148.88984353741498 
+            xmin = 148.89784353741499 
             xmax = 149.553843537415 
             text = "" 
         intervals [217]:
             xmin = 149.553843537415 
-            xmax = 150.96184353741498 
+            xmax = 150.969843537415 
             text = "silent" 
         intervals [218]:
-            xmin = 150.96184353741498 
+            xmin = 150.969843537415 
             xmax = 151.625843537415 
             text = "" 
         intervals [219]:
             xmin = 151.625843537415 
-            xmax = 152.02584353741497 
+            xmax = 152.03384353741498 
             text = "silent" 
         intervals [220]:
-            xmin = 152.02584353741497 
+            xmin = 152.03384353741498 
             xmax = 152.56184353741497 
             text = "" 
         intervals [221]:
@@ -1162,10 +1162,10 @@ item []:
             text = "silent" 
         intervals [288]:
             xmin = 196.84984353741498 
-            xmax = 197.52184353741498 
+            xmax = 197.513843537415 
             text = "" 
         intervals [289]:
-            xmin = 197.52184353741498 
+            xmin = 197.513843537415 
             xmax = 198.84184353741497 
             text = "silent" 
         intervals [290]:
@@ -1202,10 +1202,10 @@ item []:
             text = "silent" 
         intervals [298]:
             xmin = 203.601843537415 
-            xmax = 204.161843537415 
+            xmax = 204.15384353741499 
             text = "" 
         intervals [299]:
-            xmin = 204.161843537415 
+            xmin = 204.15384353741499 
             xmax = 204.53784353741497 
             text = "silent" 
         intervals [300]:
@@ -1226,10 +1226,10 @@ item []:
             text = "silent" 
         intervals [304]:
             xmin = 207.321843537415 
-            xmax = 207.89784353741499 
+            xmax = 207.88984353741498 
             text = "" 
         intervals [305]:
-            xmin = 207.89784353741499 
+            xmin = 207.88984353741498 
             xmax = 208.19384353741498 
             text = "silent" 
         intervals [306]:
@@ -1242,10 +1242,10 @@ item []:
             text = "silent" 
         intervals [308]:
             xmin = 210.481843537415 
-            xmax = 212.225843537415 
+            xmax = 212.21784353741498 
             text = "" 
         intervals [309]:
-            xmin = 212.225843537415 
+            xmin = 212.21784353741498 
             xmax = 212.52184353741498 
             text = "silent" 
         intervals [310]:
@@ -1258,10 +1258,10 @@ item []:
             text = "silent" 
         intervals [312]:
             xmin = 214.369843537415 
-            xmax = 215.041843537415 
+            xmax = 215.03384353741498 
             text = "" 
         intervals [313]:
-            xmin = 215.041843537415 
+            xmin = 215.03384353741498 
             xmax = 215.37784353741498 
             text = "silent" 
         intervals [314]:
@@ -1306,10 +1306,10 @@ item []:
             text = "silent" 
         intervals [324]:
             xmin = 222.297843537415 
-            xmax = 222.969843537415 
+            xmax = 222.96184353741498 
             text = "" 
         intervals [325]:
-            xmin = 222.969843537415 
+            xmin = 222.96184353741498 
             xmax = 223.30584353741497 
             text = "silent" 
         intervals [326]:
@@ -1418,10 +1418,10 @@ item []:
             text = "silent" 
         intervals [352]:
             xmin = 242.14584353741498 
-            xmax = 242.929843537415 
+            xmax = 242.921843537415 
             text = "" 
         intervals [353]:
-            xmin = 242.929843537415 
+            xmin = 242.921843537415 
             xmax = 243.177843537415 
             text = "silent" 
         intervals [354]:
@@ -1498,10 +1498,10 @@ item []:
             text = "silent" 
         intervals [372]:
             xmin = 256.393843537415 
-            xmax = 257.041843537415 
+            xmax = 257.025843537415 
             text = "" 
         intervals [373]:
-            xmin = 257.041843537415 
+            xmin = 257.025843537415 
             xmax = 257.481843537415 
             text = "silent" 
         intervals [374]:
@@ -1646,10 +1646,10 @@ item []:
             text = "" 
         intervals [409]:
             xmin = 280.889843537415 
-            xmax = 281.129843537415 
+            xmax = 281.137843537415 
             text = "silent" 
         intervals [410]:
-            xmin = 281.129843537415 
+            xmin = 281.137843537415 
             xmax = 281.697843537415 
             text = "" 
         intervals [411]:
@@ -1730,10 +1730,10 @@ item []:
             text = "silent" 
         intervals [430]:
             xmin = 296.38584353741504 
-            xmax = 297.017843537415 
+            xmax = 297.009843537415 
             text = "" 
         intervals [431]:
-            xmin = 297.017843537415 
+            xmin = 297.009843537415 
             xmax = 297.425843537415 
             text = "silent" 
         intervals [432]:
@@ -1798,10 +1798,10 @@ item []:
             text = "" 
         intervals [447]:
             xmin = 307.449843537415 
-            xmax = 308.889843537415 
+            xmax = 308.89784353741504 
             text = "silent" 
         intervals [448]:
-            xmin = 308.889843537415 
+            xmin = 308.89784353741504 
             xmax = 309.497843537415 
             text = "" 
         intervals [449]:
@@ -1842,10 +1842,10 @@ item []:
             text = "silent" 
         intervals [458]:
             xmin = 315.081843537415 
-            xmax = 315.65784353741503 
+            xmax = 315.649843537415 
             text = "" 
         intervals [459]:
-            xmin = 315.65784353741503 
+            xmin = 315.649843537415 
             xmax = 317.16984353741503 
             text = "silent" 
         intervals [460]:
@@ -1986,10 +1986,10 @@ item []:
             text = "silent" 
         intervals [494]:
             xmin = 338.31384353741504 
-            xmax = 338.77784353741504 
+            xmax = 338.769843537415 
             text = "" 
         intervals [495]:
-            xmin = 338.77784353741504 
+            xmin = 338.769843537415 
             xmax = 340.353843537415 
             text = "silent" 
         intervals [496]:
@@ -2002,10 +2002,10 @@ item []:
             text = "silent" 
         intervals [498]:
             xmin = 341.33784353741504 
-            xmax = 341.769843537415 
+            xmax = 341.75384353741504 
             text = "" 
         intervals [499]:
-            xmin = 341.769843537415 
+            xmin = 341.75384353741504 
             xmax = 342.257843537415 
             text = "silent" 
         intervals [500]:
@@ -2038,10 +2038,10 @@ item []:
             text = "" 
         intervals [507]:
             xmin = 346.75384353741504 
-            xmax = 348.19384353741503 
+            xmax = 348.201843537415 
             text = "silent" 
         intervals [508]:
-            xmin = 348.19384353741503 
+            xmin = 348.201843537415 
             xmax = 348.769843537415 
             text = "" 
         intervals [509]:
@@ -2070,10 +2070,10 @@ item []:
             text = "" 
         intervals [515]:
             xmin = 352.649843537415 
-            xmax = 352.937843537415 
+            xmax = 352.94584353741504 
             text = "silent" 
         intervals [516]:
-            xmin = 352.937843537415 
+            xmin = 352.94584353741504 
             xmax = 353.497843537415 
             text = "" 
         intervals [517]:
@@ -2082,10 +2082,10 @@ item []:
             text = "silent" 
         intervals [518]:
             xmin = 353.985843537415 
-            xmax = 354.481843537415 
+            xmax = 354.473843537415 
             text = "" 
         intervals [519]:
-            xmin = 354.481843537415 
+            xmin = 354.473843537415 
             xmax = 355.937843537415 
             text = "silent" 
         intervals [520]:
@@ -2154,10 +2154,10 @@ item []:
             text = "silent" 
         intervals [536]:
             xmin = 365.721843537415 
-            xmax = 366.19384353741503 
+            xmax = 366.185843537415 
             text = "" 
         intervals [537]:
-            xmin = 366.19384353741503 
+            xmin = 366.185843537415 
             xmax = 368.065843537415 
             text = "silent" 
         intervals [538]:
@@ -2250,10 +2250,10 @@ item []:
             text = "silent" 
         intervals [560]:
             xmin = 384.001843537415 
-            xmax = 384.497843537415 
+            xmax = 384.489843537415 
             text = "" 
         intervals [561]:
-            xmin = 384.497843537415 
+            xmin = 384.489843537415 
             xmax = 386.113843537415 
             text = "silent" 
         intervals [562]:
@@ -2266,10 +2266,10 @@ item []:
             text = "silent" 
         intervals [564]:
             xmin = 387.14584353741503 
-            xmax = 387.65784353741503 
+            xmax = 387.649843537415 
             text = "" 
         intervals [565]:
-            xmin = 387.65784353741503 
+            xmin = 387.649843537415 
             xmax = 388.105843537415 
             text = "silent" 
         intervals [566]:
@@ -2458,10 +2458,10 @@ item []:
             text = "silent" 
         intervals [612]:
             xmin = 422.249843537415 
-            xmax = 422.809843537415 
+            xmax = 422.80184353741504 
             text = "" 
         intervals [613]:
-            xmin = 422.809843537415 
+            xmin = 422.80184353741504 
             xmax = 423.321843537415 
             text = "silent" 
         intervals [614]:
@@ -2522,10 +2522,10 @@ item []:
             text = "silent" 
         intervals [628]:
             xmin = 434.40984353741504 
-            xmax = 435.025843537415 
+            xmax = 435.01784353741505 
             text = "" 
         intervals [629]:
-            xmin = 435.025843537415 
+            xmin = 435.01784353741505 
             xmax = 435.60984353741503 
             text = "silent" 
         intervals [630]:
@@ -2582,10 +2582,10 @@ item []:
             text = "" 
         intervals [643]:
             xmin = 445.089843537415 
-            xmax = 445.56184353741503 
+            xmax = 445.569843537415 
             text = "silent" 
         intervals [644]:
-            xmin = 445.56184353741503 
+            xmin = 445.569843537415 
             xmax = 446.26584353741504 
             text = "" 
         intervals [645]:
@@ -2662,10 +2662,10 @@ item []:
             text = "" 
         intervals [663]:
             xmin = 460.33784353741504 
-            xmax = 462.449843537415 
+            xmax = 462.45784353741504 
             text = "silent" 
         intervals [664]:
-            xmin = 462.449843537415 
+            xmin = 462.45784353741504 
             xmax = 463.009843537415 
             text = "" 
         intervals [665]:
@@ -2678,10 +2678,10 @@ item []:
             text = "" 
         intervals [667]:
             xmin = 464.28984353741504 
-            xmax = 464.793843537415 
+            xmax = 464.80184353741504 
             text = "silent" 
         intervals [668]:
-            xmin = 464.793843537415 
+            xmin = 464.80184353741504 
             xmax = 465.369843537415 
             text = "" 
         intervals [669]:
@@ -2758,10 +2758,10 @@ item []:
             text = "" 
         intervals [687]:
             xmin = 479.92184353741504 
-            xmax = 481.68184353741503 
+            xmax = 481.697843537415 
             text = "silent" 
         intervals [688]:
-            xmin = 481.68184353741503 
+            xmin = 481.697843537415 
             xmax = 482.425843537415 
             text = "" 
         intervals [689]:
@@ -2810,10 +2810,10 @@ item []:
             text = "silent" 
         intervals [700]:
             xmin = 491.761843537415 
-            xmax = 492.465843537415 
+            xmax = 492.45784353741504 
             text = "" 
         intervals [701]:
-            xmin = 492.465843537415 
+            xmin = 492.45784353741504 
             xmax = 492.84984353741504 
             text = "silent" 
         intervals [702]:
@@ -2826,10 +2826,10 @@ item []:
             text = "silent" 
         intervals [704]:
             xmin = 493.985843537415 
-            xmax = 494.865843537415 
+            xmax = 494.857843537415 
             text = "" 
         intervals [705]:
-            xmin = 494.865843537415 
+            xmin = 494.857843537415 
             xmax = 497.84984353741504 
             text = "silent" 
         intervals [706]:
@@ -2942,10 +2942,10 @@ item []:
             text = "" 
         intervals [733]:
             xmin = 518.4978435374151 
-            xmax = 518.929843537415 
+            xmax = 518.937843537415 
             text = "silent" 
         intervals [734]:
-            xmin = 518.929843537415 
+            xmin = 518.937843537415 
             xmax = 519.441843537415 
             text = "" 
         intervals [735]:
@@ -3042,10 +3042,10 @@ item []:
             text = "silent" 
         intervals [758]:
             xmin = 537.489843537415 
-            xmax = 537.977843537415 
+            xmax = 537.969843537415 
             text = "" 
         intervals [759]:
-            xmin = 537.977843537415 
+            xmin = 537.969843537415 
             xmax = 539.993843537415 
             text = "silent" 
         intervals [760]:
@@ -3090,10 +3090,10 @@ item []:
             text = "silent" 
         intervals [770]:
             xmin = 546.465843537415 
-            xmax = 547.281843537415 
+            xmax = 547.273843537415 
             text = "" 
         intervals [771]:
-            xmin = 547.281843537415 
+            xmin = 547.273843537415 
             xmax = 549.921843537415 
             text = "silent" 
         intervals [772]:
@@ -3314,10 +3314,10 @@ item []:
             text = "silent" 
         intervals [826]:
             xmin = 591.5458435374151 
-            xmax = 592.001843537415 
+            xmax = 591.993843537415 
             text = "" 
         intervals [827]:
-            xmin = 592.001843537415 
+            xmin = 591.993843537415 
             xmax = 592.5938435374151 
             text = "silent" 
         intervals [828]:
@@ -3426,10 +3426,10 @@ item []:
             text = "silent" 
         intervals [854]:
             xmin = 610.905843537415 
-            xmax = 611.6418435374151 
+            xmax = 611.633843537415 
             text = "" 
         intervals [855]:
-            xmin = 611.6418435374151 
+            xmin = 611.633843537415 
             xmax = 613.561843537415 
             text = "silent" 
         intervals [856]:
@@ -3466,10 +3466,10 @@ item []:
             text = "silent" 
         intervals [864]:
             xmin = 619.345843537415 
-            xmax = 619.985843537415 
+            xmax = 619.977843537415 
             text = "" 
         intervals [865]:
-            xmin = 619.985843537415 
+            xmin = 619.977843537415 
             xmax = 620.5218435374151 
             text = "silent" 
         intervals [866]:
@@ -3546,10 +3546,10 @@ item []:
             text = "silent" 
         intervals [884]:
             xmin = 636.129843537415 
-            xmax = 636.705843537415 
+            xmax = 636.697843537415 
             text = "" 
         intervals [885]:
-            xmin = 636.705843537415 
+            xmin = 636.697843537415 
             xmax = 638.049843537415 
             text = "silent" 
         intervals [886]:
@@ -3674,10 +3674,10 @@ item []:
             text = "silent" 
         intervals [916]:
             xmin = 658.441843537415 
-            xmax = 659.025843537415 
+            xmax = 659.017843537415 
             text = "" 
         intervals [917]:
-            xmin = 659.025843537415 
+            xmin = 659.017843537415 
             xmax = 659.441843537415 
             text = "silent" 
         intervals [918]:
@@ -3782,10 +3782,10 @@ item []:
             text = "" 
         intervals [943]:
             xmin = 676.081843537415 
-            xmax = 676.393843537415 
+            xmax = 676.4018435374151 
             text = "silent" 
         intervals [944]:
-            xmin = 676.393843537415 
+            xmin = 676.4018435374151 
             xmax = 676.977843537415 
             text = "" 
         intervals [945]:
@@ -3866,10 +3866,10 @@ item []:
             text = "silent" 
         intervals [964]:
             xmin = 691.6898435374151 
-            xmax = 692.393843537415 
+            xmax = 692.3778435374151 
             text = "" 
         intervals [965]:
-            xmin = 692.393843537415 
+            xmin = 692.3778435374151 
             xmax = 692.721843537415 
             text = "silent" 
         intervals [966]:
@@ -3882,10 +3882,10 @@ item []:
             text = "silent" 
         intervals [968]:
             xmin = 693.769843537415 
-            xmax = 694.513843537415 
+            xmax = 694.505843537415 
             text = "" 
         intervals [969]:
-            xmin = 694.513843537415 
+            xmin = 694.505843537415 
             xmax = 696.465843537415 
             text = "silent" 
         intervals [970]:
@@ -4026,18 +4026,18 @@ item []:
             text = "silent" 
         intervals [1004]:
             xmin = 717.257843537415 
-            xmax = 717.865843537415 
+            xmax = 717.8578435374151 
             text = "" 
         intervals [1005]:
-            xmin = 717.865843537415 
+            xmin = 717.8578435374151 
             xmax = 720.121843537415 
             text = "silent" 
         intervals [1006]:
             xmin = 720.121843537415 
-            xmax = 720.7858435374151 
+            xmax = 720.777843537415 
             text = "" 
         intervals [1007]:
-            xmin = 720.7858435374151 
+            xmin = 720.777843537415 
             xmax = 721.025843537415 
             text = "silent" 
         intervals [1008]:
@@ -4114,10 +4114,10 @@ item []:
             text = "silent" 
         intervals [1026]:
             xmin = 735.8818435374151 
-            xmax = 736.625843537415 
+            xmax = 736.6178435374151 
             text = "" 
         intervals [1027]:
-            xmin = 736.625843537415 
+            xmin = 736.6178435374151 
             xmax = 737.953843537415 
             text = "silent" 
         intervals [1028]:
@@ -4174,18 +4174,18 @@ item []:
             text = "" 
         intervals [1041]:
             xmin = 747.8338435374151 
-            xmax = 748.137843537415 
+            xmax = 748.145843537415 
             text = "silent" 
         intervals [1042]:
-            xmin = 748.137843537415 
+            xmin = 748.145843537415 
             xmax = 748.7618435374151 
             text = "" 
         intervals [1043]:
             xmin = 748.7618435374151 
-            xmax = 749.097843537415 
+            xmax = 749.105843537415 
             text = "silent" 
         intervals [1044]:
-            xmin = 749.097843537415 
+            xmin = 749.105843537415 
             xmax = 749.753843537415 
             text = "" 
         intervals [1045]:
@@ -4210,10 +4210,10 @@ item []:
             text = "silent" 
         intervals [1050]:
             xmin = 753.073843537415 
-            xmax = 753.729843537415 
+            xmax = 753.721843537415 
             text = "" 
         intervals [1051]:
-            xmin = 753.729843537415 
+            xmin = 753.721843537415 
             xmax = 755.265843537415 
             text = "silent" 
         intervals [1052]:
@@ -4250,10 +4250,10 @@ item []:
             text = "silent" 
         intervals [1060]:
             xmin = 760.433843537415 
-            xmax = 760.825843537415 
+            xmax = 760.817843537415 
             text = "" 
         intervals [1061]:
-            xmin = 760.825843537415 
+            xmin = 760.817843537415 
             xmax = 761.417843537415 
             text = "silent" 
         intervals [1062]:
@@ -4298,10 +4298,10 @@ item []:
             text = "silent" 
         intervals [1072]:
             xmin = 768.433843537415 
-            xmax = 769.025843537415 
+            xmax = 769.001843537415 
             text = "" 
         intervals [1073]:
-            xmin = 769.025843537415 
+            xmin = 769.001843537415 
             xmax = 769.5698435374151 
             text = "silent" 
         intervals [1074]:
@@ -4362,10 +4362,10 @@ item []:
             text = "silent" 
         intervals [1088]:
             xmin = 779.913843537415 
-            xmax = 780.4498435374151 
+            xmax = 780.441843537415 
             text = "" 
         intervals [1089]:
-            xmin = 780.4498435374151 
+            xmin = 780.441843537415 
             xmax = 780.9298435374151 
             text = "silent" 
         intervals [1090]:
@@ -4394,18 +4394,18 @@ item []:
             text = "silent" 
         intervals [1096]:
             xmin = 785.249843537415 
-            xmax = 785.657843537415 
+            xmax = 785.649843537415 
             text = "" 
         intervals [1097]:
-            xmin = 785.657843537415 
+            xmin = 785.649843537415 
             xmax = 786.217843537415 
             text = "silent" 
         intervals [1098]:
             xmin = 786.217843537415 
-            xmax = 786.721843537415 
+            xmax = 786.7138435374151 
             text = "" 
         intervals [1099]:
-            xmin = 786.721843537415 
+            xmin = 786.7138435374151 
             xmax = 788.393843537415 
             text = "silent" 
         intervals [1100]:
@@ -4554,10 +4554,10 @@ item []:
             text = "silent" 
         intervals [1136]:
             xmin = 814.529843537415 
-            xmax = 815.137843537415 
+            xmax = 815.129843537415 
             text = "" 
         intervals [1137]:
-            xmin = 815.137843537415 
+            xmin = 815.129843537415 
             xmax = 815.633843537415 
             text = "silent" 
         intervals [1138]:
@@ -4570,10 +4570,10 @@ item []:
             text = "silent" 
         intervals [1140]:
             xmin = 816.681843537415 
-            xmax = 817.265843537415 
+            xmax = 817.257843537415 
             text = "" 
         intervals [1141]:
-            xmin = 817.265843537415 
+            xmin = 817.257843537415 
             xmax = 818.985843537415 
             text = "silent" 
         intervals [1142]:
@@ -4594,10 +4594,10 @@ item []:
             text = "silent" 
         intervals [1146]:
             xmin = 821.153843537415 
-            xmax = 821.793843537415 
+            xmax = 821.7858435374151 
             text = "" 
         intervals [1147]:
-            xmin = 821.793843537415 
+            xmin = 821.7858435374151 
             xmax = 823.777843537415 
             text = "silent" 
         intervals [1148]:
@@ -4642,18 +4642,18 @@ item []:
             text = "silent" 
         intervals [1158]:
             xmin = 830.393843537415 
-            xmax = 831.041843537415 
+            xmax = 831.033843537415 
             text = "" 
         intervals [1159]:
-            xmin = 831.041843537415 
+            xmin = 831.033843537415 
             xmax = 832.5938435374151 
             text = "silent" 
         intervals [1160]:
             xmin = 832.5938435374151 
-            xmax = 833.201843537415 
+            xmax = 833.193843537415 
             text = "" 
         intervals [1161]:
-            xmin = 833.201843537415 
+            xmin = 833.193843537415 
             xmax = 833.673843537415 
             text = "silent" 
         intervals [1162]:
@@ -4690,18 +4690,18 @@ item []:
             text = "silent" 
         intervals [1170]:
             xmin = 839.409843537415 
-            xmax = 840.041843537415 
+            xmax = 840.033843537415 
             text = "" 
         intervals [1171]:
-            xmin = 840.041843537415 
+            xmin = 840.033843537415 
             xmax = 842.297843537415 
             text = "silent" 
         intervals [1172]:
             xmin = 842.297843537415 
-            xmax = 842.873843537415 
+            xmax = 842.865843537415 
             text = "" 
         intervals [1173]:
-            xmin = 842.873843537415 
+            xmin = 842.865843537415 
             xmax = 843.529843537415 
             text = "silent" 
         intervals [1174]:
@@ -4722,10 +4722,10 @@ item []:
             text = "silent" 
         intervals [1178]:
             xmin = 846.865843537415 
-            xmax = 847.433843537415 
+            xmax = 847.4258435374151 
             text = "" 
         intervals [1179]:
-            xmin = 847.433843537415 
+            xmin = 847.4258435374151 
             xmax = 847.937843537415 
             text = "silent" 
         intervals [1180]:
@@ -4762,18 +4762,18 @@ item []:
             text = "silent" 
         intervals [1188]:
             xmin = 853.3538435374151 
-            xmax = 853.945843537415 
+            xmax = 853.937843537415 
             text = "" 
         intervals [1189]:
-            xmin = 853.945843537415 
+            xmin = 853.937843537415 
             xmax = 855.937843537415 
             text = "silent" 
         intervals [1190]:
             xmin = 855.937843537415 
-            xmax = 856.6418435374151 
+            xmax = 856.633843537415 
             text = "" 
         intervals [1191]:
-            xmin = 856.6418435374151 
+            xmin = 856.633843537415 
             xmax = 857.049843537415 
             text = "silent" 
         intervals [1192]:
@@ -4810,18 +4810,18 @@ item []:
             text = "silent" 
         intervals [1200]:
             xmin = 862.945843537415 
-            xmax = 863.681843537415 
+            xmax = 863.673843537415 
             text = "" 
         intervals [1201]:
-            xmin = 863.681843537415 
+            xmin = 863.673843537415 
             xmax = 865.7858435374151 
             text = "silent" 
         intervals [1202]:
             xmin = 865.7858435374151 
-            xmax = 866.505843537415 
+            xmax = 866.4978435374151 
             text = "" 
         intervals [1203]:
-            xmin = 866.505843537415 
+            xmin = 866.4978435374151 
             xmax = 866.993843537415 
             text = "silent" 
         intervals [1204]:
@@ -4934,10 +4934,10 @@ item []:
             text = "" 
         intervals [1231]:
             xmin = 887.745843537415 
-            xmax = 889.8338435374151 
+            xmax = 889.841843537415 
             text = "silent" 
         intervals [1232]:
-            xmin = 889.8338435374151 
+            xmin = 889.841843537415 
             xmax = 890.5218435374151 
             text = "" 
         intervals [1233]:
@@ -5046,14 +5046,14 @@ item []:
             text = "" 
         intervals [1259]:
             xmin = 910.913843537415 
-            xmax = 911.3298435374151 
+            xmax = 911.337843537415 
             text = "silent" 
         intervals [1260]:
-            xmin = 911.3298435374151 
-            xmax = 912.033843537415 
+            xmin = 911.337843537415 
+            xmax = 912.0258435374151 
             text = "" 
         intervals [1261]:
-            xmin = 912.033843537415 
+            xmin = 912.0258435374151 
             xmax = 913.649843537415 
             text = "silent" 
         intervals [1262]:
@@ -5078,10 +5078,10 @@ item []:
             text = "" 
         intervals [1267]:
             xmin = 916.673843537415 
-            xmax = 918.185843537415 
+            xmax = 918.193843537415 
             text = "silent" 
         intervals [1268]:
-            xmin = 918.185843537415 
+            xmin = 918.193843537415 
             xmax = 918.985843537415 
             text = "" 
         intervals [1269]:
@@ -5170,18 +5170,18 @@ item []:
             text = "silent" 
         intervals [1290]:
             xmin = 934.257843537415 
-            xmax = 934.9538435374151 
+            xmax = 934.945843537415 
             text = "" 
         intervals [1291]:
-            xmin = 934.9538435374151 
+            xmin = 934.945843537415 
             xmax = 936.801843537415 
             text = "silent" 
         intervals [1292]:
             xmin = 936.801843537415 
-            xmax = 937.5698435374151 
+            xmax = 937.561843537415 
             text = "" 
         intervals [1293]:
-            xmin = 937.5698435374151 
+            xmin = 937.561843537415 
             xmax = 938.017843537415 
             text = "silent" 
         intervals [1294]:
@@ -5226,10 +5226,10 @@ item []:
             text = "silent" 
         intervals [1304]:
             xmin = 946.073843537415 
-            xmax = 946.793843537415 
+            xmax = 946.7858435374151 
             text = "" 
         intervals [1305]:
-            xmin = 946.793843537415 
+            xmin = 946.7858435374151 
             xmax = 947.121843537415 
             text = "silent" 
         intervals [1306]:
@@ -5278,10 +5278,10 @@ item []:
             text = "" 
         intervals [1317]:
             xmin = 956.217843537415 
-            xmax = 956.481843537415 
+            xmax = 956.489843537415 
             text = "silent" 
         intervals [1318]:
-            xmin = 956.481843537415 
+            xmin = 956.489843537415 
             xmax = 957.201843537415 
             text = "" 
         intervals [1319]:
@@ -5562,10 +5562,10 @@ item []:
             text = "silent" 
         intervals [1388]:
             xmin = 1010.313843537415 
-            xmax = 1011.089843537415 
+            xmax = 1011.081843537415 
             text = "" 
         intervals [1389]:
-            xmin = 1011.089843537415 
+            xmin = 1011.081843537415 
             xmax = 1011.657843537415 
             text = "silent" 
         intervals [1390]:
@@ -5610,10 +5610,10 @@ item []:
             text = "silent" 
         intervals [1400]:
             xmin = 1020.169843537415 
-            xmax = 1020.753843537415 
+            xmax = 1020.745843537415 
             text = "" 
         intervals [1401]:
-            xmin = 1020.753843537415 
+            xmin = 1020.745843537415 
             xmax = 1021.4258435374151 
             text = "silent" 
         intervals [1402]:
@@ -5698,10 +5698,10 @@ item []:
             text = "silent" 
         intervals [1422]:
             xmin = 1037.2098435374148 
-            xmax = 1037.7858435374148 
+            xmax = 1037.7778435374148 
             text = "" 
         intervals [1423]:
-            xmin = 1037.7858435374148 
+            xmin = 1037.7778435374148 
             xmax = 1040.18768707483 
             text = "silent" 
     item [2]:
@@ -6068,3 +6068,9 @@ item []:
             xmin = 910.1642261904761 
             xmax = 1040.18768707483 
             text = "T-deletion" 
+    item [4]:
+        class = "TextTier" 
+        name = "notes" 
+        xmin = 0 
+        xmax = 1040.18768707483 
+        points: size = 0 
