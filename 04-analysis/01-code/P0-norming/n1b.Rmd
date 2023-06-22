@@ -131,15 +131,15 @@ main_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Scre
 main_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
 main_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
 
-# # File paths for: RUN <- "1-3_final"
-# final_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
-# final_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE) 
-# final_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
-# final_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
+RUN <- "1-3_final"
+final_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
+final_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE)
+final_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
+final_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
 
 # Get Current File paths
 RUN_LIST <- c("pilot", "main", "final") # "test"
-CURRENT_RUN <-  "main" # RUN_LIST[2] # To get last value: RUN_LIST[length(RUN_LIST)]
+CURRENT_RUN <-  "final" # RUN_LIST[2] # To get last value: RUN_LIST[length(RUN_LIST)]
 
 if (CURRENT_RUN == "pilot"){
   current_prolific <- pilot_prolific
@@ -272,7 +272,7 @@ Some of this code adapted for wrangling participant data.
 n1b_prolific_demo <- 
   plyr::ldply(pilot_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[1]) %>%
   full_join(plyr::ldply(main_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[2])) %>%
-  # full_join(read_csv(final_prolific) %>% mutate(Run=RUN_LIST[3])) %>%
+  full_join(plyr::ldply(final_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[3])) %>%
   mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
 n1b_prolific_demo
 ```
@@ -366,7 +366,7 @@ participant_list
 ```
 
 ```{r}
-current_participant <- "64136da866ff27f7bf98cfe0" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
+current_participant <- "63d41183860131e49a85cfde" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
 
 n1b_screener_data %>%  filter(PROLIFIC_PID == current_participant) #Prolific_ID
 
@@ -739,6 +739,7 @@ All participants were born in and/or spent time before 18 in and were living in 
 # 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
 # 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
 # 5b117f18c61ce0000126305a -- born and grew up in Virginia from 0-12; but 12-30 live in San Diego
+# 63d41183860131e49a85cfde -- born in Philadelphia, grew up in CA since age 2
 ```
 
 
@@ -853,7 +854,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "610b119f54dcb01ad6a9783f" #participant_list[10] # 
+current_participant <- "63d41183860131e49a85cfde" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
