@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 15.48467120181406 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 15.48467120181406 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3950793650793651 
+            text = "S07_7-9-1_tattletales_M" 
+        intervals [2]:
+            xmin = 1.3950793650793651 
+            xmax = 3.030725623582766 
+            text = "S07_8-8-1_restlessness_M" 
+        intervals [3]:
+            xmin = 3.030725623582766 
+            xmax = 4.017891156462585 
+            text = "S07_5-2-1_moody_M" 
+        intervals [4]:
+            xmin = 4.017891156462585 
+            xmax = 5.261814058956916 
+            text = "S07_7-10-1_chattering_M" 
+        intervals [5]:
+            xmin = 5.261814058956916 
+            xmax = 6.694036281179138 
+            text = "S07_5-9-1_soothingly_M" 
+        intervals [6]:
+            xmin = 6.694036281179138 
+            xmax = 7.771224489795919 
+            text = "S07_7-3-1_padding_M" 
+        intervals [7]:
+            xmin = 7.771224489795919 
+            xmax = 9.125827664399093 
+            text = "S07_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 9.125827664399093 
+            xmax = 10.326054421768708 
+            text = "S07_5-8-1_scooted_M" 
+        intervals [9]:
+            xmin = 10.326054421768708 
+            xmax = 11.490317460317462 
+            text = "S07_6-2-1_channeled_M" 
+        intervals [10]:
+            xmin = 11.490317460317462 
+            xmax = 12.743832199546487 
+            text = "S07_6-9-1_banditry_M" 
+        intervals [11]:
+            xmin = 12.743832199546487 
+            xmax = 14.237959183673471 
+            text = "S07_8-9-1_wistfulness_M" 
+        intervals [12]:
+            xmin = 14.237959183673471 
+            xmax = 15.48467120181406 
+            text = "S07_8-2-1_fastball_M" 

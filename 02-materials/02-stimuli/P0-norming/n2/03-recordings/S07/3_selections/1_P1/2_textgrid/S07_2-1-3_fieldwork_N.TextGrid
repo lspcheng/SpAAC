@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.7634825158133651 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.7634825158133651 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7634825158133651 
+            text = "3" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.7634825158133651 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7634825158133651 
+            text = "2-1_fieldwork-filtered" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.7634825158133651 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7634825158133651 
+            text = "FEEL-FILL" 

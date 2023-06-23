@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.6034260977118606 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.6034260977118606 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6034260977118606 
+            text = "1" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.6034260977118606 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6034260977118606 
+            text = "3-3_mothership-mutterings" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.6034260977118606 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6034260977118606 
+            text = "TH-stopping" 

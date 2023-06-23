@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.7719518140589656 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.7719518140589656 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7719518140589656 
+            text = "2" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.7719518140589656 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7719518140589656 
+            text = "1-5_spenders-spindly" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.7719518140589656 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7719518140589656 
+            text = "PIN-PEN" 
