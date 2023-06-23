@@ -1,0 +1,17 @@
+filename,speaker,item_code,variableN,rowN,variantN,word,variant
+S05_5-2-1_moody_M,S05,5-2-1,5,2,1,moody,M
+S05_5-8-1_scooted_M,S05,5-8-1,5,8,1,scooted,M
+S05_5-9-1_soothingly_M,S05,5-9-1,5,9,1,soothingly,M
+S05_6-2-1_channeled_M,S05,6-2-1,6,2,1,channeled,M
+S05_6-8-1_randomness_M,S05,6-8-1,6,8,1,randomness,M
+S05_6-8-3_randomness_N,S05,6-8-3,6,8,3,randomness,N
+S05_6-9-1_banditry_M,S05,6-9-1,6,9,1,banditry,M
+S05_6-9-3_banditry_N,S05,6-9-3,6,9,3,banditry,N
+S05_7-3-1_padding_M,S05,7-3-1,7,3,1,padding,M
+S05_7-3-3_padding_N,S05,7-3-3,7,3,3,padding,N
+S05_7-9-1_tattletales_M,S05,7-9-1,7,9,1,tattletales,M
+S05_7-10-1_chattering_M,S05,7-10-1,7,10,1,chattering,M
+S05_8-8-1_restlessness_M,S05,8-8-1,8,8,1,restlessness,M
+S05_8-8-3_restlessness_N,S05,8-8-3,8,8,3,restlessness,N
+S05_8-9-1_wistfulness_M,S05,8-9-1,8,9,1,wistfulness,M
+S05_8-9-3_wistfulness_N,S05,8-9-3,8,9,3,wistfulness,N
