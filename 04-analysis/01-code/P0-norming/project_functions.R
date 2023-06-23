@@ -136,7 +136,7 @@ summary_mean_plot <- function(df, x, y, group=NULL, fill_alpha=0.2, color=FALSE,
 # Parallel Plot Function
 # FUNCTION REF: https://stackoverflow.com/questions/52340768/using-a-custom-function-with-tidyverse 
 
-parallel_plot <- function(df, x, y, group, full_scale=FALSE, angle_axis_labels=FALSE) {
+parallel_plot <- function(df, x, y, group, viridis=TRUE, full_scale=FALSE, angle_axis_labels=FALSE) {
   x <- enquo(x)
   y <- enquo(y)
   group <- enquo(group)
@@ -148,9 +148,13 @@ parallel_plot <- function(df, x, y, group, full_scale=FALSE, angle_axis_labels=F
     ggplot(aes(x=(!!x), y=(!!y), color=(!!group), fill=(!!group), group=(!!group))) +
     stat_summary(fun.data=mean_se, geom="pointrange", position=position_dodge(0), alpha=1) +
     stat_summary(fun.data=mean_se, geom="line", position=position_dodge(0), alpha=1) +
-    scale_color_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
     theme_minimal()
   
+  if(viridis == TRUE){
+    plot <- plot +
+      scale_color_viridis(option="viridis", discrete=TRUE) +
+      scale_fill_viridis(option="viridis", discrete=TRUE)
+  }
   if (full_scale == TRUE){
     plot <- plot + scale_y_continuous(limits = c(min_y, max_y), breaks = seq(floor(min_y), ceiling(max_y), 1)) 
   }

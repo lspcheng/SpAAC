@@ -76,7 +76,7 @@ Sanity check that no people were recognized.
 ```{r}
 n1b_responses_selected %>% filter(Question=="Recognize") %>% count(Response)
 ```
-### (WIP) Descriptors
+### Descriptors
 Try adding sentiments to each word entry: https://www.tidytextmining.com/sentiment.html
 (See also: https://m-clark.github.io/text-analysis-with-R/sentiment-analysis.htm)
 ```{r}
@@ -107,6 +107,7 @@ n1b_descriptors
 # Check for certain types of patterns to clean
 # n1b_descriptors %>%  filter(Response == str_match(Response, ".* .*"))
 ```
+
 
 #### Sentiment
 ```{r}
@@ -202,7 +203,9 @@ Get proportion selections per age category for each image.
  n1b_age <- n1b_responses_selected %>% 
   filter(Question=="Age") %>% 
   pivot_wider(id_cols = c(PROLIFIC_PID, Condition, Image), names_from = Question_Part, values_from = Response) %>% 
-  mutate(across(Teens:`Over 40`, ~ as.numeric(as.character(.x)))) %>% 
+  mutate(across(Teens:`Over 40`, ~ as.numeric(as.character(.x)))) 
+
+n1b_age_byImage <- n1b_age %>% 
   # Get proportions out of total responses (props add up to over 100 b/c multiple selections)
   add_count(Image) %>% group_by(Condition, Image, n) %>% 
   summarize(across(Teens:`Over 40`, sum)) %>% 
@@ -213,15 +216,15 @@ Get proportion selections per age category for each image.
   filter(prop>0) %>%  arrange(-prop, .by_group=TRUE) %>% 
   filter(prop>=0.75) # Option 1: Keep values where more than 75% of participants selected
   # slice_max(prop) # Option 2: Keep only highest value (including ties)
-n1b_age <- n1b_age %>%
+n1b_age_byImage <- n1b_age_byImage %>%
   full_join(
     # Get age consensus based on majority decision
-   n1b_age %>% pivot_wider(Image:n, names_from = Age, values_from = prop) %>% 
+   n1b_age_byImage %>% pivot_wider(Image:n, names_from = Age, values_from = prop) %>% 
    # relocate(`10s`, .before=`20s`) %>%
    mutate(across(2:last_col(), ~ ifelse(!is.na(.x), cur_column(), NA) )) %>%
    unite(perceived_age, 3:last_col(), sep=',', na.rm=TRUE)
   ) %>% ungroup
-n1b_age
+n1b_age_byImage
 ```
 
 ### Occupation
@@ -638,11 +641,6 @@ n1b_ratings_releveled %>% filter(Rating_Group == "Style") %>%
 ```
 
 ##### By Image
-```{r}
-# Add all images mean plots to find outliers to drop (or matched pairs to keep)
-
-```
-
 
 ```{r}
 # Parallel Plot exploration
@@ -660,11 +658,167 @@ n1b_ratings_releveled %>% filter(Condition == current_condition) %>%
 ```
 
 
+### Check By-Subject Patterns
 ```{r}
-# Add image direct comparision plots
+# n1b_subj_p2_network # add in maybe
 
+n1b_bysubj_data <- 
+  n1b_subj_p2 %>% select(!matches("^(?:MixedCat|Locations|SocialCommunityNetwork|CloseContacts|RegularContacts|BroaderCommunity)")) %>%  full_join(n1b_asian_network) %>%
+  full_join(
+    n1b_descriptors %>% rename(descriptors_response = Response)
+  ) %>% 
+  full_join(n1b_age) %>%
+  full_join(
+    n1b_grewup %>% select(-Question) %>% rename(grewup_response = Response, grewup_cat = Response_Cat)
+  ) %>%
+  full_join(
+    n1b_ethnicity %>% select(-Question) %>% rename(ethnicity_response = Response, ethnicity_cat = Response_Cat)
+  ) %>%
+  full_join(
+    n1b_speech %>% select(-Question) %>% rename(speech_response = Response, speech_cat = Response_Cat)
+  ) %>% 
+  full_join(n1b_ratings) 
 
+# check data
+n1b_bysubj_data
+colnames(n1b_bysubj_data)
 ```
+```{r}
+# Get plot functions: Numeric
+target_plot_num <- function(df, grouping_column, current_column, angle_axis_labels=FALSE){
+  plt_df <- df %>% select(PROLIFIC_PID:Photo_Number, !!current_column) %>% distinct()
+  
+  plot <- plt_df %>% 
+    ggplot(aes(x=plt_df[[grouping_column]], y=plt_df[[current_column]], fill=plt_df[[grouping_column]])) + gg_theme() + 
+    stat_summary(geom="col", alpha=0.7) + stat_summary() + labs(x=grouping_column, y=current_column, fill=grouping_column)
+  if (angle_axis_labels == TRUE){
+    plot <- plot + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+      theme(plot.margin = margin(0,0,0,40, unit = "pt"))  # pad left side of plot to read angled labels (t,r,b,l)  
+    }
+  plot
+}
+
+# Get plot functions: Categorical
+target_plot_cat <- function(df, grouping_column, current_column, angle_axis_labels=FALSE){
+  grouping_column <- as.symbol(grouping_column) 
+  current_column <- as.symbol(current_column)
+  grouping_column <- enquo(grouping_column)
+  current_column <- enquo(current_column)
+  
+  plt_df <- df %>% select(PROLIFIC_PID:Photo_Number, !!current_column) %>% distinct()
+  plt_df <- plt_df %>% group_by(!!grouping_column, Condition, Image) %>% add_count(!!grouping_column) 
+  plt_df <- plt_df %>% count(n, !!current_column) %>% mutate(prop=nn/n)
+
+  plot <- plt_df %>%  ggplot(aes(x=(!!current_column), y=prop, fill=(!!grouping_column))) + gg_theme() +
+    stat_summary(geom="col", alpha=0.7, position = position_dodge(0.95)) + 
+    stat_summary(position = position_dodge(0.95)) +
+    facet_wrap(~Condition) +
+    labs(x=current_column, fill=grouping_column)
+  if (angle_axis_labels == TRUE){
+    plot <- plot + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+      theme(plot.margin = margin(0,0,0,40, unit = "pt"))  # pad left side of plot to read angled labels (t,r,b,l)
+    }
+  plot
+}
+```
+
+#### By-Gender
+Prep
+```{r}
+# Get target grouped df
+n1b_bysubj_data_gender <- n1b_bysubj_data %>% filter(GenderCat!="Prefer not to answer") %>% mutate(GenderCat = gsub("^Non.*", "NB", GenderCat)) %>% mutate(GenderCat = fct_relevel(GenderCat, "Man", "Woman", "NB")) %>% group_by(GenderCat)  %>% 
+  # reorder factors
+  mutate(Rating_Scale = fct_relevel(Rating_Scale,
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture", 
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent", 
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))
+```
+
+```{r}
+# By subject demographic summary: Age
+grouping_column <- "GenderCat"
+current_column <- "Age"
+# Summary Table
+quick_summarize(n1b_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n1b_bysubj_data_gender, grouping_column, current_column)
+```
+
+```{r}
+# By subject demographic summary: Asian Network
+grouping_column <- "GenderCat"
+current_column <- "prop_AsianCC"
+# Summary Table
+quick_summarize(n1b_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n1b_bysubj_data_gender, grouping_column, current_column)
+
+current_column <- "prop_AsianBC"
+# Summary Table
+quick_summarize(n1b_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n1b_bysubj_data_gender, grouping_column, current_column)
+```
+
+```{r}
+# By subject summary: Descriptors
+grouping_column <- "GenderCat"
+current_column <- "sentiment_score"
+# Summary Table
+quick_summarize(n1b_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n1b_bysubj_data_gender, grouping_column, current_column)
+```
+```{r}
+# By subject summary: Grewup
+grouping_column <- "GenderCat"
+current_column <- "grewup_cat"
+# Summary Plot
+target_plot_cat(n1b_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+```{r}
+# By subject summary: Ethnicity
+grouping_column <- "GenderCat"
+current_column <- "ethnicity_cat"
+# Summary Plot
+target_plot_cat(n1b_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+
+
+```{r}
+# By subject summary: Speech
+grouping_column <- "GenderCat"
+current_column <- "speech_cat"
+# Summary Plot
+target_plot_cat(n1b_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+
+```{r}
+# By subject summary: Speech
+grouping_column <- "GenderCat"
+
+# Summary Plot
+n1b_bysubj_data_gender %>% select(PROLIFIC_PID:Photo_Number, Rating_Group:Response_ZScore) %>% distinct() %>%
+  filter(GenderCat!="NB") %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  +
+  labs(title="All Conditions")
+
+current_filter <- "ethAsian"
+n1b_bysubj_data_gender %>% select(PROLIFIC_PID:Photo_Number, Rating_Group:Response_ZScore) %>% distinct() %>%
+  filter(Condition==current_filter)  %>% filter(GenderCat!="NB") %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  + labs(title=current_filter)
+
+current_filter <- "msAsian"
+n1b_bysubj_data_gender %>% select(PROLIFIC_PID:Photo_Number, Rating_Group:Response_ZScore) %>% distinct() %>%
+  filter(Condition==current_filter)  %>% filter(GenderCat!="NB") %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  + labs(title=current_filter)
+
+current_filter <- "msWhite"
+n1b_bysubj_data_gender %>% select(PROLIFIC_PID:Photo_Number, Rating_Group:Response_ZScore) %>% distinct() %>%
+  filter(Condition==current_filter)  %>% filter(GenderCat!="NB") %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  + labs(title=current_filter)
+```
+
 
 ## Process
 ### Get By-Image Data
@@ -679,7 +833,7 @@ n1b_percepts_general <-
   rename(positive_prop=positive, negative_prop=negative)
   ) %>%
   full_join(
-    n1b_age %>% select(Image, perceived_age)
+    n1b_age_byImage %>% select(Image, perceived_age)
   )
 
 # n1b_occupation
@@ -1142,6 +1296,8 @@ n1b_byimage_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceive
 # For Reference: Column names
 colnames(n1b_byimage_data)
 ```
+
+
 
 ### Identify Outliers
 #### Percept Categories

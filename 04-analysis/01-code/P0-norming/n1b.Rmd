@@ -270,9 +270,9 @@ Some of this code adapted for wrangling participant data.
 ```{r}
 # Read in Prolific "Demographic data" from the study page
 n1b_prolific_demo <- 
-  plyr::ldply(pilot_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[1]) %>%
-  full_join(plyr::ldply(main_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[2])) %>%
-  full_join(plyr::ldply(final_prolific, read_csv, na= c("", "NA", "DATA_EXPIRED")) %>% mutate(Run=RUN_LIST[3])) %>%
+  plyr::ldply(pilot_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[1]) %>%
+  full_join(plyr::ldply(main_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[2])) %>%
+  full_join(plyr::ldply(final_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[3])) %>%
   mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
 n1b_prolific_demo
 ```
@@ -854,7 +854,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "63d41183860131e49a85cfde" #participant_list[10] # 
+current_participant <- "5ea637f69b1fb665cf28940b" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
