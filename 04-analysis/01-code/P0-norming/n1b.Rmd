@@ -469,12 +469,18 @@ n1b_subj_p2 <- n1b_subj %>% select(PROLIFIC_PID, Age:VERSION) %>%
   #mutate(Gender=gsub(" ", "", Gender), Ethnicity=gsub("-", " ", Ethnicity)) %>%
   mutate(Gender=mgsub(Gender, c("^female|^woman", "^male|^man"), c("f", "m"), fixed=FALSE)) %>%
   mutate(Ethnicity=mgsub(Ethnicity, c("han ", "(mandarin)", "and honk-kongese"), c("", "", "; hongkongese"), fixed=TRUE)) %>%
-  mutate(Ethnicity=mgsub(Ethnicity, c("(\\s|\\-)american", "/"), c("", ", "), fixed=FALSE)) # remove american
+  mutate(Ethnicity=mgsub(Ethnicity, c("(\\s|\\-)american", "/"), c("", ", "), fixed=FALSE)) %>% # remove american
+  # reshape MixedCat columns
+  mutate(across(starts_with("MixedCat"), ~gsub("0", NA, .x))) %>% 
+  unite(MixedCat, starts_with("MixedCat"), sep="; ", na.rm=TRUE) %>% 
+  mutate(MixedCat = gsub("^$", NA, MixedCat)) %>%
+  janitor::remove_empty(which = "cols") # remove columns with only NA
 n1b_subj_p2
 ```
 
 #### Summary
-#### (*R) Sample Check
+#### (*C) By-Sample Check
+##### (*R) Version
 ```{r}
 # Total Participant entries
 n1b_subj_p2 %>% count()
@@ -569,6 +575,58 @@ n1b_subj_p2_loc <-
   pivot_wider(id_cols=PROLIFIC_PID:Loc, names_from = Info, values_from = Response) 
 # n1b_subj_p2_loc # <- UNCOMMENT to view
 ```
+
+##### (*C) By-Participant Check
+```{r}
+participant_list <- n1b_screener_v_prolific %>% filter(Run==CURRENT_RUN) %>%  pull(`Participant id`)
+participant_list
+```
+Run the following to screen participant data. Mainly, check that they fit the demographic criteria.
+
+Pilot = 1:8
+Main1 = 8:
+```{r}
+# Print all in range
+for (i in 1:length(participant_list)){
+  current_participant <- participant_list[i]
+    
+  # UNCOMMENT TO view subj data by subject
+  # print(n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant))
+  
+  # View locations by subject
+  print(
+    n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
+    filter(!(is.na(`from Age`)))
+  )
+}
+```
+
+```{r}
+# Check single participant
+current_participant <- "5b5955e7f2333f00013176b2" # OR e.g. participant_list[3]
+
+# View subj data by subject
+n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant)
+
+# View locations by subject
+n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
+  filter(!(is.na(`from Age`)))
+```
+<!-- UPDATE THIS STATEMENT AS NEEDED:  -->
+<!-- All participants were born in, spent the majority of their childhood in, and were living in California* at the time. -->
+All participants were living in California* at the time. Most were additionally born in California or spent the majority of their time before age 18 in California (n=2 declined to provide details; n=2 lived only six years of childhood in California).
+```{r}
+# Notes on Participant Locations (if needed).
+
+# 63d007388da4ef5b301762f9 -- declined to answer
+# 6365408f2a24d08a0f2a66ae -- declined to answer
+# 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
+# 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
+# 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
+# 5b117f18c61ce0000126305a -- born and grew up in Virginia from 0-12; but 12-30 live in San Diego
+# 63d41183860131e49a85cfde -- born in Philadelphia, grew up in CA since age 2
+```
+
 
 ##### Network
 ```{r}
@@ -688,58 +746,20 @@ Notes:
 
 - Possibly can use CloseContacts as an estimate of interactive exposure + RegularContacts OR BroaderCommunity for a more general estimate, if needed. Otherwise, one estimate would probably be enough
 
-
-
-
-#### (*C) By-Participant Check
+#### Merge Data
 ```{r}
-participant_list <- n1b_screener_v_prolific %>% filter(Run==CURRENT_RUN) %>%  pull(`Participant id`)
-participant_list
-```
-Run the following to screen participant data. Mainly, check that they fit the demographic criteria.
+# Merge relevant subject data
+n1b_subj_info <- n1b_subj_p2 %>% 
+  # Remove Wide format columns (see excluded multirow data below)
+  select(!matches("^(?:Locations|SocialCommunityNetwork|CloseContacts|RegularContacts|BroaderCommunity)")) %>%
+  # Add in asian network scores, filling NA with zeros
+   full_join(n1b_asian_network) %>% mutate(across(starts_with("prop"), ~ ifelse(is.na(.x), 0, .x)))
+n1b_subj_info
+save(n1b_subj_info, file=file.path(pipeline, "store", "n1b_subj_info.RData"))
 
-Pilot = 1:8
-Main1 = 8:
-```{r}
-# Print all in range
-for (i in 1:length(participant_list)){
-  current_participant <- participant_list[i]
-    
-  # UNCOMMENT TO view subj data by subject
-  # print(n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant))
-  
-  # View locations by subject
-  print(
-    n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
-    filter(!(is.na(`from Age`)))
-  )
-}
-```
-
-```{r}
-# Check single participant
-current_participant <- "5b5955e7f2333f00013176b2" # OR e.g. participant_list[3]
-
-# View subj data by subject
-n1b_subj_p2 %>% filter(PROLIFIC_PID == current_participant)
-
-# View locations by subject
-n1b_subj_p2_loc %>%  filter(PROLIFIC_PID == current_participant) %>%
-  filter(!(is.na(`from Age`)))
-```
-<!-- UPDATE THIS STATEMENT AS NEEDED:  -->
-<!-- All participants were born in, spent the majority of their childhood in, and were living in California* at the time. -->
-All participants were born in and/or spent time before 18 in and were living in California* at the time (based on the screener; except one ).
-```{r}
-# Notes on Participant Locations (if needed).
-
-# 63d007388da4ef5b301762f9 -- declined to answer
-# 6365408f2a24d08a0f2a66ae -- declined to answer
-# 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
-# 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
-# 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
-# 5b117f18c61ce0000126305a -- born and grew up in Virginia from 0-12; but 12-30 live in San Diego
-# 63d41183860131e49a85cfde -- born in Philadelphia, grew up in CA since age 2
+# NOTE: There is additional multirow per-participant dataframes (excluded from merging)
+# n1b_subj_p2_loc # Location
+# n1b_subj_p2_network # Network scores across all ethnicities
 ```
 
 
@@ -782,7 +802,7 @@ n1b_responses <- n1b_data %>%
 n1b_responses
 summary(n1b_responses)
 # View(n1b_responses)
-save(n1b_responses, file=file.path(pipeline, "temp", "n1b_responses"))
+save(n1b_responses, file=file.path(pipeline, "temp", "n1b_responses.RData"))
 
 ```
 
@@ -854,7 +874,7 @@ length(participant_list)
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "5ea637f69b1fb665cf28940b" #participant_list[10] # 
+current_participant <- "5f1b1f6a908b2609a62ab7ad" #participant_list[10] # 
 
 current_responses <- n1b_responses %>% 
   select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
