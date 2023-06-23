@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 15.636621315192745 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 15.636621315192745 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3571201814058957 
+            text = "S08_7-9-1_tattletales_M" 
+        intervals [2]:
+            xmin = 1.3571201814058957 
+            xmax = 3.0890249433106574 
+            text = "S08_8-8-1_restlessness_M" 
+        intervals [3]:
+            xmin = 3.0890249433106574 
+            xmax = 4.16469387755102 
+            text = "S08_5-2-1_moody_M" 
+        intervals [4]:
+            xmin = 4.16469387755102 
+            xmax = 5.3605215419501135 
+            text = "S08_7-10-1_chattering_M" 
+        intervals [5]:
+            xmin = 5.3605215419501135 
+            xmax = 6.812471655328798 
+            text = "S08_5-9-1_soothingly_M" 
+        intervals [6]:
+            xmin = 6.812471655328798 
+            xmax = 7.883310657596372 
+            text = "S08_7-3-1_padding_M" 
+        intervals [7]:
+            xmin = 7.883310657596372 
+            xmax = 9.216462585034014 
+            text = "S08_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 9.216462585034014 
+            xmax = 10.428072562358278 
+            text = "S08_5-8-1_scooted_M" 
+        intervals [9]:
+            xmin = 10.428072562358278 
+            xmax = 11.495941043083901 
+            text = "S08_6-2-1_channeled_M" 
+        intervals [10]:
+            xmin = 11.495941043083901 
+            xmax = 12.673990929705216 
+            text = "S08_6-9-1_banditry_M" 
+        intervals [11]:
+            xmin = 12.673990929705216 
+            xmax = 14.294489795918368 
+            text = "S08_8-9-1_wistfulness_M" 
+        intervals [12]:
+            xmin = 14.294489795918368 
+            xmax = 15.636621315192745 
+            text = "S08_8-2-1_fastball_M" 

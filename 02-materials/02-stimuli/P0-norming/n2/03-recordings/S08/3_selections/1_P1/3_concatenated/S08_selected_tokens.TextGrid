@@ -1,0 +1,86 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 14.993061224489797 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 14.993061224489797 
+        intervals: size = 18 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.5756689342403628 
+            text = "S08_5-2-1_moody_M" 
+        intervals [2]:
+            xmin = 0.5756689342403628 
+            xmax = 1.2872789115646257 
+            text = "S08_5-8-1_scooted_M" 
+        intervals [3]:
+            xmin = 1.2872789115646257 
+            xmax = 2.1209297052154192 
+            text = "S08_5-8-3_scooted_N" 
+        intervals [4]:
+            xmin = 2.1209297052154192 
+            xmax = 3.072879818594104 
+            text = "S08_5-9-1_soothingly_M" 
+        intervals [5]:
+            xmin = 3.072879818594104 
+            xmax = 3.6407482993197275 
+            text = "S08_6-2-1_channeled_M" 
+        intervals [6]:
+            xmin = 3.6407482993197275 
+            xmax = 4.288843537414966 
+            text = "S08_6-2-3_channeled_N" 
+        intervals [7]:
+            xmin = 4.288843537414966 
+            xmax = 5.121995464852608 
+            text = "S08_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 5.121995464852608 
+            xmax = 6.026077097505669 
+            text = "S08_6-8-3_randomness_N" 
+        intervals [9]:
+            xmin = 6.026077097505669 
+            xmax = 6.704126984126985 
+            text = "S08_6-9-1_banditry_M" 
+        intervals [10]:
+            xmin = 6.704126984126985 
+            xmax = 7.274965986394559 
+            text = "S08_7-3-1_padding_M" 
+        intervals [11]:
+            xmin = 7.274965986394559 
+            xmax = 8.132086167800455 
+            text = "S08_7-9-1_tattletales_M" 
+        intervals [12]:
+            xmin = 8.132086167800455 
+            xmax = 8.98950113378685 
+            text = "S08_7-9-3_tattletales_N" 
+        intervals [13]:
+            xmin = 8.98950113378685 
+            xmax = 9.685328798185944 
+            text = "S08_7-10-1_chattering_M" 
+        intervals [14]:
+            xmin = 9.685328798185944 
+            xmax = 10.52746031746032 
+            text = "S08_8-2-1_fastball_M" 
+        intervals [15]:
+            xmin = 10.52746031746032 
+            xmax = 11.759365079365082 
+            text = "S08_8-8-1_restlessness_M" 
+        intervals [16]:
+            xmin = 11.759365079365082 
+            xmax = 12.798707482993201 
+            text = "S08_8-8-3_restlessness_N" 
+        intervals [17]:
+            xmin = 12.798707482993201 
+            xmax = 13.919206349206354 
+            text = "S08_8-9-1_wistfulness_M" 
+        intervals [18]:
+            xmin = 13.919206349206354 
+            xmax = 14.993061224489797 
+            text = "S08_8-9-3_wistfulness_N" 

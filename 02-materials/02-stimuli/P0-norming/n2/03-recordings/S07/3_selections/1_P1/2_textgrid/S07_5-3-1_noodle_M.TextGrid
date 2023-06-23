@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.6213529856387368 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "silences" 
+        xmin = 0 
+        xmax = 0.6213529856387368 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6213529856387368 
+            text = "1" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "row" 
+        xmin = 0 
+        xmax = 0.6213529856387368 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6213529856387368 
+            text = "5-3_noodle-needless" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "variable" 
+        xmin = 0 
+        xmax = 0.6213529856387368 
+        intervals: size = 1 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.6213529856387368 
+            text = "U-fronting" 

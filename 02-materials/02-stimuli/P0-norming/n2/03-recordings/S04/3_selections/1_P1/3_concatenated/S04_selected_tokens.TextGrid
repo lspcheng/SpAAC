@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 12.091700680272108 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 12.091700680272108 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.7284126984126984 
+            text = "S04_5-2-1_moody_M" 
+        intervals [2]:
+            xmin = 0.7284126984126984 
+            xmax = 1.6445351473922902 
+            text = "S04_5-8-1_scooted_M" 
+        intervals [3]:
+            xmin = 1.6445351473922902 
+            xmax = 2.684285714285714 
+            text = "S04_5-9-1_soothingly_M" 
+        intervals [4]:
+            xmin = 2.684285714285714 
+            xmax = 3.4840362811791383 
+            text = "S04_6-2-1_channeled_M" 
+        intervals [5]:
+            xmin = 3.4840362811791383 
+            xmax = 4.6439909297052155 
+            text = "S04_6-8-1_randomness_M" 
+        intervals [6]:
+            xmin = 4.6439909297052155 
+            xmax = 5.611609977324263 
+            text = "S04_6-9-1_banditry_M" 
+        intervals [7]:
+            xmin = 5.611609977324263 
+            xmax = 6.329591836734694 
+            text = "S04_7-3-1_padding_M" 
+        intervals [8]:
+            xmin = 6.329591836734694 
+            xmax = 7.539410430839002 
+            text = "S04_7-9-1_tattletales_M" 
+        intervals [9]:
+            xmin = 7.539410430839002 
+            xmax = 8.45795918367347 
+            text = "S04_7-10-1_chattering_M" 
+        intervals [10]:
+            xmin = 8.45795918367347 
+            xmax = 9.66716553287982 
+            text = "S04_8-2-1_fastball_M" 
+        intervals [11]:
+            xmin = 9.66716553287982 
+            xmax = 10.916598639455783 
+            text = "S04_8-8-1_restlessness_M" 
+        intervals [12]:
+            xmin = 10.916598639455783 
+            xmax = 12.091700680272108 
+            text = "S04_8-9-1_wistfulness_M" 

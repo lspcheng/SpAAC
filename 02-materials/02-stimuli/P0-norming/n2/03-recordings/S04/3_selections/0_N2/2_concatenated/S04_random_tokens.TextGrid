@@ -1,0 +1,62 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 18.09170068027211 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "labels" 
+        xmin = 0 
+        xmax = 18.09170068027211 
+        intervals: size = 12 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.7098185941043085 
+            text = "S04_7-9-1_tattletales_M" 
+        intervals [2]:
+            xmin = 1.7098185941043085 
+            xmax = 3.459251700680272 
+            text = "S04_8-8-1_restlessness_M" 
+        intervals [3]:
+            xmin = 3.459251700680272 
+            xmax = 4.68766439909297 
+            text = "S04_5-2-1_moody_M" 
+        intervals [4]:
+            xmin = 4.68766439909297 
+            xmax = 6.106213151927437 
+            text = "S04_7-10-1_chattering_M" 
+        intervals [5]:
+            xmin = 6.106213151927437 
+            xmax = 7.645963718820862 
+            text = "S04_5-9-1_soothingly_M" 
+        intervals [6]:
+            xmin = 7.645963718820862 
+            xmax = 8.863945578231291 
+            text = "S04_7-3-1_padding_M" 
+        intervals [7]:
+            xmin = 8.863945578231291 
+            xmax = 10.52390022675737 
+            text = "S04_6-8-1_randomness_M" 
+        intervals [8]:
+            xmin = 10.52390022675737 
+            xmax = 11.940022675736962 
+            text = "S04_5-8-1_scooted_M" 
+        intervals [9]:
+            xmin = 11.940022675736962 
+            xmax = 13.239773242630386 
+            text = "S04_6-2-1_channeled_M" 
+        intervals [10]:
+            xmin = 13.239773242630386 
+            xmax = 14.707392290249434 
+            text = "S04_6-9-1_banditry_M" 
+        intervals [11]:
+            xmin = 14.707392290249434 
+            xmax = 16.38249433106576 
+            text = "S04_8-9-1_wistfulness_M" 
+        intervals [12]:
+            xmin = 16.38249433106576 
+            xmax = 18.09170068027211 
+            text = "S04_8-2-1_fastball_M" 
