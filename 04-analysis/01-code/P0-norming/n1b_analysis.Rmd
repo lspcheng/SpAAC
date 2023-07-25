@@ -67,6 +67,7 @@ manual_analysis_path <- file.path(PROJECT_DIR, '04-analysis', '03-manual', PHASE
 
 # Process Main Data
 ```{r}
+load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n1b", "store", "n1b_responses.RData"))
 load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n1b", "store", "n1b_responses_selected.RData"))
 load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n1b", "store", "n1b_subj_info.RData"))
 ```
@@ -196,8 +197,6 @@ msWhite_words %>% filter(n>1)  %>%  filter(Response %in% pull(msWhite_words_only
 ```
 
 
-
-
 ### Age
 Get proportion selections per age category for each image.
 ```{r}
@@ -215,8 +214,8 @@ n1b_age_byImage <- n1b_age %>%
   mutate(Age=gsub("Teens", "10s", Age)) %>%
   # Drop values where none selected
   filter(prop>0) %>%  arrange(-prop, .by_group=TRUE) %>% 
-  filter(prop>=0.75) # Option 1: Keep values where more than 75% of participants selected
-  # slice_max(prop) # Option 2: Keep only highest value (including ties)
+  # filter(prop>=0.75) # Option 1: Keep values where more than 75% of participants selected
+  slice_max(prop) # Option 2: Keep only highest value (including ties)
 n1b_age_byImage <- n1b_age_byImage %>%
   full_join(
     # Get age consensus based on majority decision
@@ -1246,14 +1245,14 @@ Get plot of main Dimensions with the labelled images to review the selections be
 ```{r}
 # Main Dimensions
 # Specific Images colored by Condition
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim2, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim3, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim4, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim2, label=Image, group=Condition, show_points=TRUE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim3, label=Image, group=Condition, show_points=TRUE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim4, label=Image, group=Condition, show_points=TRUE)
 
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim3, label=Image, group=Condition, show_points=FALSE)
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim4, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim3, label=Image, group=Condition, show_points=TRUE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim4, label=Image, group=Condition, show_points=TRUE)
 
-n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Image, group=Condition, show_points=FALSE)
+n1b_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Image, group=Condition, show_points=TRUE)
 
 ```
 ```{r}
@@ -1302,7 +1301,7 @@ colnames(n1b_byimage_data)
 
 
 ### Identify Outliers
-#### Percept Categories
+### Percept Categories
 ```{r}
 get_outliers <- function(df, col) {
   col <- enquo(col)
@@ -1546,433 +1545,4 @@ mdist_ranks %>%  pivot_wider(id_cols = ingroup_ranks, names_from = Condition, va
 # Option 2: Bin columns, image value for condition based on rank
 mdist_ranks %>% count(Condition, m_dist_bins) %>% pivot_wider(names_from = Condition, values_from = n)
 mdist_ranks %>% pivot_wider(id_cols = c(m_dist_bins, Image), names_from = Condition, values_from = c(m_dist))
-```
-
-## Profile
-### Select Images
-
-Select 4-5 photos ...
-* Based on American-raised and American-aligned scores
-* + based on not being full dataset outliers (mahalanobis scores; 3SD outliers)
-* + based on not being group outliers, or just too different for a cohesive group interpretation 
-
-Considerations:
-* NOT based on Dim1 scores difference because that doesn't account for American-raised vs. -aligned distinction, which is conceptually important to the personae
-
-***
-
-Planning Notes based on Visualization (Jun 13, 2023):
-* msAsian (perceived as American-raised but leaning towards less American-aligned)
-  - AAW-57, 47, 30, 36, 45, 12 (if also includ some more aligned, AAW-55, 18)
-  - Also, from ethAsian: AAW-33, 28
-  - Exclude (e.g.): AAW-14, 11 (too low on Am-raised)
-  
-* ethAsian (perceived as not American-raised, but leaning towards more American-aligned)
-  - AAW-63, 27, 4, 40, 1
-  - Exclude (e.g.): AAW-7 (too low on Am-raised); AAW-33, 28, 48 (too high on Am-raised)
-  - NOTE: Potentially move AAW-33, 28 to msAsian
-  
-* msWhite-1 (more likely perceived as American)
-  - WAW-12, 16, etc.
-  
-* msWhite-2 (less likely perceived as American; more matched to msAsian on American-raised)
-  - WAW-57, 51, 41
-  
-#### Assess
-```{r}
-# Repeated visualization: Raised vs. Aligned
-n1b_byimage_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_aligned, label=Image, group=Condition, show_points=TRUE)
-
-# Raised vs. Raised-Aligned Diff
-n1b_byimage_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_diff, label=Image, group=Condition, show_points=TRUE)
-```
-To interpret perceived_american_diff 
-- 0 means matching raised-aligned ratings (perceived as matching on being american raised and culture, regardless of high or low objective value)
-- positive means alignment rating was higher (more american culture) than raised rating
-- negative means alignment rating was lower (less american culture) than raised rating
- 
- 
-#### Select
-How do we decide on cut-offs numerically rather than visually? For msAsian, used raised + diff. For ethAsian used raised + aligned. For msWhite, used aligned only. 
-
-```{r}
-# Select images per condition
-n1b_msAsian <- 
-  n1b_byimage_data %>% filter(Condition=="msAsian") %>% 
-  # remove sample outliers
-  filter(!Image %in% c("AAW-47",   # extra non-Asian perceived
-                      "AAW-57"    # extra negatively described
-                      )) %>%
-  # remove non-conforming items based on iterative review
-  filter(!Image %in% c("AAW-45"  # Low on from_US OR drop #AAW-55 # diff on fem/casual
-                       )) %>%
-  # perceived as american-raised > -0.5 (based on visual boundary between groups in scatterplot) (possibly close to ~50% of the time) + top 4-5 most Asian-aligned
-  filter(perceived_american_raised > -0.5) %>%  slice_min(perceived_american_diff, n=4)
-n1b_msAsian
-
-n1b_ethAsian <- 
-  n1b_byimage_data %>% filter(Condition=="ethAsian") %>% 
-  # remove non-conforming items based on iterative review
-  filter(!Image %in% c("AAW-48", # Very low on Attractive for whole sample
-                       "AAW-33"  # notably higher Americanness, on par with msAsian
-                       )) %>%
-  # perceived as Asian-raised < -0.5 + top 5 most American-aligned
-  filter(perceived_american_raised < -0.5) %>% slice_max(perceived_american_aligned, n=4)
-n1b_ethAsian
-
-n1b_msWhite1 <- 
-  n1b_byimage_data %>% filter(Condition=="msWhite") %>% 
-  # remove non-conforming items based on iterative review
-  filter(!Image %in% c(
-                       "WAW-23" # most American by a margin (but maybe not a prob, so) 
-                       # "WAW-16" # Alt: most negatively described, by a margin
-                       )) %>%
-  # top 5 most American-aligned
-  slice_max(perceived_american_aligned, n=4)
-n1b_msWhite1
-
-n1b_msWhite2 <- 
-  n1b_byimage_data %>% filter(Condition=="msWhite") %>% 
-  # remove non-conforming items based on iterative review
-  filter(!Image %in% c("WAW-4" # most American (similar to msWhite1), extra casual 
-                       )) %>%
-  # top 5 least American-aligned
-  slice_min(perceived_american_aligned, n=4)
-n1b_msWhite2 %>% pull(Image)
-
-n1b_selected_images <-  n1b_msAsian %>% rbind(n1b_ethAsian) %>% rbind(n1b_msWhite1)
-n1b_selected_images
-```
-
-```{r}
-n1b_selected_images <-
-  n1b_byimage_data %>% mutate(
-    Persona_Group = case_when(
-      Image %in% (n1b_ethAsian %>% pull(Image)) ~ "ethAsian",
-      Image %in% (n1b_msAsian %>% pull(Image)) ~ "msAsian",
-      Image %in% (n1b_msWhite1 %>% pull(Image)) ~ "msWhite1",
-      Image %in% (n1b_msWhite2 %>% pull(Image)) ~ "msWhite2",
-      TRUE ~ NA
-    ), .before=Condition
-  ) %>% filter(!is.na(Persona_Group))
-n1b_selected_images
-```
-
-#### Finalize
-```{r}
-# Get data subsets
-n1b_selected_ratings <-
-  n1b_selected_images %>% pivot_longer(American:Intelligent, names_to = "Rating_Scale", values_to = "Rating_ZScore") %>%
-  # reorder factors  
-  mutate(Rating_Scale = fct_relevel(Rating_Scale,
-  "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
-  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
-  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))
-
-n1b_selected_dimensions <-
-  n1b_selected_images %>% pivot_longer(Dim1:Dim4, names_to = "Dimension", values_to = "Score") 
-
-n1b_selected_percepts <-
-  n1b_selected_images %>% pivot_longer(from_asia_prop:positive_prop, names_to = "Percept", values_to = "Score") %>%
-  # reorder factors  
-  mutate(Percept = fct_relevel(Percept,
-  "accented_prop", "unaccented_prop", "from_asia_prop", "from_us_prop", "asian_prop", "white_prop", 
-  "negative_prop", "positive_prop", "sentiment_score"))
-
-n1b_selected_composites <-
-  n1b_selected_images %>% pivot_longer(perceived_american_diff:perceived_american_aligned, names_to = "Percept", values_to = "Score") %>%
-  # reorder factors  
-  mutate(Percept = fct_relevel(Percept,
-  "perceived_american_raised", "perceived_american_aligned", "perceived_american_diff"))
-```
-
-#### Tabularize
-Means per group/image
-```{r}
-# Tables by CONDITION
-n1b_selected_ratings %>% group_by(Condition, Rating_Scale) %>% 
-  summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
-  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
-  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
-  select(-mean:-str_sd) %>%
-  pivot_wider(names_from=Condition, values_from = `Mean (SD)`)
-
-# Tables by PERSONA GROUP
-n1b_selected_ratings %>% group_by(Persona_Group, Rating_Scale) %>% 
-  summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
-  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
-  mutate(`Mean (SD)`=paste0(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
-  select(-mean:-str_sd) %>%
-  pivot_wider(names_from=Persona_Group, values_from = `Mean (SD)`)
-
-```
-```{r}
-# n1b_selected_images %>% group_by(Persona_Group) %>% summarize(across)
-```
-
-
-#### Visualize
-##### By Group
-```{r}
-#  Mean Parallel Plots for 4 PERSONA GROUPS
-# Rating_Scale
-n1b_selected_ratings %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Persona_Group, angle_axis_labels=TRUE) + labs(title="Persona Groups")
-
-# Dimensions
-n1b_selected_dimensions %>%
-  parallel_plot(x=Dimension, y=Score, group=Persona_Group, angle_axis_labels=FALSE) + labs(title="Persona Groups")
-
-# Percepts
-n1b_selected_percepts %>%                      
-  parallel_plot(x=Percept, y=Score, group=Persona_Group, angle_axis_labels=TRUE) + labs(title="Persona Groups")
-
-# Composite Americanness
-n1b_selected_composites %>%
-  parallel_plot(x=Percept, y=Score, group=Persona_Group, angle_axis_labels=FALSE) + labs(title="Persona Groups")
-
-# Age (WIP)
-```
-```{r}
-#  Mean Parallel Plots for 3 CONDITIONS (larger msWhite)
-# Rating_Scale
-n1b_selected_ratings %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
-
-# Dimensions
-n1b_selected_dimensions %>%
-  parallel_plot(x=Dimension, y=Score, group=Condition, angle_axis_labels=FALSE) + labs(title="Condition")
-
-# Percepts
-n1b_selected_percepts %>%                      
-  parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
-
-# Composite Americanness
-n1b_selected_composites %>%
-  parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=FALSE) + labs(title="Condition")
-```
- 
-##### By Image
-
-**All Together**: To visually identify any potential outliers of the selected data, and which Persona_Group
-```{r}
-# Rating_Scale
-n1b_selected_ratings %>% 
-  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Image, color_group=Persona_Group, angle_axis_labels=TRUE) 
-# Dimensions
-n1b_selected_dimensions %>% 
-  parallel_plot_color(x=Dimension, y=Score, group=Image, color_group=Persona_Group, angle_axis_labels=FALSE) 
-# Percepts
-n1b_selected_percepts %>%             
-  parallel_plot_color(x=Percept, y=Score, group=Image, color_group=Persona_Group, angle_axis_labels=TRUE) 
-# Composite Americanness
-n1b_selected_composites %>% 
-  parallel_plot_color(x=Percept, y=Score, group=Image, color_group=Persona_Group, angle_axis_labels=FALSE) 
-```
-Potential selected outliers to exclude (Jun 16, 2023 data):
-* msAsian - 2 low Feminine / 2 very high Casual
-* ethAsian - very low Attractive
-* msWhite1 - very high Feminine / very low Casual
-* msWhite2 - low Friendly / low Feminine / very high Casual
-
-
-**By Selected Persona Group**: To visually identify per Persona_Group, specific images to potentially remove
-```{r}
-current_group = "msAsian"
-# Rating_Scale
-n1b_selected_ratings %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Dimensions
-n1b_selected_dimensions %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Dimension, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-# Percepts
-n1b_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Composite Americanness
-n1b_selected_composites %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-```
-
-```{r}
-current_group = "ethAsian"
-# Rating_Scale
-n1b_selected_ratings %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Dimensions
-n1b_selected_dimensions %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Dimension, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-# Percepts
-n1b_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Composite Americanness
-n1b_selected_composites %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-```
-
-```{r}
-current_group = "msWhite1"
-# Rating_Scale
-n1b_selected_ratings %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Dimensions
-n1b_selected_dimensions %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Dimension, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-# Percepts
-n1b_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Composite Americanness
-n1b_selected_composites %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-```
-
-```{r}
-current_group = "msWhite2"
-# Rating_Scale
-n1b_selected_ratings %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Dimensions
-n1b_selected_dimensions %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Dimension, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-# Percepts
-n1b_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=TRUE) + labs(title=current_group)
-# Composite Americanness
-n1b_selected_composites %>% filter(Persona_Group == current_group) %>%
-  parallel_plot(x=Percept, y=Score, group=Image, angle_axis_labels=FALSE) + labs(title=current_group)
-```
-
-
-### Examine Distinctiveness / Test Differences
-```{r}
-# lm_emms_pairs: Function to get linear model output and pairwise comparisons
-# For more info, see project_functions.R
-
-# Output:
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-# (*) not currently sure about the `edf` parameter, currently speifying Inf, narrowing confint unrealistically
-```
-
-For full dataset, data = n1b_ratings_vars_pca
-For selected images dataset, data = n1b_selected_images
-
-#### Americanness 
-(to be contrasted)
-
-American Raised
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, perceived_american_raised ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, perceived_american_raised ~ Persona_Group)
-```
-American Aligned
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, perceived_american_aligned ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, perceived_american_aligned ~ Persona_Group)
-```
-
-Alterative: Dim1
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Dim1 ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Dim1 ~ Persona_Group)
-```
-
-#### Persona-associated Social Perceptions 
-(may be contrasted)
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, `Clear speaker` ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, `Clear speaker` ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, `Slow speaker` ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, `Slow speaker` ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Intelligent ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Intelligent ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Nerdy ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Nerdy ~ Persona_Group)
-```
-
-#### Social Perceptions 
-(to be matched; ideally should not contrast)
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Confident ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Confident ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Enthusiastic ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Enthusiastic ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Friendly ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Friendly ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Likeable ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Likeable ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Attractive ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Attractive ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Feminine ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Feminine ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Casual ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Casual ~ Persona_Group)
-```
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-lm_emms_pairs_condition(n1b_selected_images, Cool ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Cool ~ Persona_Group)
-```
-#### Social Dimensions 
-(to be matched; ideally should not contrast)
-
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-# lm_emms_pairs_condition(n1b_ratings_vars_pca, Dim1 ~ Condition)
-lm_emms_pairs_condition(n1b_selected_images, Dim2 ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Dim2 ~ Persona_Group)
-```
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-# lm_emms_pairs_condition(n1b_ratings_vars_pca, Dim1 ~ Condition)
-lm_emms_pairs_condition(n1b_selected_images, Dim3 ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Dim3 ~ Persona_Group)
-```
-```{r}
-# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
-# lm_emms_pairs_condition(n1b_ratings_vars_pca, Dim1 ~ Condition)
-lm_emms_pairs_condition(n1b_selected_images, Dim4 ~ Condition)
-lm_emms_pairs_persona(n1b_selected_images, Dim4 ~ Persona_Group)
 ```
