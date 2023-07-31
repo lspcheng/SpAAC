@@ -1,0 +1,13 @@
+Audio_Number,Critical-Filler,Usable_Exp1,Usable_Exp2,Code,Qualtrics Library URL,Qualtrics Library ID
+1,critical,1,1,S01,https://umich.qualtrics.com/ControlPanel/File.php?F=F_hhkWt4ZQoQiI6A9,
+2,critical,0.75,1,S03,https://umich.qualtrics.com/ControlPanel/File.php?F=F_mTO2WfCOS5tTNXz,
+3,critical,0.75,1,S06,https://umich.qualtrics.com/ControlPanel/File.php?F=F_gfUYY3aK7pxvLxF,
+4,critical,1,0,S10,https://umich.qualtrics.com/ControlPanel/File.php?F=F_PU16hqA2FLM9rBJ,
+5,critical,1,0,S16,https://umich.qualtrics.com/ControlPanel/File.php?F=F_E10S5ST69z45do5,
+6,critical,1,1,S18,https://umich.qualtrics.com/ControlPanel/File.php?F=F_Pk6Greamo8QjWuB,
+7,filler,0.5,0,S04,https://umich.qualtrics.com/ControlPanel/File.php?F=F_IpxwxGgACSLspha,
+8,filler,0.25,0,S05,https://umich.qualtrics.com/ControlPanel/File.php?F=F_OmSWqy2pq761v7H,
+9,filler,0.5,0,S11,https://umich.qualtrics.com/ControlPanel/File.php?F=F_xA9bakUgPtvxfWq,
+10,filler,0.25,0,S07,https://umich.qualtrics.com/ControlPanel/File.php?F=F_L6vmgdkXan1qD05,
+11,filler,0,0,S08,https://umich.qualtrics.com/ControlPanel/File.php?F=F_28Q8DHZqOwZFCv7,
+NA,example,0,0,S02,https://umich.qualtrics.com/ControlPanel/File.php?F=F_WOHBoOCAoMv3V4o,
