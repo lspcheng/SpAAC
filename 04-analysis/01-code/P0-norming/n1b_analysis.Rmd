@@ -259,16 +259,16 @@ n1b_grewup <-
   # text cleaning
   mutate(Response = str_trim(tolower(Response))) %>%
   mutate(Response = gsub("(.*)\\s*,\\s*usa", "\\1", Response)) %>% # keep everything before ', usa'
-  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "america|^us$|^in the us$|^united states$", "(?:^|\\W)(ca|cali)(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "(?:^|\\W)az(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "arizona", "wisconsin"))) %>% 
+  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "^america$|^us$|(?:^|\\W)in the us$|^united states$|^u\\.s\\.$", "(?:^|\\W)(ca|cali|califonia)(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "(?:^|\\W)az(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "arizona", "wisconsin"))) %>% 
   # Add categorization into US or Asia or Europe
   mutate(Region = case_when(
-    Response %in% c("san francisco", "los angeles", "boston", "beverly hills", "san fernando valley", "las vegas") ~ "USA",
+    Response %in% c("san francisco", "los angeles", "boston", "beverly hills", "san fernando valley", "san gabriel", "las vegas", "bay area", "portland") ~ "USA",
     str_detect(Response, paste0("(?:^|\\W)", paste(tolower(state.name), collapse = '|'), "(?:$|\\W)")) ~ "USA",
-    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west) coast|the west|(west|east)ern states)(?:$|\\W)") ~ "USA", 
+    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west)\\s*coast|(the )*west|(west|east)ern states)(?:$|\\W)|american suburbia|(?:^|\\W)united states(?:$|\\W)|(?:^|\\W)(in|north|northeastern) america(?:$|\\W)") ~ "USA", 
     str_detect(Response, "(?:^|\\W)usa(?:$|\\W)") ~ "USA", # if USA or <other>, defaults to US
     str_detect(Response,"(?:^|\\W)canada(?:$|\\W)") ~ "Canada",
     str_detect(Response, "(?<!\\w)(asia(n*))(?!\\w)") ~ "Asia",
-    str_detect(Response, "(?<!\\w)europe(?!\\w)") ~ "Europe",
+    str_detect(Response, "(?<!\\w)(europe|eu|slavic)(?!\\w)") ~ "Europe",
     TRUE ~ NA
   )) 
 n1b_grewup <- n1b_grewup %>%
@@ -340,7 +340,7 @@ n1b_ethnicity <-
   n1b_responses_selected %>% filter(Question=="Ethnicity") %>% select(-Question_Part) %>%
   # text cleaning
   mutate(Response = tolower(str_trim(Response))) %>%
-  mutate(Response = mgsub(Response, c("china|chiense", "flippino|philipino|philipno"), c("chinese", "filipino"))) %>% 
+  mutate(Response = mgsub(Response, c("china|chiense", "flippino|philipino|philipno|pilipino|from the philippines", "portugese"), c("chinese", "filipino", "portuguese"))) %>% 
 
   # Add categorization into race
   mutate(Asian = case_when(
@@ -349,7 +349,7 @@ n1b_ethnicity <-
     TRUE ~ NA
   )) %>%
   mutate(White = case_when(
-    str_detect(Response, "(?:^|\\W)(white|european|caucasian|anglo|english|finnish|german|irish|italian|scandinavian|scottish|swedish)(?:$|\\W)") ~ "White",
+    str_detect(Response, "(?:^|\\W)(white|european|caucasian|anglo|english|finnish|german|irish|italian|portuguese|scandinavian|scottish|swedish|danish|russian|greek|slavic|british|french|norwegian)(?:$|\\W)") ~ "White",
     TRUE ~ NA
   )) %>%
   mutate(American = ifelse(str_detect(Response, "(?:^|\\W)american(?:$|\\W)"), "American", NA)) %>%
@@ -421,15 +421,15 @@ n1b_speech <-
   # Consider: shorten long statements by extracting the keyword (e.g. straightforward)
 # Add categorization into accentedness
   mutate(OtherAccent = case_when(
-    str_detect(Response, "(?:^|\\W)((english|southern( drawl)*|mid(\\s*|-*)west(ern)*) accent)(?:$|\\W)") ~ "OtherAccent",
+    str_detect(Response, "(?:^|\\W)((british|english|uk|southern( drawl)*|mid(\\s*|-*)west(ern)*|country|spanish|german|european) accent)(?:$|\\W)") ~ "OtherAccent",
     TRUE ~ NA
   )) %>%
   mutate(Accented = case_when(
-    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.+\\s)accent|(aapi|hawaiian|asian|foreign|heritage('s)*|chinese) accent|(broken|poor(-ish)*) english)(?:$|\\W)") ~ "Accented",
+    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.+\\s)accent|(slight|strong|aapi|hawaiian|asian|foreign|heritage('s)*|chinese) accent|(broken|poor(-ish)*) english)(?:$|\\W)") ~ "Accented",
     TRUE ~ NA
   )) %>%
   mutate(Unaccented = case_when(
-    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|california|neutral) accent|typical american|(california) style|normal|perfect english|native speaker)(?:$|\\W)") ~ "Unaccented",
+    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|neutral|west coast) accent|california\\s.*accent|(typical|like an|average) american|(california) style|valley girl|normal|perfect english|native (speaker|english))(?:$|\\W)") ~ "Unaccented",
     # str_detect(Response, "(?:^|\\W)((fluent|clear) english)(?:$|\\W)") ~ "Unaccented",
     TRUE ~ NA
   )) %>%
@@ -483,12 +483,13 @@ NOTE: WAW-1 was mentioned by 2 participants as possibly having a southern accent
 n1b_speech <- n1b_speech %>%
   # Other styles
   mutate(Style = case_when(
-    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(softly|soft spoken|quiet|mild|high)") ~ "Delicate", # possibly polite
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(soft|softly|soft spoken|quiet|mild|high|sweet)") ~ "Delicate", # possibly polite
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(deliberate|formal|polite)") ~ "Reserved",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(casual|conversational|slang)") ~ "Casual",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(fast|quick|rapid)") ~ "Fast",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(slow|drawl)") ~ "Slow",
     Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(direct|straight|straightforward|clear manner|concise)") ~ "Direct",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(nasal(ly)*)") ~ "Nasal",
     TRUE ~ NA
   ))
 
@@ -497,11 +498,15 @@ n1b_speech %>% filter(Style == "Delicate") %>% count(Style, Response, sort=TRUE)
 n1b_speech %>% filter(Style == "Reserved") %>% count(Style, Response, sort=TRUE)
 n1b_speech %>% filter(Style == "Fast") %>% count(Style, Response, sort=TRUE)
 n1b_speech %>% filter(Style == "Direct") %>% count(Style, Response, sort=TRUE)
+n1b_speech %>% filter(Style == "Nasal") %>% count(Style, Response, sort=TRUE)
 
 
 # Categorized Labels
 n1b_speech %>% count(Style, sort=TRUE) %>% add_count(name="n_unique")
 n1b_speech %>% count(Condition, Style, sort=TRUE) %>% pivot_wider(names_from=Condition, values_from = n)
+```
+```{r}
+n1b_speech %>% filter(is.na(Style)) %>% count(Style, Response, sort=TRUE)
 ```
 
 

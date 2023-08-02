@@ -132,11 +132,15 @@ final_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prol
 final_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE)
 final_data_num <-  list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE)
 final_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE)
+```
 
+```{r}
 # Get Current File paths
 RUN_LIST <- c("pilot", "main", "final") # "test"
-CURRENT_RUN <-  "final" # RUN_LIST[2] # To get last value: RUN_LIST[length(RUN_LIST)]
+CURRENT_RUN <-  "main" # RUN_LIST[2] # To get last value: RUN_LIST[length(RUN_LIST)]
+```
 
+```{r}
 if (CURRENT_RUN == "pilot"){
   current_prolific <- pilot_prolific
   current_screener <- pilot_screener
@@ -165,31 +169,31 @@ print(current_data_text)
 Using simulated (pre-pilot, test) data, check data labels and prep code for cleaning data (columns, etc). During this iterative process, go back to Qualtrics survey and update codes and labels where necessary to ensure clean output data.
 Pre-pilot set data files.
 ```{r}
-RUN <- "0-1_initialtest"
-
-# pilot_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
-# pilot_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE)
-test_data_num <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE) 
-test_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE) 
+# RUN <- "0-1_initialtest"
+# 
+# # pilot_prolific <- list.files(file.path(int_data_path, NAME, RUN),  pattern="prolific_export", full.names = TRUE)
+# # pilot_screener <- list.files(file.path(int_data_path, NAME, RUN),  pattern="+Screener", full.names = TRUE)
+# test_data_num <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_num", full.names = TRUE) 
+# test_data_text <- list.files(file.path(int_data_path, NAME, RUN),  pattern="_text", full.names = TRUE) 
 ```
 
 Some of this code adapted for wrangling participant data.
 ```{r}
 # NOTE: Unfinished data doesn't appear in the export file until X days later. That's why the data may seem to change if I export new data later.
 
-# Use numeric data for main task
-n2_data <- read_csv(test_data_num)  %>%
-  filter(Finished!=0) %>%
-  select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several). See raw data for columns Progress, Duration, Finished, RecordedDate
-  slice(-2)  # Remove unnecessary question header rows (1,2)
-n2_data
-
-# Use text data for subject data
-n2_data_text <- read_csv(test_data_text)  %>%
-  filter(Finished!="False") %>%
-  select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several)
-  slice(-2) # Remove unnecessary question header rows (1,2)
-n2_data_text
+# # Use numeric data for main task
+# n2_data <- read_csv(test_data_num)  %>%
+#   filter(Finished!=0) %>%
+#   select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several). See raw data for columns Progress, Duration, Finished, RecordedDate
+#   slice(-2)  # Remove unnecessary question header rows (1,2)
+# n2_data
+# 
+# # Use text data for subject data
+# n2_data_text <- read_csv(test_data_text)  %>%
+#   filter(Finished!="False") %>%
+#   select(-StartDate:-UserLanguage) %>% # Remove metadata columns (first several)
+#   slice(-2) # Remove unnecessary question header rows (1,2)
+# n2_data_text
 ```
 
 ```{r}
@@ -198,88 +202,86 @@ n2_data_text
 
 
 ```{r}
-# Get randomized images order list per subject
-# Check for even distribution
-n2_data %>%
-  select(contains("Q2.X")) %>% select(contains("DO")) %>% slice(-1) %>%
-  mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
-  pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Audio_Number"), names_sep="_", values_to = "DO") %>% type.convert() %>%
-  arrange(subj, DO) %>% drop_na(DO) %>%
-  pivot_wider(subj, names_from = DO, names_prefix = "Trial", values_from = Audio_Number)
+# # Get randomized images order list per subject
+# # Check for even distribution
+# n2_data %>%
+#   select(contains("Q2.X")) %>% select(contains("DO")) %>% slice(-1) %>%
+#   mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
+#   pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Voice_Number"), names_sep="_", values_to = "DO") %>% type.convert() %>%
+#   arrange(subj, DO) %>% drop_na(DO) %>%
+#   pivot_wider(subj, names_from = DO, names_prefix = "Trial", values_from = Voice_Number)
 
 ```
 
 ```{r}
 # Get informative question labels
-q_labels <-
-  n2_data %>%
-  select(contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-     slice(1) %>%
-  pivot_longer(cols=everything(), names_to=c("Audio_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
-#   # Since number of dashes and <> location aren't consistent, need to remove everything between < > and extra -
-  mutate(q_label = gsub("https://.*? - ", "", q_label)) #%>%
-#   mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
-# mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
-#   separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
-q_labels
+# q_labels <-
+#   n2_data %>%
+#   select(contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+#      slice(1) %>%
+#   pivot_longer(cols=everything(), names_to=c("Voice_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
+# #   # Since number of dashes and <> location aren't consistent, need to remove everything between https:// and extra -
+#   mutate(q_label = gsub("https://.*? - ", "", q_label)) #%>%
+# #   mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
+# # mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
+# #   separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
+# q_labels
 ```
 ```{r}
-q_labels %>% pull(Question_Number) %>% unique()
+# q_labels %>% pull(Question_Number) %>% unique()
 ```
 ```{r}
-q_labels %>% pull(q_label) %>% unique()
-```
-
-```{r}
-# Get question data + merge with informative question labels
-test_data <- n2_data %>%
-  select(contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
-  slice(-1) %>% # remove second header
-  mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
-  pivot_longer(cols=2:last_col(), names_to=c("Audio_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "responses") %>%
-  full_join(q_labels, .)
-test_data
-```
-
-
-
-```{r}
-# Check question labels for all questions (even those not shown to participants, are NA)
-test_data %>%  group_by(subj) %>%  count() #870
-test_data %>%  group_by(subj, Audio_Number) %>%  count() # 29
-test_data %>%  group_by(subj, Audio_Number, Question_Number) %>%  count()
-test_data %>%  group_by(subj, Audio_Number, Question_Number, Question_Part_Number) %>%  count()
-```
-```{r}
-# Get only data shown to participants (i.e., drop NA)
-test_data_clean <- test_data %>%
-  drop_na(responses)
-
-# Check n of total questions by subj and photo
-# For rough check (not very meaningful)
-test_data_clean %>% group_by(subj) %>%  count()
-test_data_clean %>%  group_by(subj, Audio_Number) %>% count() %>% type_convert() %>% arrange(subj, Audio_Number) # 29
-test_data_clean %>% group_by(Audio_Number)%>% count() %>% type_convert() %>% arrange(Audio_Number)
-
-# Check n of trials by subj and photo
-# For confirming even presentation (randomization) of photos
-# Total presented/answered photos (end goal: 600)
-test_data_clean %>% select(subj, Audio_Number) %>% distinct() %>% count()
-# Total presented/answered photos per participant (process/end goal: 10 per subject)
-test_data_clean %>% select(subj, Audio_Number) %>% distinct() %>% count(subj)
-# Total presented/answered participants per photo (end goal: 20 per photo)
-test_data_clean %>% select(subj, Audio_Number) %>% distinct() %>% count(Audio_Number) %>% type_convert() %>% arrange(Audio_Number)
-
+# q_labels %>% pull(q_label) %>% unique()
 ```
 
 ```{r}
-test_data_clean %>% filter(subj==1) %>% filter(Audio_Number==7)
+# # Get question data + merge with informative question labels
+# test_data <- n2_data %>%
+#   select(contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+#   slice(-1) %>% # remove second header
+#   mutate(subj=1:n(), .before=1) %>% # Add temp subj number for simulated data
+#   pivot_longer(cols=2:last_col(), names_to=c("Voice_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "responses") %>%
+#   full_join(q_labels, .)
+# test_data
+```
+
+
+```{r}
+# # Check question labels for all questions (even those not shown to participants, are NA)
+# test_data %>%  group_by(subj) %>%  count() #870
+# test_data %>%  group_by(subj, Voice_Number) %>%  count() # 29
+# test_data %>%  group_by(subj, Voice_Number, Question_Number) %>%  count()
+# test_data %>%  group_by(subj, Voice_Number, Question_Number, Question_Part_Number) %>%  count()
+```
+
+```{r}
+# # Get only data shown to participants (i.e., drop NA)
+# test_data_clean <- test_data %>%
+#   drop_na(responses)
+# 
+# # Check n of total questions by subj and photo
+# # For rough check (not very meaningful)
+# test_data_clean %>% group_by(subj) %>%  count()
+# test_data_clean %>%  group_by(subj, Voice_Number) %>% count() %>% type_convert() %>% arrange(subj, Voice_Number) # 29
+# test_data_clean %>% group_by(Voice_Number)%>% count() %>% type_convert() %>% arrange(Voice_Number)
+# 
+# # Check n of trials by subj and photo
+# # For confirming even presentation (randomization) of photos
+# # Total presented/answered photos (end goal: 600)
+# test_data_clean %>% select(subj, Voice_Number) %>% distinct() %>% count()
+# # Total presented/answered photos per participant (process/end goal: 10 per subject)
+# test_data_clean %>% select(subj, Voice_Number) %>% distinct() %>% count(subj)
+# # Total presented/answered participants per photo (end goal: 20 per photo)
+# test_data_clean %>% select(subj, Voice_Number) %>% distinct() %>% count(Voice_Number) %>% type_convert() %>% arrange(Voice_Number)
+
+```
+
+```{r}
+# test_data_clean %>% filter(subj==1) %>% filter(Voice_Number==7)
 ```
 ```{r}
-test_data_clean #%>% type_convert() %>% left_join(n2_audio_codes)
-test_data_clean %>% separate(Question_Number, into=c("Question_Number", "List.Version"), sep="-") %>% rename(Recode_Value=Question_Part_Number) %>% type_convert() %>% left_join(n2_photosel_codes) %>% filter(Question_Number=="Q3.15")
-
-
+# test_data_clean #%>% type_convert() %>% left_join(n2_audio_codes)
+# test_data_clean %>% separate(Question_Number, into=c("Question_Number", "List.Version"), sep="-") %>% rename(Recode_Value=Question_Part_Number) %>% type_convert() %>% left_join(n2_photosel_codes) %>% filter(Question_Number=="Q3.15")
 ```
 
 
@@ -293,7 +295,7 @@ test_data_clean %>% separate(Question_Number, into=c("Question_Number", "List.Ve
 n2_prolific_demo <- 
   plyr::ldply(pilot_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[1]) %>%
   full_join(plyr::ldply(main_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[2])) %>%
-  full_join(plyr::ldply(final_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[3])) %>%
+  # full_join(plyr::ldply(final_prolific, read_csv, na= c("", "NA", "<NA>	", "DATA_EXPIRED"), show_col_types = FALSE) %>% mutate(`Reviewed at` = as.character(`Reviewed at`)) %>% mutate(Run=RUN_LIST[3])) %>%
   mutate(Time_in_min=`Time taken`/60, .after=`Time taken`)  
 n2_prolific_demo
 ```
@@ -302,10 +304,10 @@ n2_prolific_demo
 n2_screener_data <- read_csv(current_screener) %>%
 # Remove metadata columns (first several)
   select(-StartDate:-UserLanguage) %>%
-  # Remove uneccessary question header rows (1,2)
+  # Remove unneccessary question header rows (1,2)
   slice(-1:-2) %>%
   unite("Ethnicity", Ethnicity_9:Ethnicity_14, sep=",", na.rm=TRUE, remove=FALSE) %>%
-relocate(Device, .after = Ethnicity) %>%
+relocate(c(Device, Headphones), .after = Ethnicity) %>%
   rename(`Participant id` = Prolific_ID) %>%
   drop_na(State_Current)
 
@@ -315,7 +317,6 @@ relocate(Device, .after = Ethnicity) %>%
 n2_screener_data
 # View(screener_data)
 ```
-
 ```{r}
 # Compare screener to prolific demographic
 n2_screener_v_prolific <-
@@ -327,7 +328,7 @@ n2_screener_v_prolific <-
     State_Born, `U.s state/territory of birth`,
     State_Current, `Current u.s state of residence`,
     Ethnicity_screen=Ethnicity.x, Ethnicity_prolific=Ethnicity.y, `Ethnicity simplified`,
-    Device
+    Device, Headphones
     #, .after=`Participant id`
   ) 
 # Show full data
@@ -387,7 +388,7 @@ participant_list
 ```
 
 ```{r}
-current_participant <- "63d41183860131e49a85cfde" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
+current_participant <- "63d842d3e9626bd5fe5c17b1" #participant_list[1] #"5f7d4a2c5db79d21c7d07240"
 
 n2_screener_data %>%  filter(PROLIFIC_PID == current_participant) #Prolific_ID
 
@@ -471,12 +472,12 @@ n2_subj_cond <- n2_subj %>%
   full_join(
     # Get randomized images order list per subject
     n2_data %>%
-    select(PROLIFIC_PID, contains("Q2.5_DO")) %>% slice(-1) %>%
-    pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Audio_Number"),
+    select(PROLIFIC_PID, contains("Q2.X_DO")) %>% slice(-1) %>%
+    pivot_longer(cols=2:last_col(), names_to=c(NA, NA, "Voice_Number"),
                  names_sep="_", values_to = "DO") %>% type.convert() %>%
       arrange(PROLIFIC_PID, DO) %>% drop_na(DO) %>%
       pivot_wider(PROLIFIC_PID, names_from = DO, names_prefix = "Trial",
-                  values_from = Audio_Number)
+                  values_from = Voice_Number)
   )
 n2_subj_cond 
 
@@ -651,13 +652,8 @@ All participants were living in California* at the time. Most were additionally 
 ```{r}
 # Notes on Participant Locations (if needed).
 
-# 63d007388da4ef5b301762f9 -- declined to answer
 # 6365408f2a24d08a0f2a66ae -- declined to answer
-# 5e6cade3d92ffb26677dbd84 -- born in NY but moved to CA at ~6 months old
-# 6277fd1a3a086f8af7867fa0 -- born in CA, moved around a bit, mainly growing up in georgia (age 6-18), now back in CA (18-19)
-# 5b5955e7f2333f00013176b2 -- born in Shanghai, grew up in CA since age 2
-# 5b117f18c61ce0000126305a -- born and grew up in Virginia from 0-12; but 12-30 live in San Diego
-# 63d41183860131e49a85cfde -- born in Philadelphia, grew up in CA since age 2
+
 ```
 
 
@@ -786,12 +782,7 @@ n2_asian_network %>%
   labs(title="Asian Network", x="Broader Community", y="Close Contacts", size="Regular Contacts") 
 ```
 Notes: 
-- Most people seem to have a minimum proportion of Asian Close Contacts at 0.25 (one exception of 0).
-- All correlate somewhat, Regular and Close seem most related? (Regular and Broader somewhat)
-- A number of people at all Asian contacts across the board
-- There seems to be a bit of a split between 50% or more Asian in the Broader community linked to more Asian regular Contacts and Close Contacts — i.e., almost nobody has under 50% Close/Regular Contacts when large Community 
 
-- Possibly can use CloseContacts as an estimate of interactive exposure + RegularContacts OR BroaderCommunity for a more general estimate, if needed. Otherwise, one estimate would probably be enough
 
 #### Merge Data
 ```{r}
@@ -822,11 +813,12 @@ NOTE: Can drop Question_Number and Question_Part_Number if not useful as shortha
 # Get informative question labels from header and first row
 
 n2_response_info <-  n2_data %>%
-  select(`1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+  select(contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
      slice(1) %>%
-  pivot_longer(cols=everything(), names_to=c("Audio_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
-  # Since number of dashes and <> location aren't consistent, need to remove everything between < > and extra - rather than just separate() or str_extract()
-  mutate(q_label = gsub("<.*>", "", q_label)) %>%
+  pivot_longer(cols=everything(), names_to=c("Voice_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "q_label") %>%
+  # Since number of dashes and <> location aren't consistent, need to remove everything between https:// and extra -
+  mutate(q_label = gsub("https://.*? - ", "", q_label)) %>%
+  mutate(q_label = gsub("(-\\s*)$", "", q_label)) %>%
   mutate(q_label = gsub("^(\\s*-\\s*)", "", q_label)) %>%
 mutate(q_label = gsub("(-\\s+.*\\s+-)", "-", q_label)) %>%
   separate(q_label, into= c("Question", "Question_Part"), sep = "-", extra="merge")
@@ -834,9 +826,9 @@ n2_response_info
 
 # Get question data + merge with informative question labels
 n2_responses <- n2_data %>%
-  select(PROLIFIC_PID, `1_Q3.1_1`:`30_Q3.12`) %>% select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
+  select("PROLIFIC_PID", contains("_Q3.")) %>%   select(-contains("DO")) %>% # select only looped trials, excl, DisplayOrder
   slice(-1) %>% # remove second header
-  pivot_longer(cols=2:last_col(), names_to=c("Audio_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "Response") %>%
+  pivot_longer(cols=2:last_col(), names_to=c("Voice_Number", "Question_Number", "Question_Part_Number", NA), names_sep="_", values_to = "Response") %>%
   full_join(n2_response_info, .) %>% relocate(PROLIFIC_PID) %>%
   
   mutate(Response=ifelse(Response==-99,NA,Response)) %>% drop_na(Response) %>% # Drop unpresented + unanswered qs
@@ -844,7 +836,8 @@ n2_responses <- n2_data %>%
                               Question=="Recognize" & Response=="1" ~ "Yes",
                               TRUE ~ Response)) %>%
   type_convert() %>% # Auto-Convert number character columns to numeric
-  full_join(., n2_codes) %>% select(-Code) %>%
+  left_join(., n2_audio_codes) %>% relocate(Voice=Code, .after=Response) %>%
+  select(-Qualtrics.Library.ID:-Consent_Uses_7) %>%
   mutate(across(where(is.character), as.factor))
 n2_responses
 summary(n2_responses)
@@ -853,12 +846,13 @@ save(n2_responses, file=file.path(pipeline, "store", "n2_responses.RData"))
 
 ```
 
+
 #### Summary
 Make a targeted dataframe with just the useful/relevant columns for easier viewing.
 ```{r}
 # Select relevant columns only.
 n2_responses_selected <- n2_responses %>%
-  select(PROLIFIC_PID, Question, Question_Part, Condition, Image_Cat, Image, Audio_Number, Response) %>%
+  select(PROLIFIC_PID, Question, Question_Part, Voice, Voice_Number, Response) %>%
   mutate(across(where(is.character), as.factor)) %>%
   mutate(Response = case_when(Question=="Recognize" & Response=="2" ~ "No",
                               Question=="Recognize" & Response=="1" ~ "Yes",
@@ -873,19 +867,19 @@ Check and explore the data here.
 
 Error check, i.e., manually view strange things in the data to fix them above
 ```{r}
-# E.g., filter(is.na(Image)) ; filter(Response==-99)
-# n2_responses %>% filter(Question == "Ratings")
-# 
+# E.g., filter(is.na(Image)) ; filter(Response==-99); filter(Question == "Ratings")
+n2_responses %>% filter(is.na(Voice_Number))
+
 # n2_responses_selected %>% filter(Question == "Ratings")  %>% count(PROLIFIC_PID) %>% arrange(n)
 # 
 # # View one participant/slice
-# n2_responses_selected %>%  filter(PROLIFIC_PID=="6366fd2bd9ad6300b4cbc7df") %>% filter(Question=="Ratings") %>% count(Audio_Number, Image)
+# n2_responses_selected %>%  filter(PROLIFIC_PID=="6366fd2bd9ad6300b4cbc7df") %>% filter(Question=="Ratings") %>% count(Voice_Number, Image)
   # View()
 ```
 
 ```{r}
 # Notes:
-# PROLIFIC_PID=="6366fd2bd9ad6300b4cbc7df --- one missing rating for photo 15 / AAW-47 on Attractiveness (no way to fix, but noted — that's why total Ratings is -1; e.g. rather than 3360 it's 3359)
+
 ```
 
 
@@ -898,11 +892,11 @@ Can reset the randomization counts based on these numbers, so that started and u
 # For confirming even presentation (randomization) of photos
 
 # Total presented/answered photos (end goal: 600)
-n2_responses %>% select(PROLIFIC_PID, Audio_Number) %>% distinct() %>% count()
+n2_responses %>% select(PROLIFIC_PID, Voice_Number) %>% distinct() %>% count()
 # Total presented/answered photos per participant (process/end goal: 10 per subject)
-n2_responses %>% select(PROLIFIC_PID, Audio_Number) %>% distinct() %>% count(PROLIFIC_PID)
+n2_responses %>% select(PROLIFIC_PID, Voice_Number) %>% distinct() %>% count(PROLIFIC_PID)
 # Total presented/answered participants per photo (end goal: 20 per photo)
-n2_responses %>% select(PROLIFIC_PID, Audio_Number) %>% distinct() %>% count(Audio_Number) %>% arrange(Audio_Number)
+n2_responses %>% select(PROLIFIC_PID, Voice_Number) %>% distinct() %>% count(Voice_Number) %>% arrange(Voice_Number)
 
 ```
 ```{r}
@@ -916,33 +910,30 @@ Get the participants list.
 ```{r}
 participant_list <- n2_screener_v_prolific %>% filter(Run==CURRENT_RUN) %>%  pull(`Participant id`)
 participant_list
-length(participant_list)
+# length(participant_list)
 ```
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "5f1b1f6a908b2609a62ab7ad" #participant_list[10] # 
+current_participant <- "5d012930cfeb82001817c9c9" #participant_list[10] # 
 
 current_responses <- n2_responses %>% 
-  select(PROLIFIC_PID, Question, Question_Part, Image, Response) %>% 
+  select(PROLIFIC_PID, Question_Number, Question, Question_Part, Voice, Response) %>% 
   filter(PROLIFIC_PID == current_participant) %>%
   mutate(Response = case_when(Question=="Recognize" & Response=="2" ~ "No",
                               Question=="Recognize" & Response=="1" ~ "Yes",
                               TRUE ~ Response)) 
 
-current_responses %>% filter(Question=="Impressions") %>% pivot_wider(id_cols = c(PROLIFIC_PID, Image), names_from = Question_Part, values_from = Response)
+current_responses %>% filter(Question=="Impressions") %>% pivot_wider(id_cols = c(PROLIFIC_PID, Voice), names_from = Question_Part, values_from = Response)
 
 # Non-numeric responses
 current_responses %>% filter(Question=="Age") %>%
-  filter(Response!=0) %>% select(PROLIFIC_PID, Image, Question_Part, Response)  %>%
-  pivot_wider(id_cols = c(PROLIFIC_PID, Image), names_from = Question_Part, values_from = Response)
+  filter(Response!=0) %>% select(PROLIFIC_PID, Voice, Question_Part, Response)  %>%
+  pivot_wider(id_cols = c(PROLIFIC_PID, Voice), names_from = Question_Part, values_from = Response)
 
-current_responses %>% filter(Question=="Occupation") %>% select(-contains("Question_Part"))
-current_responses %>% filter(Question=="Activities") %>% select(-contains("Question_Part"))
-current_responses %>% filter(Question=="GrewUp") %>% select(-contains("Question_Part"))
-current_responses %>% filter(Question=="Ethnicity") %>% select(-contains("Question_Part"))
-current_responses %>% filter(Question=="Speech") %>% select(-contains("Question_Part"))
-current_responses %>% filter(Question=="Recognize") %>% select(-contains("Question_Part"))
+current_responses %>% filter(Question=="GrewUp") %>% select(-contains("Question_Part"), -contains("Question_Number"))
+current_responses %>% filter(Question=="Ethnicity") %>% select(-contains("Question_Part"), -contains("Question_Number"))
+current_responses %>% filter(Question=="Speech") %>% select(-contains("Question_Part"), -contains("Question_Number"))
 
 # Rating responses
 current_ratings <- current_responses %>% filter(Question=="Ratings") %>% select(-"Question") %>% select(-PROLIFIC_PID) %>%
@@ -950,12 +941,36 @@ current_ratings <- current_responses %>% filter(Question=="Ratings") %>% select(
 
 current_ratings %>%
   filter(Question_Part == str_match(Question_Part, ".*American.*|.*Native.*")) %>% 
-  select(Image, Scale, Response) %>% pivot_wider(id_cols = Image, names_from = Scale, values_from = Response)
+  select(Voice, Scale, Response) %>% pivot_wider(id_cols = Voice, names_from = Scale, values_from = Response)
 
 current_ratings %>% summary()
-current_ratings %>% group_by(Image) %>% quick_summarize(Response, na.rm=TRUE)
+current_ratings %>% group_by(Voice) %>% quick_summarize(Response, na.rm=TRUE)
 current_ratings %>% group_by(Scale) %>% quick_summarize(Response, na.rm=TRUE)
 current_ratings %>% quick_summarize(Response, na.rm=TRUE)
+
+# Likelihood responses
+current_likelihood <- current_responses %>% filter(Question=="Likelihood") %>% select(-"Question") %>% select(-PROLIFIC_PID) %>%
+  mutate(Scale=str_extract(Question_Part, "(?<=(in\\s|or\\s)).+(?=$)")) %>%  
+  mutate(Scale = mgsub(Scale, c("the ", "US or in Canada"), c("", "elsewhere US/Canada"))) %>% 
+  mutate(Scale_Group=str_extract(Question_Part, "(?<=)Grew up")) %>%  mutate(Scale_Group=replace(Scale_Group, is.na(Scale_Group), "Race")) %>%
+  type_convert()
+
+current_likelihood %>% summary()
+
+# current_likelihood %>%
+#   filter(Scale_Group == str_match(Scale_Group, "Grew up")) %>%
+#   select(Voice, Scale, Response) %>% pivot_wider(id_cols = Voice, names_from = Scale, values_from = Response)
+current_likelihood %>% filter(Scale_Group == "Grew up") %>% group_by(Voice) %>% quick_summarize(Response, na.rm=TRUE)
+current_likelihood %>% filter(Scale_Group == "Grew up") %>% group_by(Scale) %>% quick_summarize(Response, na.rm=TRUE)
+
+# current_likelihood %>%
+#   filter(Scale_Group == str_match(Scale_Group, "Race")) %>%
+#   select(Voice, Scale, Response) %>% pivot_wider(id_cols = Voice, names_from = Scale, values_from = Response) 
+current_likelihood %>% filter(Scale_Group == "Race") %>% group_by(Voice) %>% quick_summarize(Response, na.rm=TRUE)
+current_likelihood %>% filter(Scale_Group == "Race") %>% group_by(Scale) %>% quick_summarize(Response, na.rm=TRUE)
+
+# Face responses
+current_responses %>% filter(Question=="Face") %>% select(-contains("Question_Part"))
 
 print(current_participant)
 ```

@@ -1,0 +1,1720 @@
+---
+title: "n2"
+output: html_document
+---
+
+# Preamble
+## Packages
+```{r setup}
+# Load libraries and custom functions
+if (file.exists("project_functions.R")){
+  source("project_functions.R")
+  
+} else { # try one directory up
+  source("../project_functions.R")
+}
+
+# Text Analysis
+library(countrycode)
+library(maps)
+library(tidytext)
+
+# Plots
+# library(hrbrthemes)
+```
+
+## Pipeline Structure
+```{r}
+# Fill in file structure info (e.g. using getwd())
+NAME <- 'n2_analysis' ## Name of the R file (w/o file extension!)
+PHASE <- 'P0-norming' ## Name of the project phase (if relevant)
+PROJECT <- 'SpAAC' ## Name of project
+```
+
+```{r}
+# Get project directory path & subfolder status from working dir
+PROJECT_DIR <- str_extract(getwd(), paste0("^(.*?)",PROJECT,"/"))
+
+if (basename(getwd()) != PHASE) {SUBFOLDER <- basename(getwd())} else {SUBFOLDER <- NA}
+
+# Get pipeline path names
+if (dir.exists(file.path(PROJECT_DIR, '04-analysis', '02-pipeline'))){
+  if (is.na(SUBFOLDER)){
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, NAME)
+  } else {
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, SUBFOLDER, NAME)
+  }
+} else {
+  pipeline <- file.path('.', 'pipeline', PHASE, NAME)
+}
+
+# Create pipeline folders
+if (!dir.exists(pipeline)) {
+  dir.create(pipeline, recursive=TRUE)
+  for (folder in c('out', 'store', 'temp')){
+    dir.create(file.path(pipeline, folder))
+  }
+}
+```
+
+```{r}
+# Basic reference paths
+stim_data_path <- file.path(PROJECT_DIR, '02-materials', '02-stimuli', PHASE) 
+ext_data_path <- file.path(PROJECT_DIR, '03-data', '01-external', PHASE) 
+int_data_path <- file.path(PROJECT_DIR, '03-data', '02-internal', PHASE) 
+manual_analysis_path <- file.path(PROJECT_DIR, '04-analysis', '03-manual', PHASE) # 001-code / 003-manual
+```
+
+# Process Main Data
+```{r}
+load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n2", "store", "n2_responses.RData"))
+load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n2", "store", "n2_responses_selected.RData"))
+load(file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, "n2", "store", "n2_subj_info.RData"))
+```
+
+## Summarize & Explore
+
+### Descriptors
+Try adding sentiments to each word entry: https://www.tidytextmining.com/sentiment.html
+(See also: https://m-clark.github.io/text-analysis-with-R/sentiment-analysis.htm)
+```{r}
+library(tidytext)
+n2_descriptors <-
+  n2_responses_selected %>%
+  filter(Question=="Impressions") %>%
+  select(-Question:-Question_Part) %>%
+  # text cleaning
+  mutate(Response = tolower(Response)) %>%
+  mutate(Response = mgsub(Response, c("-"), c(""), fixed=TRUE)) %>%
+  mutate(Response = mgsub(Response, c("inetlligent", "independant"), c("intelligent", "independent"), fixed=TRUE)) %>% # typos
+  # Add counts
+  add_count(Voice, name="total_Voice_n") %>% add_count(Response, name="total_word_n") %>% 
+    add_count(Voice, Response, name="Voice_word_n") %>%
+  # Add sentiments
+  rename(word=Response) %>% 
+  left_join(get_sentiments("bing")) %>% left_join(get_sentiments("afinn"))  %>%
+  rename(Response=word, sentiment_score=value) %>%
+  # mutate(sentiment = ifelse(is.na(sentiment), "neutral", sentiment),
+         # sentiment_score = ifelse(is.na(sentiment_score), 0, sentiment_score))
+  mutate(sentiment = case_when((is.na(sentiment) & (sentiment_score > 0)) ~ "positive",
+                               (is.na(sentiment) & (sentiment_score < 0)) ~ "negative",
+                               TRUE ~ sentiment))
+n2_descriptors
+```
+```{r}
+# Check for certain types of patterns to clean
+# n2_descriptors %>%  filter(Response == str_match(Response, ".* .*"))
+```
+
+
+#### Sentiment
+```{r}
+# Summarize sentiment data
+n2_descriptors %>% count(sentiment)
+n2_descriptors %>% count(sentiment_score)
+n2_descriptors %>% quick_summarize(sentiment_score, na.rm=TRUE)
+```
+
+```{r}
+#By Voice
+n2_descriptors %>% drop_na(sentiment) %>% add_count(Voice, name="group_n") %>% 
+  count(Voice, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n) %>%
+  pivot_wider(id_cols=Voice, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum)
+
+n2_descriptors %>% group_by(Voice)  %>% quick_summarize(sentiment_score, na.rm=TRUE) %>% rename_with( ~ gsub("_score", "", .x))
+```
+
+#### Sets
+```{r}
+# Total descriptor words
+n2_descriptors %>% count(name="total_words")
+
+# Total unique/different words
+n2_descriptors %>% count(Response) %>% count(name="unique_words")
+```
+
+```{r}
+# Top words used
+n2_descriptors %>% count(Response, sort=TRUE)
+
+# Top words used for a certain Voice
+n2_descriptors %>% count(Voice, Response, sort=TRUE)
+
+```
+```{r}
+# Show all
+n2_descriptors %>% count(Response, sort=TRUE) %>% 
+  ggplot(aes(x=reorder(Response, n), y=n)) + geom_col() + coord_flip() + labs(title="ethAsian adjectives", x= "Responses", y="No. of occurences")
+
+# Only show >1
+n2_descriptors %>% count(Response, sort=TRUE) %>% filter(n>1) %>% 
+  ggplot(aes(x=reorder(Response, n), y=n)) + geom_col() + coord_flip() + labs(title="ethAsian adjectives", x= "Responses", y="No. of occurences")
+```
+### Age
+Get proportion selections per age category for each Voice.
+```{r}
+n2_age <- n2_responses_selected %>% 
+  filter(Question=="Age") %>% 
+  pivot_wider(id_cols = c(PROLIFIC_PID, Voice), names_from = Question_Part, values_from = Response) %>% 
+  mutate(across(Teens:`Over 40`, ~ as.numeric(as.character(.x)))) 
+n2_age
+# View crosstab counts
+# n2_age %>% group_by(Voice) %>% summarize(across(where(is.numeric), sum))
+```
+
+
+```{r}
+n2_age_byVoice <- n2_age %>% 
+  # Get proportions out of total responses (props add up to over 100 b/c multiple selections)
+  add_count(Voice) %>% group_by(Voice, n) %>% 
+  summarize(across(Teens:`Over 40`, sum)) %>% 
+  mutate(across(Teens:`Over 40`, ~ .x/n)) %>%
+  pivot_longer(Teens:`Over 40`, names_to = "Age", values_to = "prop") %>%
+  mutate(Age=gsub("Teens", "10s", Age)) %>%
+  # Drop values where none selected
+  filter(prop>0) %>%  arrange(-prop, .by_group=TRUE) 
+
+# View heatmap of persona_group selections per voice
+# all
+n2_age_byVoice %>%
+  ggplot(aes(Voice, Age)) + gg_theme() +
+  geom_tile(aes(fill = prop), colour = "white") +
+  geom_text(aes(label = round(prop, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+
+# Select only highest values
+n2_age_byVoice <- n2_age_byVoice %>%
+  # filter(prop>=0.75) # Option 1: Keep values where more than 75% of participants selected
+  slice_max(prop) # Option 2: Keep only highest value (including ties)
+n2_age_byVoice <- n2_age_byVoice %>% 
+  full_join(
+    # Get age consensus based on majority decision
+   n2_age_byVoice %>% pivot_wider(Voice:n, names_from = Age, values_from = prop) %>% 
+   # relocate(`10s`, .before=`20s`) %>%
+   mutate(across(2:last_col(), ~ ifelse(!is.na(.x), cur_column(), NA) )) %>%
+   unite(perceived_age, 3:last_col(), sep=',', na.rm=TRUE)
+  ) %>% ungroup
+n2_age_byVoice
+```
+
+
+### (+) GrewUp
+```{r}
+n2_grewup <-
+  n2_responses_selected %>% filter(Question=="GrewUp") %>% select(-Question_Part) %>%
+  # text cleaning
+  mutate(Response = str_trim(tolower(Response))) %>%
+  mutate(Response = gsub("(.*)\\s*,\\s*usa", "\\1", Response)) %>% # keep everything before ', usa'
+  mutate(Response = mgsub(Response, c("philipinnes|phillippines", "^america$|^us$|^united states$|^u\\.s\\.$", "(?:^|\\W)(ca|cali|califonia)(?:$|\\W)", "(?:^|\\W)ny(?:$|\\W)", "(?:^|\\W)az(?:$|\\W)", "wisconson"), c("philippines", "usa", "california", "new york", "arizona", "wisconsin"))) %>% 
+  # Add categorization into US or Asia or Europe
+  mutate(Region = case_when(
+    Response %in% c("san francisco", "los angeles", "boston", "beverly hills", "san fernando valley", "san gabriel", "las vegas", "bay area", "portland") ~ "USA",
+    str_detect(Response, paste0("(?:^|\\W)", paste(tolower(state.name), collapse = '|'), "(?:$|\\W)")) ~ "USA",
+    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west)\\s*coast|(the )*west|(west|east)ern states)(?:$|\\W)|american suburbia|(?:^|\\W)united states(?:$|\\W)|(?:^|\\W)(in|north|northeastern|southwest) (america|us)(?:$|\\W)|(?:^|\\W)in the us$") ~ "USA", 
+    str_detect(Response, "(?:^|\\W)usa(?:$|\\W)") ~ "USA", # if USA or <other>, defaults to US
+    str_detect(Response,"(?:^|\\W)canada(?:$|\\W)") ~ "Canada",
+    str_detect(Response, "(?<!\\w)(asia(n*))(?!\\w)") ~ "Asia",
+    str_detect(Response, "(?<!\\w)(europe|eu|slavic)(?!\\w)") ~ "Europe",
+    TRUE ~ NA
+  )) 
+n2_grewup <- n2_grewup %>%
+  mutate(CountryContinent = countrycode(sourcevar = Response,
+                             origin = "country.name",
+                             destination = "continent")) %>%
+  cbind(CityCountry = world.cities[match(n2_grewup$Response, tolower(world.cities$name)), ][[2]]) %>%
+  
+  mutate(Response_Cat = coalesce(coalesce(Region, CountryContinent), CityCountry), .after=Response) %>%
+  mutate(across(where(is.character), as.factor))
+
+
+# Check summary
+summary(n2_grewup)
+
+# Check categorization
+n2_grewup %>% filter(Response_Cat == "USA") %>% count(Response_Cat, Response, sort=TRUE)
+n2_grewup %>% filter(Response_Cat == "Asia") %>% count(Response_Cat, Response, sort=TRUE)
+n2_grewup %>% filter(!(Response_Cat == "USA" | Response_Cat == "Asia")) %>% count(Response_Cat, Response, sort=TRUE)
+# Check for NAs (uncategorized)
+# n2_grewup %>% filter(is.na(Region) & is.na(CountryContinent) & is.na(CityCountry) )
+n2_grewup %>% filter(is.na(Response_Cat) )
+```
+
+```{r}
+# Check for errors
+# world.cities %>% filter(country.etc=="USA") %>% mutate(name=tolower(name)) %>% filter(str_detect(name, "washington"))
+```
+
+```{r}
+# Check data overall
+# Specific Labels
+n2_grewup %>% count(Response_Cat, Response, sort=TRUE) %>% add_count(name="n_unique")
+
+# Categorized Labels
+n2_grewup %>% count(Response_Cat, sort=TRUE) %>% add_count(name="n_unique")
+```
+All personae categories sometimes identified as USA
+
+```{r}
+# Check Location category of photos per voice
+n2_grewup %>%  count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+
+```
+
+**Review Comments:**
+
+
+**Selection Criteria:**
+
+
+### (+) Ethnicity
+```{r}
+n2_ethnicity <-
+  n2_responses_selected %>% filter(Question=="Ethnicity") %>% select(-Question_Part) %>%
+  # text cleaning
+  mutate(Response = tolower(str_trim(Response))) %>%
+  mutate(Response = mgsub(Response, c("china|chiense", "flippino|philipino|philipno|pilipino|from the philippines", "portugese", "african american"), c("chinese", "filipino", "portuguese", "black"))) %>% 
+
+  # Add categorization into race
+  mutate(Asian = case_when(
+    str_detect(Response, "(?:^|\\W)(asia(n*)|chinese|filipin(o|a))(?:$|\\W)") ~ "Asian",
+    str_detect(Response, "(?:^|\\W)(hong kong|singapore|japan|korean|taiwan|vietnam|thai|hmong|lao|malaysian)") ~ "Asian",
+    TRUE ~ NA
+  )) %>%
+  mutate(White = case_when(
+    str_detect(Response, "(?:^|\\W)(white|european|caucasian|anglo|english|finnish|german|irish|italian|portuguese|scandinavian|scottish|swedish|danish|russian|greek|slavic|british|french|norwegian)(?:$|\\W)") ~ "White",
+    TRUE ~ NA
+  )) %>%
+  mutate(American = ifelse(str_detect(Response, "(?:^|\\W)american(?:$|\\W)"), "American", NA)) %>%
+  # mutate(Other = case_when(
+    # str_detect(Response, "(?:^|\\W)(mexi|hispanic)") ~ "Other",
+    # str_detect(Response, "(?:^|\\W)(half|and|mixed)(?:$|\\W)") ~ "Mixed",
+    # TRUE ~ NA )) %>%
+  mutate(Response_Cat = coalesce(coalesce(coalesce(Asian, White), American), "Other"), .after=Response) %>% # if Asian mixed, Asian
+  mutate(across(where(is.character), as.factor))
+# n2_ethnicity
+
+# Check for NAs (uncategorized)
+n2_ethnicity %>% filter(is.na(Response_Cat) )
+
+# Check summary
+summary(n2_ethnicity)
+
+# Check categorization
+n2_ethnicity %>% filter(Response_Cat == "Asian") %>% count(Response_Cat, Response, sort=TRUE)
+n2_ethnicity %>% filter(Response_Cat == "White") %>% count(Response_Cat, Response, sort=TRUE)
+n2_ethnicity %>% filter(!(Response_Cat == "Asian" | Response_Cat == "White")) %>% count(Response_Cat, Response, sort=TRUE)
+```
+
+```{r}
+# Check data overall
+# Specific Labels
+n2_ethnicity %>% count(Response_Cat, Response, sort=TRUE) %>% add_count(name="n_unique")
+
+# Categorized Labels
+n2_ethnicity %>% count(Response_Cat, sort=TRUE) %>% add_count(name="n_unique")
+```
+
+```{r}
+# Check  category of photos per voice
+n2_ethnicity %>% count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+```
+**Review Comments:**
+
+**Selection Criteria:**
+
+To pick photos: Check a specific photo's words
+```{r}
+n2_ethnicity %>% filter(Voice=="S01") %>% select(Voice, Response_Cat, Response, PROLIFIC_PID)
+
+```
+
+### (+) Speech
+```{r}
+n2_speech <- 
+  n2_responses_selected %>% filter(Question=="Speech") %>% select(-Question_Part) %>%
+    # text cleaning
+  mutate(Response = tolower(str_trim(Response)))  %>%
+  # Consider: shorten long statements by extracting the keyword (e.g. straightforward)
+# Add categorization into accentedness
+  mutate(OtherAccent = case_when(
+    str_detect(Response, "(?:^|\\W)((british|english|uk|southern( drawl)*|mid(\\s*|-*)west(ern)*|country|spanish|german|european) accent)(?:$|\\W)") ~ "OtherAccent",
+    TRUE ~ NA
+  )) %>%
+  mutate(Accented = case_when(
+    str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.*\\s)accent|(broken|poor(-ish)*) english)(?:$|\\W)") ~ "Accented",
+    str_detect(Response, "(?:^|\\W)(slight|strong|aapi|hawaiian|asian|foreign|heritage('s)*|chinese) accent(?:$|\\W)") ~ "Accented",
+    TRUE ~ NA
+  )) %>%
+  mutate(Unaccented = case_when(
+    str_detect(Response, "(?:^|\\W)(standard|unaccented|without an accent|no accent|(american|canadian|neutral|west coast) accent|california\\s.*accent|(typical|like an|average) american|(california) style|valley girl|normal|perfect english|native (speaker|english))(?:$|\\W)") ~ "Unaccented",
+    # str_detect(Response, "(?:^|\\W)((fluent|clear) english)(?:$|\\W)") ~ "Unaccented",
+    TRUE ~ NA
+  )) %>%
+
+  mutate(Response_Cat = coalesce(coalesce(coalesce(OtherAccent, Unaccented), Accented), "Other"), .after=Response) %>% 
+  mutate(across(where(is.character), as.factor))
+# n2_speech
+
+# Check for NAs (uncategorized)
+n2_speech %>% filter(is.na(Response_Cat) ) %>% select(Response:last_col())
+
+# Check summary
+summary(n2_speech)
+
+# Check categorization
+n2_speech %>% filter(Response_Cat == "Unaccented") %>% count(Response_Cat, Response, sort=TRUE)
+n2_speech %>% filter(Response_Cat == "Accented") %>% count(Response_Cat, Response, sort=TRUE)
+n2_speech %>% filter(!(Response_Cat == "Unaccented" | Response_Cat == "Accented")) %>% count(Response_Cat, Response, sort=TRUE)
+```
+
+Accentedness:
+```{r}
+# Check data overall
+# Specific Labels
+n2_speech %>% count(Response_Cat, Response, sort=TRUE) %>% add_count(name="n_unique")
+
+# Categorized Labels
+n2_speech %>% count(Response_Cat, sort=TRUE) %>% add_count(name="n_unique")
+```
+
+```{r}
+# Check category of photos per condition
+n2_speech %>% count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
+
+```
+
+```{r}
+# Check specific photos/labels
+n2_speech %>% mutate(Response=as.character(Response)) %>% 
+  filter(str_detect(Response, "(?:^|\\W)(south)"))
+```
+
+
+#### Styles
+```{r}
+n2_speech <- n2_speech %>%
+  # Other styles
+  mutate(Style = case_when(
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(soft|softly|soft spoken|quiet|mild|high|sweet|feminine)") ~ "Delicate", # possibly polite
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(deliberate|formal|polite)") ~ "Reserved",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(casual|conversational|slang)") ~ "Casual",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(fast|quick|rapid)") ~ "Fast",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(slow|drawl)") ~ "Slow",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(direct|straight|straightforward|clear manner|concise)") ~ "Direct",
+    Response_Cat == "Other" & str_detect(Response, "(?:^|\\W)(nasal|nasally)") ~ "Nasal",
+    TRUE ~ NA
+  ))
+
+# Check Styles data
+n2_speech %>% filter(Style == "Delicate") %>% count(Style, Response, sort=TRUE)
+n2_speech %>% filter(Style == "Reserved") %>% count(Style, Response, sort=TRUE)
+n2_speech %>% filter(Style == "Fast") %>% count(Style, Response, sort=TRUE)
+n2_speech %>% filter(Style == "Direct") %>% count(Style, Response, sort=TRUE)
+n2_speech %>% filter(Style == "Nasal") %>% count(Style, Response, sort=TRUE)
+
+
+# Categorized Labels
+n2_speech %>% count(Style, sort=TRUE) %>% add_count(name="n_unique")
+n2_speech %>% count(Voice, Style, sort=TRUE) %>% pivot_wider(names_from=Voice, values_from = n)
+```
+
+
+
+### (+) Ratings
+```{r}
+n2_ratings <-
+  n2_responses %>%
+  select(PROLIFIC_PID, Question_Number, Question, Question_Part, Voice, Response) %>%
+  filter(Question=="Ratings") %>% select(-Question) %>% mutate(Response =  as.numeric(as.character(Response))) %>%
+  # Convert scales and responses to consistent direction
+  separate(Question_Number, into=c("Question_Number", "Version"), sep="-") %>%
+separate(Question_Number, into=c(NA, "Rating_Group"), sep="\\.") %>% 
+  mutate(Rating_Group = case_when(Rating_Group == "8" ~ "Style",
+                                  Rating_Group == "9" ~ "Traits",
+                                  Rating_Group == "10" ~ "Culture",
+                                  TRUE ~ NA)) %>%
+  separate(Question_Part, into=c("Left", "Right"), sep=":") %>%
+  mutate(Rating_Scale = case_when(Rating_Group == "Style" & Version == "A" ~ Left,
+                                  Rating_Group == "Traits" & Version == "A" ~ Right,
+                                  Rating_Group == "Culture" & Version == "A" ~ Left,
+                                  Rating_Group == "Style" & Version == "B" ~ Right,
+                                  Rating_Group == "Traits" & Version == "B" ~ Left,
+                                  Rating_Group == "Culture" & Version == "B" ~ Right,
+                                  TRUE ~ NA), .before=(Rating_Group))  %>%
+  mutate(Rating_Value = case_when(Rating_Group == "Style" & Version == "A" ~ abs((Response)-8),
+                                  Rating_Group == "Traits" & Version == "B" ~ abs((Response)-8),
+                                  Rating_Group == "Culture" & Version == "A" ~ abs((Response)-8),
+                                  TRUE ~ Response), .before=(Response)) %>%
+  select(-Version, -Left, -Right) %>% relocate(c(Rating_Group,Rating_Scale), .before=Rating_Value) %>%
+  # Add z-score transformed ratings by participant (participant-normalized)
+  group_by(PROLIFIC_PID) %>% 
+  mutate(Rating_ZScore = scale(Rating_Value, center=TRUE, scale=TRUE), .before=Rating_Value) %>%
+  mutate(Response_ZScore = scale(Response, center=TRUE, scale=TRUE)) %>% 
+  ungroup() %>%
+  mutate(across(where(is.character), as.factor))
+
+summary(n2_ratings)
+n2_ratings
+```
+Summary stats
+```{r}
+# Check summary stats of data overall
+n2_ratings %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+# n2_ratings %>% summarize(min=min(Rating_ZScore), max=max(Rating_ZScore), mean=mean(Rating_ZScore), median=median(Rating_ZScore))
+
+# by rating group
+n2_ratings %>% group_by(Rating_Group) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+
+# by Voice
+n2_ratings %>% group_by(Voice, Rating_Group) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+n2_ratings %>% group_by(Voice, Rating_Scale) %>% quick_summarize(Rating_Value) %>% rename_with(~ gsub("Rating_Value", "rating", .x))
+
+```
+
+#### Tabularize
+Means per
+```{r}
+# Check  category of photos per condition + sd
+# Tables
+n2_ratings %>% group_by(Rating_Group) %>% 
+  summarize(mean=mean(Rating_Value), sd=sd(Rating_Value)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd)
+  
+n2_ratings %>% group_by(Rating_Group, Rating_Scale) %>% 
+  summarize(mean=mean(Rating_Value), sd=sd(Rating_Value)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd)
+```
+
+#### Visualize
+Parallel plots show the differences in score (=y, e.g., rating values) across score type (=x, e.g., rating scales) for each group (=series as represented by color and line, e.g., condition).
+
+##### By Voice
+
+Overview of ratings grouping scales under Rating_Group (Culture, Traits, Style)
+```{r}
+# Condition Mean Plots by Rating_Group
+# Get plots: Zoomed in (Raw and ZScore)
+parallel_plot(n2_ratings, x=Rating_Group, y=Rating_Value, group=Voice)
+parallel_plot(n2_ratings, x=Rating_Group, y=Rating_ZScore, group=Voice)
+
+# Get plots: Zoomed out (Raw and ZScore)
+parallel_plot(n2_ratings, x=Rating_Group, y=Rating_Value, group=Voice, full_scale = TRUE)
+parallel_plot(n2_ratings, x=Rating_Group, y=Rating_ZScore, group=Voice, full_scale = TRUE)
+```
+```{r}
+# Condition Distribution + Median Violin Plots by RatingGroup
+violin_plot(n2_ratings, x=Rating_Group, y=Rating_Value, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE)
+violin_plot(n2_ratings, x=Rating_Group, y=Rating_ZScore, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE)
+
+```
+
+Overview of all scales shown individually, reordered into helpful viewing order
+```{r}
+# Condition Mean Parallel Plots by Rating_Scale
+# Get plots: Zoomed in (Raw and ZScore)
+n2_ratings_releveled <-
+  n2_ratings %>% 
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale, 
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))                         # Style
+
+parallel_plot(n2_ratings_releveled, x=Rating_Scale, y=Rating_Value, group=Voice, angle_axis_labels=TRUE) 
+parallel_plot(n2_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) 
+```
+
+```{r}
+# Selected speakers 
+n2_ratings_releveled %>%
+  filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Rating_Value, group=Voice, angle_axis_labels=TRUE) 
+
+n2_ratings_releveled %>%
+  filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) 
+
+```
+
+```{r}
+# Condition Distribution + Median Violin Plots by Rating_Scale
+n2_ratings_releveled %>% filter(Rating_Group == "Culture") %>%
+  violin_plot(x=Rating_Scale, y=Rating_Value, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+
+n2_ratings_releveled %>% filter(Rating_Group == "Traits") %>%
+  violin_plot(x=Rating_Scale, y=Rating_Value, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+
+n2_ratings_releveled %>% filter(Rating_Group == "Style") %>%
+  violin_plot(x=Rating_Scale, y=Rating_Value, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+```
+
+
+
+### (+) Likelihood
+```{r}
+n2_likelihood <-
+  n2_responses %>%
+  select(PROLIFIC_PID, Question_Number, Question, Question_Part, Voice, Response) %>%
+  filter(Question=="Likelihood") %>% select(-Question) %>% mutate(Response =  as.numeric(as.character(Response))) %>%
+  # Convert scales and responses to consistent direction
+  # separate(Question_Number, into=c("Question_Number", "Version"), sep="-") %>%
+separate(Question_Number, into=c(NA, "Rating_Group"), sep="\\.") %>% 
+  mutate(Rating_Group = case_when(Rating_Group == "11" ~ "GrewUpContinent",
+                                  Rating_Group == "12" ~ "GrewUpRegion",
+                                  Rating_Group == "13" ~ "RaceEthnicity",
+                                  TRUE ~ NA)) %>%
+  mutate(Rating_Scale=str_extract(Question_Part, "(?<=(in\\s|or\\s)).+(?=$)"), .after=Rating_Group) %>%  
+  mutate(Rating_Scale = mgsub(Rating_Scale, c("the ", "US or in Canada"), c("", "elsewhere US/Canada"))) %>% 
+  group_by(PROLIFIC_PID) %>% 
+  mutate(Response_ZScore = scale(Response, center=TRUE, scale=TRUE)) %>% 
+  ungroup() %>%
+  mutate(across(where(is.character), as.factor)) %>% select(-Question_Part)
+
+summary(n2_likelihood)
+n2_likelihood
+```
+Summary stats
+```{r}
+# Check summary stats of data overall
+n2_likelihood %>% quick_summarize(Response) %>% rename_with(~ gsub("Response", "rating", .x))
+# n2_likelihood %>% summarize(min=min(Response_ZScore), max=max(Response_ZScore), mean=mean(Response_ZScore), median=median(Response_ZScore))
+
+# by rating group
+n2_likelihood %>% group_by(Rating_Group) %>% quick_summarize(Response) %>% rename_with(~ gsub("Response", "rating", .x))
+
+# by Voice
+n2_likelihood %>% group_by(Voice, Rating_Group) %>% quick_summarize(Response) %>% rename_with(~ gsub("Response", "rating", .x))
+n2_likelihood %>% group_by(Voice, Rating_Scale) %>% quick_summarize(Response) %>% rename_with(~ gsub("Response", "rating", .x))
+
+```
+
+
+#### Tabularize
+Means per
+```{r}
+# Check  category of photos per condition + sd
+# Tables
+n2_likelihood %>% group_by(Rating_Group) %>% 
+  summarize(mean=mean(Response), sd=sd(Response)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd)
+  
+n2_likelihood %>% group_by(Rating_Group, Rating_Scale) %>% 
+  summarize(mean=mean(Response), sd=sd(Response)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd)
+```
+
+#### Visualize
+Parallel plots show the differences in score (=y, e.g., rating values) across score type (=x, e.g., rating scales) for each group (=series as represented by color and line, e.g., condition).
+
+##### By Voice
+
+Overview of ratings grouping scales under Rating_Group (Culture, Traits, Style)
+```{r}
+# Condition Mean Plots by Rating_Group
+# Get plots: Zoomed in (Raw and ZScore)
+parallel_plot(n2_likelihood, x=Rating_Group, y=Response, group=Voice)
+parallel_plot(n2_likelihood, x=Rating_Group, y=Response_ZScore, group=Voice)
+
+# Get plots: Zoomed out (Raw and ZScore)
+parallel_plot(n2_likelihood, x=Rating_Group, y=Response, group=Voice, full_scale = TRUE)
+parallel_plot(n2_likelihood, x=Rating_Group, y=Response_ZScore, group=Voice, full_scale = TRUE)
+```
+```{r}
+# Condition Distribution + Median Violin Plots by RatingGroup
+violin_plot(n2_likelihood, x=Rating_Group, y=Response, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE)
+violin_plot(n2_likelihood, x=Rating_Group, y=Response_ZScore, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE)
+
+```
+
+Overview of all scales shown individually, reordered into helpful viewing order
+```{r}
+# Condition Mean Parallel Plots by Rating_Scale
+# Get plots: Zoomed in (Raw and ZScore)
+n2_likelihood_releveled <-
+  n2_likelihood %>% 
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale, 
+  "US/Canada", "Asia", "Europe",  # GrewUpContinent
+  "California", "Midwest", "Southern US", "elsewhere US/Canada",                # GrewUpRegion
+  "White American", "Asian American","Latin/Hispanic American", "Black American"))                         # RaceEthnicity
+
+parallel_plot(n2_likelihood_releveled, x=Rating_Scale, y=Response, group=Voice, angle_axis_labels=TRUE) 
+parallel_plot(n2_likelihood_releveled, x=Rating_Scale, y=Response_ZScore, group=Voice, angle_axis_labels=TRUE) 
+```
+
+```{r}
+# Selected speakers: Targets
+n2_likelihood_releveled %>%
+  filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Response, group=Voice, angle_axis_labels=TRUE) 
+
+n2_likelihood_releveled %>%
+  filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Response_ZScore, group=Voice, angle_axis_labels=TRUE) 
+
+```
+```{r}
+# Selected speakers: Filler
+n2_likelihood_releveled %>%
+  filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
+  parallel_plot(x=Rating_Scale, y=Response, group=Voice, angle_axis_labels=TRUE) 
+
+n2_likelihood_releveled %>%
+  filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
+  parallel_plot(x=Rating_Scale, y=Response_ZScore, group=Voice, angle_axis_labels=TRUE) 
+
+```
+
+```{r}
+# Condition Distribution + Median Violin Plots by Rating_Scale
+n2_likelihood_releveled %>% filter(Rating_Group == "GrewUpContinent") %>%
+  violin_plot(x=Rating_Scale, y=Response, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+
+n2_likelihood_releveled %>% filter(Rating_Group == "GrewUpRegion") %>%
+  violin_plot(x=Rating_Scale, y=Response, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+
+n2_likelihood_releveled %>% filter(Rating_Group == "RaceEthnicity") %>%
+  violin_plot(x=Rating_Scale, y=Response, group=Voice, full_scale = TRUE, angle_axis_labels = TRUE) + facet_grid(~Rating_Group)
+```
+
+
+### (+) Face
+```{r}
+n2_face <- n2_responses %>%
+  select(PROLIFIC_PID, Question_Number, Question, Question_Part, Recode_Value=Question_Part_Number, Voice, Response) %>%
+  filter(Question=="Face") %>% 
+  separate(Question_Number, into=c("Question_Number", "List.Version"), sep="-") %>%
+  select(-Question_Part, -Question_Number) %>%
+  # separate(Question_Number, into=c(NA, "Rating_Group"), sep="\\.") %>% 
+  left_join(n2_photosel_codes) %>% 
+  # select only columns to use
+  select(PROLIFIC_PID, Voice, List.Version, Response, Persona_Group, Persona_Code, Critical.Filler, Condition, Image=Code) %>%
+  mutate(Response=as.numeric(as.character(Response)))
+n2_face
+```
+
+```{r}
+# Check number of times an Persona_Group was selected per voice
+n2_face_byVoice <- 
+  n2_face %>% add_count(Voice) %>% mutate(n_presented=n/6) %>%
+  group_by(Voice, Persona_Group, n_presented) %>% summarize(n_selected=sum(Response)) %>% mutate(prop_selected = n_selected/n_presented) %>% ungroup() %>%
+  mutate(Persona_Group = fct_relevel(Persona_Group, "WhiteA", "WhiteB", "WhiteC", "AsianC", "AsianB", "AsianA"))
+
+# view as crosstab (counts)
+n2_face_byVoice %>% 
+  pivot_wider(id_cols = c(Voice), names_from = c(Persona_Group), values_from = n_selected) 
+# view as crosstab (prop)
+n2_face_byVoice %>% 
+  pivot_wider(id_cols = c(Voice), names_from = c(Persona_Group), values_from = prop_selected) 
+
+# view by most to least common choice per voice
+n2_face_byVoice %>% arrange(Voice, -prop_selected)
+```
+
+#### Visualize
+```{r}
+# View heatmap of persona_group selections per voice
+# all
+n2_face_byVoice %>%
+  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+
+# filler/non-target
+n2_face_byVoice %>% filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
+  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+
+# target
+n2_face_byVoice %>% filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+```
+
+```{r}
+# (Temp) Check number of times an Image was selected per voice
+n2_face_byVoiceImage <- 
+  n2_face %>% add_count(Voice) %>% mutate(n_presented=n/6) %>%
+  group_by(Voice, Persona_Group, Image, n_presented) %>% summarize(n_selected=sum(Response)) %>% mutate(prop_selected = n_selected/n_presented) %>% ungroup() %>%
+  mutate(Persona_Group = fct_relevel(Persona_Group, "WhiteA", "WhiteB", "WhiteC", "AsianC", "AsianB", "AsianA")) %>%
+  unite(Persona_Image, c(Persona_Group, Image), remove=FALSE) %>%
+  mutate(Persona_Image = fct_relevel(Persona_Image, 
+                                     "WhiteA_WAW-58", "WhiteA_WAW-23", "WhiteA_WAW-12",
+                                     "WhiteB_WAW-56", "WhiteB_WAW-4", "WhiteB_WAW-1", 
+                                     "WhiteC_WAW-57", "WhiteC_WAW-51", "WhiteC_WAW-41",
+                                     "AsianC_AAW-55", "AsianC_AAW-36", "AsianC_AAW-30",
+                                     "AsianB_AAW-33", "AsianB_AAW-28", "AsianB_AAW-11",
+                                     "AsianA_AAW-63", "AsianA_AAW-27", "AsianA_AAW-25"
+
+                                     ))
+
+# view as crosstab (counts)
+n2_face_byVoiceImage %>%
+  pivot_wider(id_cols = c(Voice), names_from = c(Persona_Group, Image), values_from = n_selected) 
+
+# View heatmap of persona_group selections per voice
+# all
+n2_face_byVoiceImage %>%
+  ggplot(aes(Voice, Persona_Image)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+
+# filler/non-target
+n2_face_byVoiceImage %>% filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
+  ggplot(aes(Voice, Persona_Image)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+
+# target
+n2_face_byVoiceImage %>% filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  ggplot(aes(Voice, Persona_Image)) + gg_theme() +
+  geom_tile(aes(fill = prop_selected), colour = "white") +
+  geom_text(aes(label = round(prop_selected, 1)), col="white") +
+  scale_fill_gradient(low = "white", high = "red")
+```
+
+
+### Check By-Subject Patterns
+```{r}
+# n2_subj_p2_network # add in maybe
+
+n2_bysubj_data <- 
+  n2_subj_info %>% 
+  full_join(
+    n2_descriptors %>% rename(descriptors_response = Response)
+  ) %>% 
+  full_join(n2_age) %>%
+  full_join(
+    n2_grewup %>% select(-Question) %>% rename(grewup_response = Response, grewup_cat = Response_Cat)
+  ) %>%
+  full_join(
+    n2_ethnicity %>% select(-Question) %>% rename(ethnicity_response = Response, ethnicity_cat = Response_Cat)
+  ) %>%
+  full_join(
+    n2_speech %>% select(-Question) %>% rename(speech_response = Response, speech_cat = Response_Cat)
+  ) %>% 
+  full_join(n2_ratings) %>% select(-Response:-Response_ZScore) %>% rename(ratings_group = Rating_Group, ratings_scale = Rating_Scale, ratings_zscore = Rating_ZScore, ratings_value = Rating_Value) %>%
+  full_join(n2_likelihood) %>% rename(likelihood_group = Rating_Group, likelihood_scale = Rating_Scale, likelihood_zscore = Response_ZScore, likelihood_value = Response)
+
+# check data
+n2_bysubj_data
+colnames(n2_bysubj_data)
+```
+```{r}
+# Get plot functions: Numeric
+target_plot_num <- function(df, grouping_column, current_column, angle_axis_labels=FALSE){
+  plt_df <- df %>% select(PROLIFIC_PID:Voice_Number, !!current_column) %>% distinct()
+  
+  plot <- plt_df %>% 
+    ggplot(aes(x=plt_df[[grouping_column]], y=plt_df[[current_column]], fill=plt_df[[grouping_column]])) + gg_theme() + 
+    stat_summary(geom="col", alpha=0.7) + stat_summary() + labs(x=grouping_column, y=current_column, fill=grouping_column)
+  if (angle_axis_labels == TRUE){
+    plot <- plot + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+      theme(plot.margin = margin(0,0,0,40, unit = "pt"))  # pad left side of plot to read angled labels (t,r,b,l)  
+    }
+  plot
+}
+
+# Get plot functions: Categorical
+target_plot_cat <- function(df, grouping_column, current_column, angle_axis_labels=FALSE){
+  grouping_column <- as.symbol(grouping_column) 
+  current_column <- as.symbol(current_column)
+  grouping_column <- enquo(grouping_column)
+  current_column <- enquo(current_column)
+  
+  plt_df <- df %>% select(PROLIFIC_PID:Voice_Number, !!current_column) %>% distinct()
+  plt_df <- plt_df %>% group_by(!!grouping_column, Voice) %>% add_count(!!grouping_column) 
+  plt_df <- plt_df %>% count(n, !!current_column) %>% mutate(prop=nn/n)
+
+  plot <- plt_df %>%  ggplot(aes(x=(!!current_column), y=prop, fill=(!!grouping_column))) + gg_theme() +
+    stat_summary(geom="col", alpha=0.7, position = position_dodge(0.95)) + 
+    stat_summary(position = position_dodge(0.95)) +
+    labs(x=current_column, fill=grouping_column)
+  if (angle_axis_labels == TRUE){
+    plot <- plot + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+      theme(plot.margin = margin(0,0,0,40, unit = "pt"))  # pad left side of plot to read angled labels (t,r,b,l)
+    }
+  plot
+}
+```
+
+#### By-Gender
+Prep
+```{r}
+# Get target grouped df
+n2_bysubj_data_gender <- n2_bysubj_data %>% filter(GenderCat!="Prefer not to answer") %>% mutate(GenderCat = gsub("^Non.*", "NB", GenderCat)) %>% mutate(GenderCat = fct_relevel(GenderCat, "Man", "Woman", "NB")) %>% group_by(GenderCat)  %>% 
+  # reorder factors
+  mutate(ratings_scale = fct_relevel(ratings_scale,
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture", 
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent", 
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker")) %>%
+    mutate(likelihood_scale = fct_relevel(likelihood_scale, 
+  "US/Canada", "Asia", "Europe",  # GrewUpContinent
+  "California", "Midwest", "Southern US", "elsewhere US/Canada",                # GrewUpRegion
+  "White American", "Asian American","Latin/Hispanic American", "Black American")) 
+```
+
+```{r}
+# By subject demographic summary: Age
+grouping_column <- "GenderCat"
+current_column <- "Age"
+# Summary Table
+quick_summarize(n2_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n2_bysubj_data_gender, grouping_column, current_column)
+```
+
+```{r}
+# By subject demographic summary: Asian Network
+grouping_column <- "GenderCat"
+current_column <- "prop_AsianCC"
+# Summary Table
+quick_summarize(n2_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n2_bysubj_data_gender, grouping_column, current_column)
+
+current_column <- "prop_AsianBC"
+# Summary Table
+quick_summarize(n2_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n2_bysubj_data_gender, grouping_column, current_column)
+```
+
+```{r}
+# By subject summary: Descriptors
+grouping_column <- "GenderCat"
+current_column <- "sentiment_score"
+# Summary Table
+quick_summarize(n2_bysubj_data_gender, current_column, na.rm=TRUE)
+# Summary Plot
+target_plot_num(n2_bysubj_data_gender, grouping_column, current_column)
+```
+```{r}
+# By subject summary: Grewup
+grouping_column <- "GenderCat"
+current_column <- "grewup_cat"
+# Summary Plot
+target_plot_cat(n2_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+```{r}
+# By subject summary: Ethnicity
+grouping_column <- "GenderCat"
+current_column <- "ethnicity_cat"
+# Summary Plot
+target_plot_cat(n2_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+
+
+```{r}
+# By subject summary: Speech
+grouping_column <- "GenderCat"
+current_column <- "speech_cat"
+# Summary Plot
+target_plot_cat(n2_bysubj_data_gender, grouping_column, current_column, angle_axis_labels=TRUE)
+```
+
+```{r}
+# By subject summary: Speech
+grouping_column <- "GenderCat"
+
+# Summary Plot
+n2_bysubj_data_gender %>% select(PROLIFIC_PID:Voice_Number, ratings_group:ratings_zscore) %>% distinct() %>%
+  filter(GenderCat!="NB") %>%
+  parallel_plot(x=ratings_scale, y=ratings_zscore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  +
+  labs(title="All Voices: Ratings")
+
+n2_bysubj_data_gender %>% select(PROLIFIC_PID:Voice_Number, likelihood_group:likelihood_zscore) %>% distinct() %>%
+  filter(GenderCat!="NB") %>%
+  parallel_plot(x=likelihood_scale, y=likelihood_zscore, group=GenderCat, angle_axis_labels=TRUE, viridis=FALSE)  +
+  labs(title="All Voices: Likelihood")
+
+```
+
+
+## Process
+### Get By-Voice Data
+Get general screening filters per Voice, merge into one.
+```{r}
+n2_percepts_general <- 
+  n2_descriptors %>% group_by(Voice) %>% summarize(sentiment_score=mean(sentiment_score, na.rm=TRUE)) %>%
+  full_join(
+    n2_descriptors %>% drop_na(sentiment) %>% add_count(Voice, name="group_n") %>% 
+  count(Voice, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n, -n) %>%
+  pivot_wider(id_cols=Voice, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum) %>%
+  rename(positive_prop=positive, negative_prop=negative)
+  ) %>%
+  full_join(
+    n2_age_byVoice %>% select(Voice, perceived_age)
+  )
+
+# n2_occupation
+# n2_activities
+n2_percepts_general
+```
+
+Get persona screening filters per Voice, merge into one.
+```{r}
+n2_percepts_personae <- 
+  n2_grewup %>% count(Voice, Response_Cat) %>% drop_na(Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, from_asia_prop=Asia, from_us_prop=USA) %>%
+  full_join(
+    n2_ethnicity %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, asian_prop=Asian, white_prop=White)
+  ) %>%
+  full_join(
+    n2_speech %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+  pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, accented_prop=Accented, unaccented_prop=Unaccented)
+  ) %>%
+  full_join(
+    n2_face %>% count(Voice, Persona_Group, Response) %>% add_count(Voice, wt=n) %>% mutate(nn=nn/6, prop=n/nn) %>%
+      filter(Response==1) %>%  pivot_wider(id_cols=c(Voice), names_from = Persona_Group, values_from = prop, values_fill=0, names_glue = "{Persona_Group}_prop")
+  )
+n2_percepts_personae
+
+```
+
+
+Get mean general+persona rating scores per Voice, to (potentially) put through a PCA.
+```{r}
+# By-Voice means: Get across-participant means per Rating_Scale for each Voice 
+n2_ratings_means <- n2_ratings_releveled %>% group_by(Voice, Rating_Group, Rating_Scale) %>%
+  summarize(Rating_Value=mean(Rating_Value), Rating_ZScore = mean(Rating_ZScore)) %>% ungroup()
+
+# Get factors as columns
+# Raw rating values
+n2_ratings_vars_raw <-
+   n2_ratings_means %>%  pivot_wider(id_cols=Voice, names_from = Rating_Scale, values_from =  Rating_Value)
+
+# Zscores
+n2_ratings_vars_zscore <-
+  n2_ratings_means %>%  pivot_wider(id_cols=Voice, names_from = Rating_Scale, values_from = Rating_ZScore)
+
+# View data
+n2_ratings_means
+n2_ratings_vars_raw
+n2_ratings_vars_zscore
+```
+
+```{r}
+# By-Voice means: Get across-participant means per Rating_Scale for each Voice 
+n2_likelihood_means <- n2_likelihood_releveled %>% group_by(Voice, Rating_Group, Rating_Scale) %>%
+  summarize(Response=mean(Response), Response_ZScore = mean(Response_ZScore)) %>% ungroup()
+
+# Get factors as columns
+# Raw rating values
+n2_likelihood_vars_raw <-
+   n2_likelihood_means %>%  pivot_wider(id_cols=Voice, names_from = Rating_Scale, values_from =  Response)
+
+# Zscores
+n2_likelihood_vars_zscore <-
+  n2_likelihood_means %>%  pivot_wider(id_cols=Voice, names_from = Rating_Scale, values_from = Response_ZScore)
+
+# View data
+n2_likelihood_means
+n2_likelihood_vars_raw
+n2_likelihood_vars_zscore
+```
+
+
+Check correlations between measures to assess collinearity.
+
+Function to get correlation info:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations <- function(df, columns_to_keep){
+  # NOTE: Columns to keep cannot be name of column, only indices or function (e.g. last_col())
+  corr_matrix <-
+    df %>% select(columns_to_keep) %>%
+    cor(., method="pearson")  # Alt: method="spearman"
+  print(corr_matrix)
+  # # View the correlation matrix
+  corr_df <- corr_matrix %>% as_tibble(rownames = "var") # independent variables correlation matrix 
+  print(corr_df)
+  # # Visualize
+  corr_plot <- corrplot(corr_matrix, method='number',is.corr = T)
+  print(corr_plot)
+}
+```
+
+Raw rating values:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations(n2_ratings_vars_raw, columns_to_keep=4:last_col())
+# TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
+```
+The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear. (OUTDATED: though Friendly and Likable are similar (>0.8) as well.)
+
+ZScored rating values:
+```{r, fig.width=8, fig.height=7.5}
+get_correlations(n2_ratings_vars_zscore, columns_to_keep=4:last_col())
+# TBD - Include a correlation scatterplot to visualize specific variables. (see Visualize > Scored Data > Correlation Scatters)
+```
+
+The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear.
+
+
+### Run PCA
+Notes for PCA Interpretation
+```{r}
+#############################################
+## (1) Checking the number of dimensions
+
+# Parallel Analysis
+# Standard way to decide on the number of factors or components needed in an FA or PCA.
+
+# Eigenvalues & percent variance accounted for
+# One guideline is to only include dimensions that have an eigenvalue of at least 1, but note that...
+# This guideline only applies if using correlation matrix (i.e. scaled units; scale.unit = T)
+# Because we don't want a factor that accounts for less than what a single variable accounts for (single variable=1)
+
+# Scree Plot
+# One guideline is to check starting with the "elbow" value, plus or minus 1
+# Check for where there is an "elbow" where the plot bends, such that subsequent factors don't contribute much
+
+## (2) Interpreting the output factor values
+
+# Factor matrix (raw eigenvectors = the factor score coefficients; sometimes called the factor, but not factor scores)
+# To interpret, focus on the most extreme factor values (or loadings, below)
+# Higher values means that those variables contribute more to the specific dimension/component/factor
+# Dimensions/components/factors can be interpreted based on which variables contribute more
+
+# Factor loadings (eigenvectors scaled by the square root of their associated eigenvalues)
+# Provide similar information about which variables contribute to each dimension/component/factor, but also
+# Can be interpreted as correlations between each variable and the factor
+# One guideline treats all values less than 0.3 as 0, thus drops them from consideration (irrelevant for that factor) 
+
+# Rotated factor matrix
+# Orthogonally rotates factor matrix for ease of interpretation of each dimension
+
+#############################################
+## (3) Checking the individual coordinate scores
+# Individual coordinate scores (principle coordinates)
+# Same as factor scores for each subject and dimension (weighted sum of all of a subjects raw scores, where the weights are the eigenvector values)
+# i.e. values are calculated from the normalized variable scores (Z-scores) multiplied by the eigenvector weights, then summed
+```
+
+#### Select Data
+Select data for PCA.
+```{r}
+# Use Zscores to represent responses without participant bias in scale range 
+#   (e.g., never selecting 1 means their lowest value is represented by 2, but their 2 can be equated to another person's 1)
+# Use Raw scores to represent responses as representing true value 
+#   (e.g., never selecting 1 means the true perceptual range represented by the photos never goes down to 1 for this person, and their 1 is equated to another person's 1)
+
+current_source_data <- n2_ratings_vars_zscore # Alt: n2_ratings_vars_raw
+
+## Maximal set
+Voice_vars_pca <- current_source_data %>% select(-Condition:-Voice)
+Voice_vars_pca
+```
+
+#### Process PCA
+Determine number of components via Parallel analysis.
+```{r }
+## Relevant libraries
+# `PCA` command from `FactoMineR` library (see index for more info)
+# `paran` command from `paran` library
+# `Varimax` command from `GPArotations` library (https://stats.stackexchange.com/questions/59213/how-to-compute-varimax-rotated-principal-components-in-r)
+
+## (1) Run Parallel Analysis with `paran`
+# Standard way to decide on the number of factors or components needed in an FA or PCA.
+# Prints out a scree plot as well, with the randomized line + unadjusted line
+paran(Voice_vars_pca,
+      graph = TRUE, color = TRUE, 
+      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
+```
+Parallel analysis suggests 2 components retained.
+Scree plots suggest ~3 components, based on the location of the elbow. Could try 2, 3, or 4 components.
+Eigenvalues suggest 2 components, as only the first two comps have a value above 1.
+The _difference in_ eigenvalues suggests 3 components, as up to the third comp has a difference greater than 1. (See: https://stats.stackexchange.com/questions/450752/understanding-how-many-components-to-include-for-pca)
+Interpretability indicates 3 components, such that FrCA serves as its own component (Dim3).
+
+```{r}
+## (2) Run PCA with `FactoMineR`
+# ncp = number of components; adjust after checking the parallel analysis output
+
+# FactoMineR PCA Commands
+#score_PCA        # lists commands
+#score_PCA$var    # variables
+#score_PCA$ind    # individuals
+#score_PCA$call   # summary stats
+
+# Conduct PCA with scaling/standardizing
+score_PCA <- PCA(Voice_vars_pca, scale.unit = T, ncp =4, graph=T)
+
+## Relevant Raw PCA Output
+# Eigenvalues & percent variance accounted for
+eigenvalues <- score_PCA$eig
+as_tibble(eigenvalues, rownames="components")
+
+# Eigenvectors (=Factor matrix, factor score coefficients, principal directions, principal axes; sometimes called the factor, but NOT factor scores; these are called loadings by some but its incorrect).
+eigenvectors <- score_PCA$var$coord
+as_tibble(eigenvectors, rownames="Score")
+
+# Factor scores for each subject and dimension (also: Individual coordinate scores; principle coordinates)
+rawScores <- score_PCA$ind$coord
+as_tibble(rawScores, rownames="Item")
+
+# Factor loadings (=loadings, correlation loadings, or scaled factor coefficients; eigenvectors scaled by the square root of their associated eigenvalues)
+# Calculate factor loadings using the output eigenvectors and eigenvalues (i.e. divide each eigenvector column value by the appropriate eigenvalue square root).
+rawLoadings <- sweep(eigenvectors,MARGIN=2,STATS=sqrt(eigenvalues[1:ncol(eigenvectors),1]),FUN="/") # margin 1=rows, 2=cols
+as_tibble(rawLoadings, rownames="Score")
+```
+
+
+
+
+```{r lbqdata-pca2-3}
+## (3) Conduct rotation on the PCA factor loadings with `GPArotation`
+# Rotations are typically done on the retained component factor loadings, not on all components nor on the eigenvectors
+# Performed for ease of interpretation, maximizing factor loadings
+rotLoadings <- Varimax(rawLoadings, normalize=T)$loadings
+as_tibble(rotLoadings, rownames="Score") 
+
+# Recover Rotation matrix from loadings
+# Because the rotLoadings are calculated from rawLoadings %*% rotMatrix, can recover rotMatrix by rotLoadings "divided" by rawLoadings, which in matrix multiplication is multiplying by the inverse (transpose) 
+# Note: For some reason, can't call Varimax(rawLoadings)$rotmat (just get NULL); this recreates the same matrix from Varimax(rawLoadings)
+rotMatrixL <- t(rawLoadings) %*% rotLoadings
+as_tibble(rotMatrixL, rownames="Dimensions")
+
+# Calculate rotated factor scores
+# The formula simply multiplies the normalized variable scores with the rotation matrix to get rotated factor scores
+# First, z-score the raw scores using base R scale()
+# Then, matrix multiply the matrix of zScores with the rotation matrix
+# Result is a matrix with columns=components and rows=each subject
+zScores <- scale(rawScores)
+rotScores <- zScores %*% rotMatrixL
+as_tibble(rotScores, rownames="Item")
+
+```
+
+```{r}
+# For comparison, a different rotation function. Requires normalization. Still a little different but similar enough. Provides rotmat and SS loadings. 
+## Rotate eigenvectors (not typical, according to Stats notes and StackExchange, but reasonable-looking SS loadings+% variance)
+# stats::varimax(eigenvectors)
+## Rotate factor loadings (typical, but unreasonable(?)-looking SS loadings+% variance)
+stats::varimax(rawLoadings)
+```
+
+#### Factor Loadings
+```{r}
+# Replace all factor loading values under |0.3| with 0 for better readability
+
+# Raw Loadings
+as_tibble(rawLoadings, rownames="Variable") %>% 
+  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
+
+# Rotated Loadings
+as_tibble(rotLoadings, rownames="Variable") %>% 
+  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
+```
+
+#### PCA: Raw Plots
+```{r lbqdata-pca2-4, echo=F}
+## (4) Data Visualization of Raw Scores with `factoextra`
+
+# Plot individual factor scores
+fviz_pca_ind(score_PCA, col.ind = "#00AFBB", repel = TRUE)
+
+# Biplot, including individual scores and factor vectors
+fviz_pca_biplot(score_PCA, label = "all", col.ind = "#00AFBB", col.var="black", ggtheme = theme_minimal())
+```
+
+#### PCA: Rotated Plots
+```{r plbqdata-pca2-5, echo=F}
+## (5) Manual Plots of Rotated Scores with `ggplot`
+
+## Create dataframes of the rotated factor loading and factor score matrices
+
+# Convert rotated factor loadings matrix to data frame; add variable number
+rotLoadingsData <- as.data.frame(rotLoadings)
+rotLoadingsData <- mutate(rotLoadingsData, variable = row.names(rotLoadings))
+rotLoadingsData <- mutate(rotLoadingsData, variable = factor(variable))
+#rotLoadingsData
+
+# Convert rotated factor score matrix to data frame; add subject number
+rotScoreData <- as.data.frame(rotScores)
+rotScoreData <- mutate(rotScoreData, subject = 1:n())
+rotScoreData
+
+## Create base plots
+# Loading plot
+loadingplot <- ggplot(rotLoadingsData, aes(x=Dim.1, y=Dim.2))+
+  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
+  geom_text(data=rotLoadingsData, aes(x=Dim.1*4, y=Dim.2*4, label=variable), color="red",check_overlap=T) +
+  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
+  scale_y_continuous(lim=c(-2, 3),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Variables - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
+loadingplot
+
+
+# Scatter plot of Individual factor scores
+dimplot = ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
+  geom_point(na.rm=TRUE, color="#00AFBB") +
+  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
+  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
+  scale_y_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Individuals - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
+dimplot
+
+## Merge loading and score plot = Biplot
+
+# Biplot of factor loadings + ind factor scores
+ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
+  geom_point(na.rm=TRUE, color="#00AFBB") +
+  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
+  
+  # Overlay loading plot (i.e. arrows)
+  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
+  geom_text(data=rotLoadingsData, aes(x=Dim.1*4.5, y=Dim.2*4.5, label=variable), color="red",check_overlap=T, nudge_y = 0)+
+
+  # scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
+  # scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_vline(xintercept=0, linetype="dashed") +
+  labs(title="Biplot - PCA", x="Dim 1", y="Dim 2") +
+  theme_minimal()+
+  theme(plot.title=element_text(size=15),
+        plot.subtitle=element_text(size=15, face="italic"),
+        axis.title=element_text(size=15),
+        axis.text=element_text(size=14),
+        strip.background =element_rect(fill="white"),
+        strip.text = element_text(size=14))+
+  theme(legend.title = element_text(size=16),
+        legend.text=element_text(size=14))
+
+
+```
+~ PILOT NOTES as sample ~
+NOTE: Both ZScore rotated and unrotated are very similar (for pilot data; however, big difference for Raw ratings)
+
+The results of the Zscore rotated PCA with three components retained suggest that:
+* Dim1 is the "culture" or "American" component, with all four of those American-related ratings being highly correlated.
+
+* Dim2 is the "social attractiveness" or "likeability" component, linked to positive traits like Attractive, Likeable (strongest), Friendly, Confident, and Enthusiastic (when rotated), as well as confidence-related stylistic features like Cool and Fast speaker (i.e., non-Slow speaker)
+
+* The other features that act more like their factors rather than a grouped/similar/collinear unit are:
+  * Intelligent
+  * Nerdy (vs Enthusiastic, when not rotated)
+  * Casual
+  * Feminine — definitely seems more like a third dimension
+  
+
+Based on the biplots, where is the best slice to take matched participants from? 
+* Since Dim1 is the relevant distinguishing component, we'd want to take different personae across this dimension — i.e., this should differ significantly across Personae conditions (ethAsian vs. msAsian / msWhite)
+* Since Dim2 (and others) are the "flavor" non-target characteristics to ensure social perceptual similarity on, those should be similar, maybe towards the mean around 0 (i.e., visually, along the horizontal x axis line is where we should pick from).
+
+In addition, use the Ethnicity, GrewUp, and Speech scores to screen for outliers or non-matching aspects. So, we don't want to include even if they might match in ratings but: 
+* e.g., differ in being East Asian vs. Southeast Asian or 
+* e.g., differ in where they are from like always California vs. never California
+
+#### Combine Data
+```{r}
+# Merge PCA factor scores back to Voice number and raw scores
+n2_ratings_vars_pca <-
+  n2_ratings_vars_zscore %>%
+  cbind(
+    as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
+  ) %>%
+relocate(Condition:Voice,
+       Dim1=Dim.1, Dim2=Dim.2, Dim3=Dim.3 , Dim4=Dim.4
+       ) %>% select(-Item)
+n2_ratings_vars_pca
+```
+
+```{r}
+# Summary stats of each PC/Dimension
+quick_summarize(n2_ratings_vars_pca, Dim1)
+quick_summarize(n2_ratings_vars_pca, Dim2)
+quick_summarize(n2_ratings_vars_pca, Dim3)
+quick_summarize(n2_ratings_vars_pca, Dim4)
+```
+
+#### Visualize Data
+```{r}
+# # Get variable names
+# colnames(n2_ratings_vars_pca)
+# 
+# # Double check raw zscore correlations for select variables
+# n2_ratings_vars_pca %>% filter(Condition=="ethAsian") %>%
+#   ggplot(aes(y=American, x=`American-accented`)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
+# 
+# n2_ratings_vars_pca %>% filter(Condition=="msAsian") %>%
+#   ggplot(aes(y=American, x=Likeable)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
+```
+
+```{r}
+# # Double check PCA correlations
+# n2_ratings_vars_pca %>%
+#   ggplot() +
+#   # facet_wrap(~Voice) +
+#   geom_point(aes(y=Dim1, x=American)) +
+#   geom_point(aes(y=Dim1, x=`Native speaker of English`), col="blue", alpha=0.7) +
+#   geom_point(aes(y=Dim1, x=`American-accented`), col="red", alpha=0.7) +
+#   geom_point(aes(y=Dim1, x=`Aligned with American culture`), col="orange", alpha=0.7) +
+#   theme_minimal()
+
+```
+
+Get plot of main Dimensions with the labelled Voices to review the selections below
+```{r}
+# Main Dimensions
+# Specific Voices colored by Condition
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim2, label=Voice, group=Condition, show_points=TRUE)
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim3, label=Voice, group=Condition, show_points=TRUE)
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
+
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim3, label=Voice, group=Condition, show_points=TRUE)
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
+
+n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
+
+```
+```{r}
+# Other
+# Specific Voices colored by Condition
+# n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Feminine, label=Voice, group=Condition, show_points=FALSE)
+# n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Intelligent, label=Voice, group=Condition, show_points=FALSE)
+```
+
+### Finalize By-Voice Data
+#### Merge Scores
+```{r}
+# Merge finalized ratings data with other processed and finalized data per Voice
+# Without PCA
+n2_byVoice_data <- n2_ratings_vars_zscore %>% full_join(n2_likelihood_vars_zscore) %>% full_join(n2_percepts_personae) %>% full_join(n2_percepts_general) %>%
+  distinct()
+
+# # With PCA
+# n2_byVoice_data <-  n2_ratings_vars_pca %>% full_join(n2_percepts_personae) %>% full_join(n2_percepts_general) %>%
+#   distinct()
+
+n2_byVoice_data
+```
+
+#### Calculate Scores
+Add other relevant variables needed for selection of personae photos.
+```{r}
+# Add relevant selected composite persona variables
+# Get average of "American background/upbringing" ratings, vs "American culture/identity" rating
+n2_byVoice_data <- n2_byVoice_data %>% 
+  mutate(perceived_american_raised = (American + `Native speaker of English` + `American-accented`)/3 ,
+        perceived_american_aligned = `Aligned with American culture`, .after=Voice)  %>%
+  mutate(perceived_american_diff = perceived_american_aligned - perceived_american_raised, .after=Voice)
+```
+
+##### Visualize
+```{r}
+# Visualize
+n2_byVoice_data %>% 
+  ggplot(aes(x=perceived_american_raised, y=perceived_american_aligned, color=Voice)) + 
+  geom_point() + gg_theme()
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_aligned, label=Voice, group=Voice, show_points=TRUE)
+```
+
+```{r}
+# For Reference: Column names
+colnames(n2_byVoice_data)
+```
+
+
+
+### Identify Outliers
+#### Percept Categories
+```{r}
+get_outliers <- function(df, col) {
+  col <- enquo(col)
+  df %>% select(1:3, !!col) %>% mutate(mean=mean(!!col), sd=sd(!!col)) %>% mutate(lower = mean-(3*sd), upper=mean+(3*sd)) %>%
+    mutate(outlier=case_when(
+      !!col < lower | !!col > upper ~ TRUE,
+      TRUE ~ FALSE
+    ))
+}
+```
+
+Based on coded text responses.
+```{r}
+# Ethnicity
+n2_byVoice_data %>% get_outliers(asian_prop) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(white_prop) %>% filter(outlier==TRUE)
+# by Condition
+# Check outliers beyond 3SD
+n2_byVoice_data %>% get_outliers(asian_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+
+# Check least Asian Asian
+n2_byVoice_data %>% select(1:3, asian_prop:white_prop) %>%  slice_min(asian_prop, n=4)
+# NOTE: Seems like least "Asian" are the Southeast Asian/Pacific Islander interpreted faces
+
+```
+OUTLIER NOTES: 
+- AAW-47 - 0.75 — below lower 3SD boundary for asian_prop (perceived as much less asian)
+- Then, AAW-45 and AAW-12
+
+```{r}
+# GrewUp
+# Check outliers beyond 3SD
+n2_byVoice_data %>% get_outliers(from_asia_prop) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(from_us_prop) %>% filter(outlier==TRUE)
+# by Condition
+n2_byVoice_data %>% get_outliers(from_asia_prop) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(from_us_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+n2_byVoice_data %>% get_outliers(from_us_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+
+# Check least Asia Asian
+n2_byVoice_data %>% select(1:3, from_asia_prop:from_us_prop)  %>% slice_min(from_asia_prop, n=4)
+# Check least US Asian
+n2_byVoice_data %>% select(1:3, from_asia_prop:from_us_prop) %>% slice_min(from_us_prop, n=4)
+# NOTE: 
+
+# Check most US White
+n2_byVoice_data %>% select(1:3, from_asia_prop:from_us_prop) %>% slice_max(from_us_prop, n=4)
+# Check least US White
+n2_byVoice_data %>% select(1:3, from_asia_prop:from_us_prop) %>% slice_min(from_us_prop, n=4)
+# NOTE: 
+```
+
+```{r}
+# Speech
+# Check outliers beyond 3SD
+n2_byVoice_data %>% get_outliers(accented_prop) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(unaccented_prop) %>% filter(outlier==TRUE)
+# by Condition
+n2_byVoice_data %>% get_outliers(accented_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+n2_byVoice_data %>% get_outliers(unaccented_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+
+# Check least accented/unaccented Asian
+n2_byVoice_data %>% select(1:3, accented_prop:unaccented_prop) %>% slice_min(accented_prop, n=4)
+n2_byVoice_data %>% select(1:3, accented_prop:unaccented_prop) %>% slice_min(unaccented_prop, n=4)
+# NOTE: 
+
+# Check most unaccented White
+n2_byVoice_data %>% select(1:3, accented_prop:unaccented_prop) %>% 
+  slice_max(unaccented_prop, n=4) # filter(unaccented_prop > 0.2) 
+# Check least unaccented White
+n2_byVoice_data %>% select(1:3, accented_prop:unaccented_prop) %>% 
+  slice_min(unaccented_prop, n=4) # filter(unaccented_prop < 0.2)
+# NOTE: Confusing to interpret because unaccented also include descriptors like "California style" and "standard"
+```
+
+
+```{r}
+# Descriptors
+# Check outliers beyond 3SD
+n2_byVoice_data %>% get_outliers(positive_prop) %>% filter(outlier==TRUE)
+# by Condition
+n2_byVoice_data %>% get_outliers(positive_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+n2_byVoice_data %>% get_outliers(positive_prop) %>% filter(outlier==TRUE)
+# NOTE: None
+
+# Check least positive photos
+n2_byVoice_data %>% select(1:3, sentiment_score:positive_prop) %>% slice_min(sentiment_score, n=4)
+n2_byVoice_data %>% select(1:3, sentiment_score:positive_prop) %>% slice_min(positive_prop, n=4)
+```
+OUTLIER NOTES:
+- AAW-57 is perceived extra negatively, below lower 3SD boundary for both positive_prop and sentiment_score
+
+##### Visualize
+```{r}
+# Ethnicity x Grewup x Speech
+
+n2_byVoice_data %>% ggplot(aes(x=asian_prop, y=from_asia_prop, color=Voice, label=Voice)) + geom_text(alpha=0.7) + gg_theme() +
+  scale_x_continuous(limits=c(-0.1, 1.1), breaks = c(0,0.25, 0.5, 0.75, 1))
+
+n2_byVoice_data %>% ggplot(aes(x=asian_prop, y=from_asia_prop, size=accented_prop, color=Voice)) + geom_point(alpha=0.7) + gg_theme()
+
+```
+
+
+```{r}
+# Descriptor Sentiment
+n2_byVoice_data %>% ggplot(aes(x=sentiment_score, y=positive_prop, color=Voice)) + geom_point() + gg_theme()
+
+n2_byVoice_data %>% ggplot(aes(x=sentiment_score, y=positive_prop, color=Voice, label=Voice)) + geom_text() + gg_theme() 
+```
+
+OUTLIERS EXCLUSION:
+- AAW-47 (perceived as much less Asian than other AAW photos)
+- AAW-57 (perceived as much more negative than any other photo)
+
+
+#### Ratings
+* Use the Mahalanobis distance to assess outliers/matches via visual inspection and selecting a threshold cut-off
+
+```{r}
+# Get mahalnobis distances Function
+get_mdist <- function(scores_df, index_df, cutoff=10){
+  # Finding the center point 
+center  = colMeans(scores_df)
+# Finding the covariance matrix
+cov     = cov(scores_df)
+# Calculate Mahalnobis distance + identify outliers
+mdist_df <- index_df %>% 
+  cbind(m_dist = mahalanobis(scores_df, center, cov))  %>%
+  mutate(outlier = ifelse(m_dist > cutoff, TRUE, FALSE))
+  # mutate(pvalue = pchisq(m_dist, df=3, lower.tail=FALSE)) #pval<0.001 outlier
+return(mdist_df)
+}
+```
+
+Check for outliers with 3*SD for numerical ratings
+```{r}
+# Get rating colnames
+# n2_ratings_vars_pca %>% select(American:Intelligent) %>% colnames()
+
+# Check for outliers
+n2_byVoice_data %>% get_outliers(American) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Native speaker of English`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`American-accented`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Aligned with American culture`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Feminine) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Clear speaker`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Cool) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Casual) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Nerdy) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Slow speaker`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Enthusiastic) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Confident) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Friendly) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Likeable) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Attractive) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(Intelligent) %>% filter(outlier==TRUE)
+
+# # NOTE: None
+```
+
+```{r}
+n2_byVoice_data %>% get_outliers(`US/Canada`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Asia`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Europe`) %>% filter(outlier==TRUE)
+
+n2_byVoice_data %>% get_outliers(`California`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Midwest`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Southern US`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`elsewhere US/Canada`) %>% filter(outlier==TRUE)
+
+n2_byVoice_data %>% get_outliers(`White American`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Asian American`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Latin/Hispanic American`) %>% filter(outlier==TRUE)
+n2_byVoice_data %>% get_outliers(`Black American`) %>% filter(outlier==TRUE)
+
+# # NOTE: None
+```
+#### Dimensions
+Check for outliers with Mahalanobis distances for numerical ratings
+```{r}
+# # All rating variables
+# scores_df <- n2_ratings_vars_pca %>% select(-Condition:-Voice) %>% 
+#   select(American:Intelligent) 
+# index_df <- n2_ratings_vars_pca %>% select(Condition:Voice)
+# 
+# # Get mahalanobis distances
+# mdist_df <- get_mdist(scores_df, index_df)
+# 
+# # Most different considering all variables
+# # See results
+# mdist_df %>% arrange(desc(m_dist))
+# # Get list of potential outliers to check
+# mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Voice, m_dist) %>% inner_join(n2_ratings_vars_pca) %>% select(-Voice_Cat)
+```
+
+
+```{r}
+# # All orthogonal/unique variables
+# scores_df <- n2_ratings_vars_pca %>% select(-Condition:-Voice) %>% 
+#   select(Dim1, Dim2, Dim3, Dim4) 
+# index_df <- n2_ratings_vars_pca %>% select(Condition:Voice)
+# 
+# # Get mahalnobis distances
+# mdist_df <- get_mdist(scores_df, index_df)
+# 
+# # Most different considering all variables
+# # See results
+# mdist_df %>% arrange(desc(m_dist))
+# # Get list of potential outliers to check
+# mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Voice, m_dist) %>% inner_join(n2_ratings_vars_pca) %>% select(-Voice_Cat)
+```
+
+```{r}
+# # All orthogonal/unique variables, excluding American
+# scores_df <- n2_ratings_vars_pca %>% select(-Condition:-Voice) %>% 
+#   select(Dim2, Dim3, Dim4) #, Feminine, Casual, Intelligent, Nerdy, `Clear speaker`)
+# index_df <- n2_ratings_vars_pca %>% select(Condition:Voice)
+# 
+# # Get mahalnobis distances
+# mdist_df <- get_mdist(scores_df, index_df)
+# 
+# # Most different (across conditions) excluding American
+# # See results
+# mdist_df %>% arrange(desc(m_dist))
+# # Get list of potential outliers to check
+# mdist_df %>% filter(outlier==TRUE) %>% select(Condition, Voice, m_dist) %>% inner_join(n2_ratings_vars_pca) %>% select(-Voice_Cat)
+```
+```{r}
+# # Most similar (across conditions) excluding American
+# # See results
+# mdist_df %>% arrange((m_dist))
+# # Get list of potential matches to check
+# mdist_ranks <- mdist_df %>% select(Condition, Voice, m_dist) %>% inner_join(n2_ratings_vars_pca) %>% select(-Voice_Cat) %>% 
+#   mutate(m_dist_bins = case_when(
+#     m_dist < 1 ~ "0-1", # 0-1
+#     m_dist < 2 ~ "1-2", # 1-2
+#     m_dist < 4 ~ "2-4", # 2-4
+#     m_dist < 6 ~ "4-6", # 4-6
+#     m_dist >= 6 ~ "6+", # 6+
+#     TRUE ~ NA
+#   ), .after=m_dist) %>%
+#   arrange((m_dist)) %>% group_by(Condition) %>%
+#   mutate(ingroup_ranks = order(order(m_dist, decreasing=FALSE)), .after=m_dist_bins) #%>% arrange(ingroup_ranks)
+# mdist_ranks
+# 
+# # Option 1: Pivot to matched rank columns, Voice value for condition based on rank
+# mdist_ranks %>%  pivot_wider(id_cols = ingroup_ranks, names_from = Condition, values_from = c(Voice, m_dist))
+# 
+# # Option 2: Bin columns, Voice value for condition based on rank
+# mdist_ranks %>% count(Condition, m_dist_bins) %>% pivot_wider(names_from = Condition, values_from = n)
+# mdist_ranks %>% pivot_wider(id_cols = c(m_dist_bins, Voice), names_from = Condition, values_from = c(m_dist))
+```
