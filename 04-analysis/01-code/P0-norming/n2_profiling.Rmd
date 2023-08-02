@@ -1,0 +1,1447 @@
+---
+title: "Untitled"
+output: html_document
+date: '2023-07-24'
+---
+
+# Preamble
+## Packages
+```{r setup}
+# Load libraries and custom functions
+if (file.exists("project_functions.R")){
+  source("project_functions.R")
+  
+} else { # try one directory up
+  source("../project_functions.R")
+}
+
+# Text Analysis
+library(countrycode)
+library(maps)
+library(tidytext)
+
+# Plots
+# library(hrbrthemes)
+```
+
+## Pipeline Structure
+```{r}
+# Fill in file structure info (e.g. using getwd())
+NAME <- 'n2_analysis' ## Name of the R file (w/o file extension!)
+PHASE <- 'P0-norming' ## Name of the project phase (if relevant)
+PROJECT <- 'SpAAC' ## Name of project
+```
+
+```{r}
+# Get project directory path & subfolder status from working dir
+PROJECT_DIR <- str_extract(getwd(), paste0("^(.*?)",PROJECT,"/"))
+
+if (basename(getwd()) != PHASE) {SUBFOLDER <- basename(getwd())} else {SUBFOLDER <- NA}
+
+# Get pipeline path names
+if (dir.exists(file.path(PROJECT_DIR, '04-analysis', '02-pipeline'))){
+  if (is.na(SUBFOLDER)){
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, NAME)
+  } else {
+    pipeline <- file.path(PROJECT_DIR, '04-analysis', '02-pipeline', PHASE, SUBFOLDER, NAME)
+  }
+} else {
+  pipeline <- file.path('.', 'pipeline', PHASE, NAME)
+}
+
+# Create pipeline folders
+if (!dir.exists(pipeline)) {
+  dir.create(pipeline, recursive=TRUE)
+  for (folder in c('out', 'store', 'temp')){
+    dir.create(file.path(pipeline, folder))
+  }
+}
+```
+
+```{r}
+# Basic reference paths
+stim_data_path <- file.path(PROJECT_DIR, '02-materials', '02-stimuli', PHASE) 
+ext_data_path <- file.path(PROJECT_DIR, '03-data', '01-external', PHASE) 
+int_data_path <- file.path(PROJECT_DIR, '03-data', '02-internal', PHASE) 
+manual_analysis_path <- file.path(PROJECT_DIR, '04-analysis', '03-manual', PHASE) # 001-code / 003-manual
+```
+
+# .
+# Profiling Results
+## Explanation
+
+## Profile: Top-down
+
+### Select Voices
+
+Select 4 photos per group...
+* Based on American-raised and American-aligned scores
+* + based on not being full dataset outliers (mahalanobis scores; 3SD outliers)
+* + based on not being group outliers, or just too different for a cohesive group interpretation 
+
+Considerations:
+* NOT based on Dim1 scores difference because that doesn't account for American-raised vs. -aligned distinction, which is conceptually important to the personae
+
+***
+
+Planning Notes based on Visualization (Jun 13, 2023):
+* msAsian (perceived as American-raised but leaning towards less American-aligned)
+  - AAW-57, 47, 30, 36, 45, 12 (if also includ some more aligned, AAW-55, 18)
+  - Also, from ethAsian: AAW-33, 28
+  - Exclude (e.g.): AAW-14, 11 (too low on Am-raised)
+  
+* ethAsian (perceived as not American-raised, but leaning towards more American-aligned)
+  - AAW-63, 27, 4, 40, 1
+  - Exclude (e.g.): AAW-7 (too low on Am-raised); AAW-33, 28, 48 (too high on Am-raised)
+  - NOTE: Potentially move AAW-33, 28 to msAsian
+  
+* msWhite-1 (more likely perceived as American)
+  - WAW-12, 16, etc.
+  
+* msWhite-2 (less likely perceived as American; more matched to msAsian on American-raised)
+  - WAW-57, 51, 41
+  
+#### Assess
+```{r}
+# Repeated visualization: Raised vs. Aligned
+n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_aligned, label=Voice, group=Voice, show_points=TRUE)
+
+# Raised vs. Raised-Aligned Diff
+n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_diff, label=Voice, group=Voice, show_points=TRUE)
+```
+To interpret perceived_american_diff 
+- 0 means matching raised-aligned ratings (perceived as matching on being american raised and culture, regardless of high or low objective value)
+- positive means alignment rating was higher (more american culture) than raised rating
+- negative means alignment rating was lower (less american culture) than raised rating
+ 
+ 
+#### Select
+How do we decide on cut-offs numerically rather than visually? For msAsian, used raised + diff. For ethAsian used raised + aligned. For msWhite, used aligned only. 
+```{r}
+# Prepare cutoff values
+# Get group means
+n2_byVoice_data %>% group_by(Condition) %>% summarize(perceived_american_raised = mean(perceived_american_raised))
+
+# Get center point (average) between Asian group means
+american_raised_cutoff <- (-0.7560615) + (0.2080678)/2
+american_raised_cutoff
+```
+
+
+```{r}
+# # Select voices per condition
+# n2_msAsian <- 
+#   n2_byVoice_data %>% filter(Condition=="msAsian") %>% 
+#   # remove sample outliers
+#   filter(!Voice %in% c("AAW-47",   # extra non-Asian perceived
+#                       "AAW-57",    # extra negatively described
+#                       "AAW-12"    # perceived as Hawaiian/SoutheastAsian
+#                       )) %>%
+#   # remove non-conforming items based on iterative review
+#   filter(!Voice %in% c("AAW-45"  # Low on from_US OR drop #AAW-55 # diff on fem/casual
+#                        )) %>%
+#   # perceived as american-raised > -0.65 (equal distance between msA and ethA group means) + top 4-5 most Asian-aligned
+#   filter(perceived_american_raised > american_raised_cutoff) %>%  slice_min(perceived_american_diff, n=4)
+# n2_msAsian
+# 
+# n2_ethAsian <- 
+#   n2_byVoice_data %>% filter(Condition=="ethAsian") %>% 
+#   # remove non-conforming items based on iterative review
+#   filter(!Voice %in% c("AAW-48"#, # Very low on Attractive for whole sample
+#                        # "AAW-33"  # notably higher Americanness, on par with msAsian
+#                        )) %>%
+#   # perceived as Asian-raised < -0.65 (equal distance between msA and ethA group means) + top 4-5 most Asian-aligned
+#   # filter(perceived_american_raised < american_raised_cutoff) %>% 
+#   slice_max(perceived_american_aligned, n=4)
+# n2_ethAsian
+# 
+# n2_msWhite1 <- 
+#   n2_byVoice_data %>% filter(Condition=="msWhite") %>% 
+#   # remove non-conforming items based on iterative review
+#   filter(!Voice %in% c(
+#                        "WAW-23" # most American by a margin (but maybe not a prob, so)
+#                        # "WAW-16" # Alt: most negatively described, by a margin
+#                        )) %>%
+#   # top 5 most American-aligned
+#   slice_max(perceived_american_aligned, n=4)
+# n2_msWhite1
+# 
+# n2_msWhite2 <- 
+#   n2_byVoice_data %>% filter(Condition=="msWhite") %>% 
+#   # remove non-conforming items based on iterative review
+#   filter(!Voice %in% c("WAW-4" # most American (similar to msWhite1), extra casual 
+#                        )) %>%
+#   # top 5 least American-aligned
+#   slice_min(perceived_american_aligned, n=4)
+# n2_msWhite2 %>% pull(Voice)
+
+```
+
+```{r}
+# n2_selected_voices <-
+#   n2_byVoice_data %>% mutate(
+#     Persona_Group = case_when(
+#       Voice %in% (n2_ethAsian %>% pull(Voice)) ~ "ethAsian",
+#       Voice %in% (n2_msAsian %>% pull(Voice)) ~ "msAsian",
+#       Voice %in% (n2_msWhite1 %>% pull(Voice)) ~ "msWhite1",
+#       Voice %in% (n2_msWhite2 %>% pull(Voice)) ~ "msWhite2",
+#       TRUE ~ NA
+#     ), .before=Condition
+#   ) %>% filter(!is.na(Persona_Group))
+n2_selected_voices <- n2_byVoice_data %>% right_join(n2_audio_codes %>% rename(Voice=Code) %>% select(Voice, Condition=Critical.Filler, Speaker_Age, Speaker_GrewUp, Speaker_GrewUpRegion, Speaker_Race, Background_Ethnicity), .)
+n2_selected_voices
+```
+
+#### Finalize
+```{r}
+# Get data subsets
+n2_selected_ratings <-
+  n2_selected_voices %>% pivot_longer(American:Intelligent, names_to = "Rating_Scale", values_to = "Rating_ZScore") %>%
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale,
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))
+
+# n2_selected_dimensions <-
+  # n2_selected_voices %>% pivot_longer(Dim1:Dim4, names_to = "Dimension", values_to = "Score") 
+
+n2_selected_likelihood <-
+  n2_selected_voices %>% pivot_longer(`US/Canada`:`Black American`, names_to = "Rating_Scale", values_to = "Rating_ZScore") %>%
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale, 
+  "US/Canada", "Asia", "Europe",  # GrewUpContinent
+  "California", "Midwest", "Southern US", "elsewhere US/Canada",                # GrewUpRegion
+  "White American", "Asian American","Latin/Hispanic American", "Black American"))                         # RaceEthnicity
+
+
+n2_selected_faces <-
+  n2_selected_voices %>% pivot_longer(AsianA_prop:WhiteC_prop, names_to = "Percept", values_to = "Score") %>%
+  # reorder factors  
+  mutate(Percept = fct_relevel(Percept, "WhiteA_prop", "WhiteB_prop", "WhiteC_prop", "AsianC_prop", "AsianB_prop", "AsianA_prop"))
+
+
+n2_selected_percepts <-
+  n2_selected_voices %>% pivot_longer(from_asia_prop:positive_prop, names_to = "Percept", values_to = "Score") %>%
+  # reorder factors  
+  mutate(Percept = fct_relevel(Percept,
+  "accented_prop", "unaccented_prop", "from_asia_prop", "from_us_prop", "asian_prop", "white_prop", 
+  "negative_prop", "positive_prop", "sentiment_score"))
+
+n2_selected_composites <-
+  n2_selected_voices %>% pivot_longer(perceived_american_diff:perceived_american_aligned, names_to = "Percept", values_to = "Score") %>%
+  # reorder factors  
+  mutate(Percept = fct_relevel(Percept,
+  "perceived_american_raised", "perceived_american_aligned", "perceived_american_diff"))
+```
+
+#### Tabularize
+Means per group/voice
+```{r}
+# # Tables by CONDITION
+# n2_selected_ratings %>% group_by(Condition, Rating_Scale) %>% 
+#   summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
+#   mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+#   mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+#   select(-mean:-str_sd) %>%
+#   pivot_wider(names_from=Condition, values_from = `Mean (SD)`)
+
+# # Tables by PERSONA GROUP
+# n2_selected_ratings %>% group_by(Persona_Group, Rating_Scale) %>% 
+#   summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
+#   mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+#   mutate(`Mean (SD)`=paste0(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+#   select(-mean:-str_sd) %>%
+#   pivot_wider(names_from=Persona_Group, values_from = `Mean (SD)`)
+
+```
+```{r}
+# n2_selected_voices %>% group_by(Persona_Group) %>% summarize(across)
+```
+
+
+#### Visualize
+##### By Group
+```{r}
+#  Mean Parallel Plots for Condition
+# Rating_Scale
+n2_selected_ratings %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
+
+# Likelihood
+n2_selected_likelihood %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
+
+# Faces
+n2_selected_faces %>%                      
+  parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Conditions")
+
+# Percepts
+n2_selected_percepts %>%                      
+  parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Conditions")
+
+# Composite Americanness
+n2_selected_composites %>%
+  parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Conditions")
+
+```
+
+##### By Voice
+
+**All Together**: To visually identify any potential outliers of the selected data, and which Persona_Group
+```{r}
+#  Mean Parallel Plots for Condition
+# Rating_Scale
+n2_selected_ratings %>%
+  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Voice, color_group=Condition, angle_axis_labels=TRUE) + labs(title="Voices by Condition")
+
+# Likelihood
+n2_selected_likelihood %>%
+  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Voice, color_group=Condition, angle_axis_labels=TRUE) + labs(title="Voices by Condition")
+
+# Faces
+n2_selected_faces %>%                      
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Condition, angle_axis_labels=TRUE) + labs(title="Voices by Condition")
+
+# Percepts
+n2_selected_percepts %>%                      
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Condition, angle_axis_labels=TRUE) + labs(title="Voices by Condition")
+
+# Composite Americanness
+n2_selected_composites %>%
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Condition, angle_axis_labels=TRUE) + labs(title="Voices by Condition")
+
+```
+```{r}
+#  Mean Parallel Plots for Voice
+# Rating_Scale
+n2_selected_ratings %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title="Voice")
+
+# Likelihood
+n2_selected_likelihood %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title="Voice")
+
+# Faces
+n2_selected_faces %>%                      
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title="Voice")
+
+# Percepts
+n2_selected_percepts %>%                      
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title="Voice")
+
+# Composite Americanness
+n2_selected_composites %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title="Voice")
+
+```
+
+
+**By Selected Persona Group**: To visually identify per Persona_Group, specific voices to potentially remove
+```{r}
+current_group = "critical"
+# Rating_Scale
+n2_selected_ratings %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Likelihood
+n2_selected_likelihood %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)# 
+# Faces
+n2_selected_faces %>% filter(Condition == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Condition == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+
+```
+
+```{r}
+current_group = "filler"
+# Rating_Scale
+n2_selected_ratings %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Likelihood
+n2_selected_likelihood %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)# 
+# Faces
+n2_selected_faces %>% filter(Condition == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Condition == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Condition == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+
+```
+
+
+#### Get Summary Info
+##### By Group
+```{r}
+# # All scores
+# n2_selected_voices %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+#   group_by(Persona_Group) %>% count(perceived_age) %>%
+#   pivot_wider(id_cols=Persona_Group, names_from = perceived_age, values_from = n, values_fill = 0)
+
+```
+
+```{r}
+# Descriptors
+descriptors_byPersona <- n2_selected_voices %>% inner_join(n2_descriptors, ., by=c("Condition", "Voice_Cat", "Voice") ) %>%
+  group_by(Persona_Group, Voice) %>% count(Response, name="n_tokens_byVoice") %>% ungroup() %>%
+  group_by(Persona_Group) %>% add_count(Response, name="n_voices_byPersona") %>% add_count(Response, wt=n_tokens_byVoice, name="n_tokens_byPersona") %>% ungroup() %>%  arrange(Response)
+descriptors_byPersona
+```
+```{r}
+descriptors_byPersona %>%
+  select(Persona_Group, Response, n_voices_byPersona, n_tokens_byPersona) %>%
+  distinct() %>% add_count(Response, wt=n_voices_byPersona, name="n_voices_total") %>% 
+  arrange(-n_voices_total) %>% filter(n_voices_total>3) %>%
+  ggplot() + gg_theme() +
+  geom_col(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona, fill=Persona_Group)) + coord_flip() + labs(title="Descriptors", x= "Responses", y="No. of occurences")
+  
+```
+
+```{r}
+# Plot
+current_persona = "ethAsian"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_persona_unique) %>% distinct() %>% filter(n_persona_unique>1) %>%
+   ggplot(aes(x=reorder(Response, n_persona_unique), y=n_persona_unique)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msAsian"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_persona_unique) %>% distinct() %>% filter(n_persona_unique>1) %>%
+   ggplot(aes(x=reorder(Response, n_persona_unique), y=n_persona_unique)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msWhite1"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_persona_unique) %>% distinct() %>% filter(n_persona_unique>1) %>%
+   ggplot(aes(x=reorder(Response, n_persona_unique), y=n_persona_unique)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msWhite2"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_persona_unique) %>% distinct() %>% filter(n_persona_unique>1) %>%
+   ggplot(aes(x=reorder(Response, n_persona_unique), y=n_persona_unique)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+```
+
+
+##### By Voice
+```{r}
+current_voice <- "WAW-58"
+
+# Age
+n2_age_byVoice %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>% select(Condition, Voice, perceived_age) %>% distinct()  %>%
+  filter(Voice==current_voice) 
+
+# Descriptors
+n2_descriptors %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+
+# Activities
+n2_activities %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+
+# Occupation
+n2_occupation %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+```
+
+```{r}
+# Descriptors (more than once)
+n2_descriptors %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice) %>% filter(n>1) %>% ggplot(aes(x=reorder(Response, n), y=n)) + geom_col() + coord_flip() + labs(title="Adjectives", x= "Responses", y="No. of occurences")
+
+# Occupation
+n2_occupation %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n)), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="Occupation") 
+
+```
+```{r}
+n2_grewup %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response_Cat) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response_Cat, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="GrewUp") 
+
+n2_grewup %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="GrewUp") 
+
+n2_ethnicity %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="Ethnicity") 
+```
+AAW-12 removed for being interpreted almost always as southeast Asian or pacific islander, especially Filipino, and to be from Hawaii and speaking with a Hawaiian accent.
+
+
+```{r}
+n2_speech %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+```
+WAW-1 = southern accent x2
+WAW-16 = southern (drawl) accent x1
+WAW-58 = "country accent" x1
+
+```{r}
+n2_responses_selected %>% filter(Question=="Recognize") %>% filter(Response=="Yes")
+
+n2_responses_selected %>% filter(Question=="Recognize") %>% filter(Question_Part=="Text") #%>% filter(Response=="Yes")
+
+```
+
+
+```{r}
+# n2_percepts_general <- 
+#   n2_descriptors %>% group_by(Voice) %>% summarize(sentiment_score=mean(sentiment_score, na.rm=TRUE)) %>%
+#   full_join(
+#     n2_descriptors %>% drop_na(sentiment) %>% add_count(Voice, name="group_n") %>% 
+#   count(Voice, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n, -n) %>%
+#   pivot_wider(id_cols=Voice, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum) %>%
+#   rename(positive_prop=positive, negative_prop=negative)
+#   ) %>%
+#   full_join(
+#     n2_age_byVoice %>% select(Voice, perceived_age)
+#   )
+# 
+# # n2_occupation
+# # n2_activities
+# n2_percepts_general
+```
+
+Get persona screening filters per voice, merge into one.
+```{r}
+# n2_percepts_personae <- 
+#   n2_grewup %>% count(Voice, Response_Cat) %>% drop_na(Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, from_asia_prop=Asia, from_us_prop=USA) %>%
+#   full_join(
+#     n2_ethnicity %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, asian_prop=Asian, white_prop=White)
+#   ) %>%
+#   full_join(
+#     n2_speech %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, accented_prop=Accented, unaccented_prop=Unaccented)
+#   )
+# n2_percepts_personae
+
+```
+
+### Examine Distinctiveness / Test Differences
+```{r}
+# lm_emms_pairs: Function to get linear model output and pairwise comparisons
+# For more info, see project_functions.R
+
+# Output:
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# (*) not currently sure about the `edf` parameter, currently speifying Inf, narrowing confint unrealistically
+```
+
+For full dataset, data = n2_ratings_vars_pca
+For selected voices dataset, data = n2_selected_voices
+
+#### Americanness 
+(to be contrasted)
+
+American Raised
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, perceived_american_raised ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, perceived_american_raised ~ Persona_Group)
+```
+American Aligned
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, perceived_american_aligned ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, perceived_american_aligned ~ Persona_Group)
+```
+
+Alterative: Dim1
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Dim1 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim1 ~ Persona_Group)
+```
+
+#### Persona-associated Social Perceptions 
+(may be contrasted)
+
+Clear speaker
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, `Clear speaker` ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, `Clear speaker` ~ Persona_Group)
+```
+Slow speaker
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, `Slow speaker` ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, `Slow speaker` ~ Persona_Group)
+```
+Intelligent
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Intelligent ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Intelligent ~ Persona_Group)
+```
+Nerdy
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Nerdy ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Nerdy ~ Persona_Group)
+```
+
+#### Social Perceptions 
+(to be matched; ideally should not contrast)
+
+Confident
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Confident ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Confident ~ Persona_Group)
+```
+Enthusiastic
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Enthusiastic ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Enthusiastic ~ Persona_Group)
+```
+Friendly
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Friendly ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Friendly ~ Persona_Group)
+```
+Likeable
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Likeable ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Likeable ~ Persona_Group)
+```
+Attractive
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Attractive ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Attractive ~ Persona_Group)
+```
+Feminine
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Feminine ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Feminine ~ Persona_Group)
+```
+Casual
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Casual ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Casual ~ Persona_Group)
+```
+Cool
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Cool ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Cool ~ Persona_Group)
+```
+#### Social Dimensions 
+(to be matched; ideally should not contrast)
+
+Dim2: Cool (Confident, Friendly, Likeable)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Dim2 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim2 ~ Persona_Group)
+```
+
+Dim3: Casual (NOT Feminine, NOT Attractive)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Dim3 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim3 ~ Persona_Group)
+```
+Dim4: Nerdy (Intelligent, Slow speaker, NOT Enthusiastic)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+lm_emms_pairs_condition(n2_selected_voices, Dim4 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim4 ~ Persona_Group)
+```
+
+
+## Profile: Bottom-up
+### Select Voices
+
+Select 4-5 photos ...
+* Based on American-raised and American-aligned scores
+* + based on not being full dataset outliers (mahalanobis scores; 3SD outliers)
+* + based on not being group outliers, or just too different for a cohesive group interpretation 
+
+Considerations:
+* NOT based on Dim1 scores difference because that doesn't account for American-raised vs. -aligned distinction, which is conceptually important to the personae
+
+***
+
+Planning Notes based on Visualization (Jun 13, 2023):
+* msAsian (perceived as American-raised but leaning towards less American-aligned)
+  - AAW-57, 47, 30, 36, 45, 12 (if also includ some more aligned, AAW-55, 18)
+  - Also, from ethAsian: AAW-33, 28
+  - Exclude (e.g.): AAW-14, 11 (too low on Am-raised)
+  
+* ethAsian (perceived as not American-raised, but leaning towards more American-aligned)
+  - AAW-63, 27, 4, 40, 1
+  - Exclude (e.g.): AAW-7 (too low on Am-raised); AAW-33, 28, 48 (too high on Am-raised)
+  - NOTE: Potentially move AAW-33, 28 to msAsian
+  
+* msWhite-1 (more likely perceived as American)
+  - WAW-12, 16, etc.
+  
+* msWhite-2 (less likely perceived as American; more matched to msAsian on American-raised)
+  - WAW-57, 51, 41
+  
+#### Assess
+```{r}
+# Repeated visualization: Raised vs. Aligned
+n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_aligned, label=Voice, group=Condition, show_points=TRUE)
+
+# Raised vs. Raised-Aligned Diff
+n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_diff, label=Voice, group=Condition, show_points=TRUE)
+```
+To interpret perceived_american_diff 
+- 0 means matching raised-aligned ratings (perceived as matching on being american raised and culture, regardless of high or low objective value)
+- positive means alignment rating was higher (more american culture) than raised rating
+- negative means alignment rating was lower (less american culture) than raised rating
+ 
+ 
+#### Select
+How do we decide on cut-offs numerically rather than visually? For msAsian, used raised + diff. For ethAsian used raised + aligned. For msWhite, used aligned only. 
+```{r}
+# Prepare cutoff values
+# Get group means
+n2_condition_means <- n2_byVoice_data %>% group_by(Condition) %>% summarize(perceived_american_raised = mean(perceived_american_raised))
+n2_condition_means
+
+ethAsian_mean <- n2_condition_means %>% filter(Condition == "ethAsian") %>% pull
+ethAsian_mean
+msAsian_mean <- n2_condition_means %>% filter(Condition == "msAsian") %>% pull
+msAsian_mean
+
+# Get center point (average) between Asian group means
+american_raised_cutoff <- (ethAsian_mean) + (msAsian_mean)/2
+american_raised_cutoff
+```
+
+```{r}
+n2_ethAsian1 <- 
+  n2_byVoice_data %>% #filter(Condition=="ethAsian") %>% 
+  filter(perceived_american_raised < ethAsian_mean) %>%  
+  # remove non-conforming items based on iterative review
+  filter(!Voice %in% c("AAW-47",   # extra non-Asian perceived
+                    "AAW-57",    # extra negatively described
+                    "AAW-12"    # perceived as Hawaiian/SoutheastAsian
+                    )) %>%
+  filter(!Voice %in% c("AAW-48", # Very low on Attractive for whole sample
+                       "AAW-45",  #  Doesn't cluster with others, Very low on perceived_american_diff/from_US 
+                       "AAW-4",  # Doesn't cluster with others, exactly in the middle of groups for perceived_american_raised
+                       "AAW-7"  # Doesn't cluster with others, very low on perceived_american_raised
+                       )) %>%
+  # perceived as Asian-raised < -0.65 (equal distance between msA and ethA group means) + top 4-5 most Asian-aligned
+  # filter(perceived_american_raised < american_raised_cutoff) %>% 
+  slice_max(perceived_american_diff, n=3)
+  # slice_max(perceived_american_aligned, n=3)
+n2_ethAsian1
+```
+
+```{r}
+n2_ethAsian2 <- 
+  n2_byVoice_data %>% 
+  # remove non-conforming items based on iterative review
+  filter(perceived_american_raised > ethAsian_mean) %>%  
+  filter(perceived_american_raised < msAsian_mean) %>%  
+  filter(!Voice %in% c("AAW-47",   # extra non-Asian perceived
+                    "AAW-57",    # extra negatively described
+                    "AAW-12"    # perceived as Hawaiian/SoutheastAsian
+                    )) %>%
+  filter(!Voice %in% c("AAW-48", # Very low on Attractive for whole sample
+                       "AAW-45",  #  Doesn't cluster with others, Very low on perceived_american_diff/from_US 
+                       "AAW-4",  # Doesn't cluster with others, exactly in the middle of groups for perceived_american_raised
+                       "AAW-7"  # Doesn't cluster with others, very low on perceived_american_raised
+                       )) %>%
+  # perceived as Asian-raised < -0.65 (equal distance between msA and ethA group means) + top 4-5 most Asian-aligned
+  # filter(perceived_american_raised < american_raised_cutoff) %>%
+  slice_min(perceived_american_diff, n=3)
+n2_ethAsian2
+```
+
+```{r}
+# Select voices per condition
+n2_msAsian <- 
+  n2_byVoice_data %>% #filter(Condition=="msAsian") %>% 
+  filter(perceived_american_raised > msAsian_mean) %>%  
+  # remove sample outliers
+  filter(!Voice %in% c("AAW-47",   # extra non-Asian perceived
+                      "AAW-57",    # extra negatively described
+                      "AAW-12"    # perceived as Hawaiian/SoutheastAsian
+                      )) %>%
+  # remove non-conforming items based on iterative review
+  filter(!Voice %in% c("AAW-48", # Very low on Attractive for whole sample
+                       "AAW-45",  #  Doesn't cluster with others, Very low on perceived_american_diff/from_US 
+                       "AAW-4",  # Doesn't cluster with others, exactly in the middle of groups for perceived_american_raised
+                       "AAW-7"  # Doesn't cluster with others, very low on perceived_american_raised
+                       )) %>%
+  # perceived as american-raised > -0.65 (equal distance between msA and ethA group means) + top 4-5 most Asian-aligned
+  # filter(perceived_american_raised > american_raised_cutoff) %>%  
+  slice_min(perceived_american_diff, n=3)
+n2_msAsian
+```
+
+
+```{r}
+n2_msWhite1 <- 
+  n2_byVoice_data %>% filter(Condition=="msWhite") %>% 
+  filter(perceived_american_aligned >= 0.5) %>% 
+  # remove non-conforming items based on iterative review
+  filter(!Voice %in% c(
+                       # "WAW-23" # most American by a margin (but maybe not a prob, so)
+                       "WAW-16" # Alt: most negatively described, by a margin
+                       )) %>%
+  # top 5 most American-aligned
+  slice_max(perceived_american_raised, n=3)
+n2_msWhite1
+```
+```{r}
+n2_msWhite2 <- 
+  n2_byVoice_data %>% filter(Condition=="msWhite") %>% 
+  filter(perceived_american_aligned >= 0.5) %>% 
+  # remove non-conforming items based on iterative review
+  filter(!Voice %in% c(
+                       # "WAW-23" # most American by a margin (but maybe not a prob, so)
+                       "WAW-16" # Alt: most negatively described, by a margin
+                       )) %>%
+  # top 5 most American-aligned
+  slice_min(perceived_american_raised, n=3)
+n2_msWhite2
+```
+
+
+```{r}
+n2_msWhite3 <- 
+  n2_byVoice_data %>% filter(Condition=="msWhite") %>% 
+  filter(perceived_american_aligned < 0.5) %>%  
+  # remove non-conforming items based on iterative review
+  filter(!Voice %in% c(
+                       # "WAW-23" # most American by a margin (but maybe not a prob, so)
+                       "WAW-16" # Alt: most negatively described, by a margin
+                       )) %>%
+  # top 5 least American-aligned
+  slice_min(perceived_american_raised, n=3)
+n2_msWhite3
+```
+
+
+```{r}
+n2_selected_voices <-
+  n2_byVoice_data %>% mutate(
+    Persona_Group = case_when(
+      Voice %in% (n2_ethAsian1 %>% pull(Voice)) ~ "ethAsian1",
+      Voice %in% (n2_ethAsian2 %>% pull(Voice)) ~ "ethAsian2",
+      Voice %in% (n2_msAsian %>% pull(Voice)) ~ "msAsian",
+
+      Voice %in% (n2_msWhite1 %>% pull(Voice)) ~ "msWhite1",
+      Voice %in% (n2_msWhite2 %>% pull(Voice)) ~ "msWhite2",
+      Voice %in% (n2_msWhite3 %>% pull(Voice)) ~ "msWhite3",
+      TRUE ~ NA
+    ), .before=Condition
+  ) %>% filter(!is.na(Persona_Group))
+n2_selected_voices
+```
+
+#### Finalize
+```{r}
+
+# n2_selected_voices %>% filter(Persona_Group =="ethAsian2")
+n2_selected_voices %>% filter(Persona_Group =="msWhite2")
+
+```
+
+
+```{r}
+# Get data subsets
+n2_selected_ratings <-
+  n2_selected_voices %>% pivot_longer(American:Intelligent, names_to = "Rating_Scale", values_to = "Rating_ZScore") %>%
+  # reorder factors  
+  mutate(Rating_Scale = fct_relevel(Rating_Scale,
+  "American", "Native speaker of English", "American-accented", "Aligned with American culture",  # Culture
+  "Enthusiastic", "Confident", "Friendly", "Likeable", "Attractive", "Intelligent",               # Traits
+  "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))
+
+n2_selected_dimensions <-
+  n2_selected_voices %>% pivot_longer(Dim1:Dim4, names_to = "Dimension", values_to = "Score") 
+
+n2_selected_percepts <-
+  n2_selected_voices %>% pivot_longer(from_asia_prop:positive_prop, names_to = "Percept", values_to = "Score") %>%
+  # reorder factors  
+  mutate(Percept = fct_relevel(Percept,
+  "accented_prop", "unaccented_prop", "from_asia_prop", "from_us_prop", "asian_prop", "white_prop", 
+  "negative_prop", "positive_prop", "sentiment_score"))
+
+n2_selected_composites <-
+  n2_selected_voices %>% pivot_longer(perceived_american_diff:perceived_american_aligned, names_to = "Percept", values_to = "Score") %>%
+  # reorder factors  
+  mutate(Percept = fct_relevel(Percept,
+  "perceived_american_raised", "perceived_american_aligned", "perceived_american_diff"))
+```
+
+#### Tabularize
+Means per group/voice
+```{r}
+# Tables by CONDITION
+n2_selected_ratings %>% group_by(Condition, Rating_Scale) %>% 
+  summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd) %>%
+  pivot_wider(names_from=Condition, values_from = `Mean (SD)`)
+
+# Tables by PERSONA GROUP
+n2_selected_ratings %>% group_by(Persona_Group, Rating_Scale) %>% 
+  summarize(mean=mean(Rating_ZScore), sd=sd(Rating_ZScore)) %>% 
+  mutate(str_mean = sprintf("%.2f", round(mean,2)), str_sd = sprintf("%.2f", round(sd,2))) %>%
+  mutate(`Mean (SD)`=paste0(str_mean, " (", str_sd, ")")) %>% # <- swap in paste0 for printing
+  select(-mean:-str_sd) %>%
+  pivot_wider(names_from=Persona_Group, values_from = `Mean (SD)`)
+
+```
+```{r}
+# n2_selected_voices %>% group_by(Persona_Group) %>% summarize(across)
+```
+
+
+#### Visualize
+##### By Group
+```{r}
+#  Mean Parallel Plots for PERSONA GROUPS
+# Rating_Scale
+n2_selected_ratings %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Persona_Group, angle_axis_labels=TRUE) + labs(title="Persona Groups")
+
+# Dimensions
+n2_selected_dimensions %>%
+  parallel_plot(x=Dimension, y=Score, group=Persona_Group, angle_axis_labels=FALSE) + labs(title="Persona Groups")
+
+# Percepts
+n2_selected_percepts %>%                      
+  parallel_plot(x=Percept, y=Score, group=Persona_Group, angle_axis_labels=TRUE) + labs(title="Persona Groups")
+
+# Composite Americanness
+n2_selected_composites %>%
+  parallel_plot(x=Percept, y=Score, group=Persona_Group, angle_axis_labels=TRUE) + labs(title="Persona Groups")
+
+# Age (WIP)
+```
+```{r}
+# #  Mean Parallel Plots for 3 CONDITIONS (larger msWhite)
+# # Rating_Scale
+# n2_selected_ratings %>%
+#   parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
+# 
+# # Dimensions
+# n2_selected_dimensions %>%
+#   parallel_plot(x=Dimension, y=Score, group=Condition, angle_axis_labels=FALSE) + labs(title="Condition")
+# 
+# # Percepts
+# n2_selected_percepts %>%                      
+#   parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
+# 
+# # Composite Americanness
+# n2_selected_composites %>%
+#   parallel_plot(x=Percept, y=Score, group=Condition, angle_axis_labels=TRUE) + labs(title="Condition")
+```
+ 
+##### By Voice
+
+**All Together**: To visually identify any potential outliers of the selected data, and which Persona_Group
+```{r}
+# Rating_Scale
+n2_selected_ratings %>% 
+  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Dimensions
+n2_selected_dimensions %>% 
+  parallel_plot_color(x=Dimension, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=FALSE) 
+# Percepts
+n2_selected_percepts %>%             
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Composite Americanness
+n2_selected_composites %>% 
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+```
+Potential selected outliers to exclude (Jun 16, 2023 data):
+* msAsian - 2 low Feminine / 2 very high Casual
+* ethAsian - very low Attractive
+* msWhite1 - very high Feminine / very low Casual
+* msWhite2 - low Friendly / low Feminine / very high Casual
+
+**By Selected Race/Ethnicity Group**: To visually identify per Persona_Group, specific voices to potentially remove
+```{r}
+current_group1 = "msAsian"
+current_group2 = "ethAsian"
+
+# Rating_Scale
+n2_selected_ratings %>% filter(Condition == current_group1 | Condition == current_group2) %>%
+  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Dimensions
+n2_selected_dimensions %>% filter(Condition == current_group1 | Condition == current_group2) %>%
+  parallel_plot_color(x=Dimension, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=FALSE) 
+# Percepts
+n2_selected_percepts %>% filter(Condition == current_group1 | Condition == current_group2) %>%        
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Composite Americanness
+n2_selected_composites %>% filter(Condition == current_group1 | Condition == current_group2) %>%
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+```
+
+```{r}
+current_group = "msWhite"
+
+# Rating_Scale
+n2_selected_ratings %>%  filter(Condition == current_group) %>%
+  parallel_plot_color(x=Rating_Scale, y=Rating_ZScore, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Dimensions
+n2_selected_dimensions %>%  filter(Condition == current_group) %>%
+  parallel_plot_color(x=Dimension, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=FALSE) 
+# Percepts
+n2_selected_percepts %>% filter(Condition == current_group) %>%        
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+# Composite Americanness
+n2_selected_composites %>%  filter(Condition == current_group) %>%
+  parallel_plot_color(x=Percept, y=Score, group=Voice, color_group=Persona_Group, angle_axis_labels=TRUE) 
+```
+
+**By Selected Persona Group**: To visually identify per Persona_Group, specific voices to potentially remove
+```{r}
+current_group = "ethAsian1"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+```
+
+```{r}
+current_group = "ethAsian2"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+```
+```{r}
+current_group = "msAsian"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+```
+
+```{r}
+current_group = "msWhite1"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+```
+
+```{r}
+current_group = "msWhite2"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+```
+
+```{r}
+current_group = "msWhite3"
+# Rating_Scale
+n2_selected_ratings %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Dimensions
+n2_selected_dimensions %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Dimension, y=Score, group=Voice, angle_axis_labels=FALSE) + labs(title=current_group)
+# Percepts
+n2_selected_percepts %>% filter(Persona_Group == current_group) %>%                 
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+# Composite Americanness
+n2_selected_composites %>% filter(Persona_Group == current_group) %>%
+  parallel_plot(x=Percept, y=Score, group=Voice, angle_axis_labels=TRUE) + labs(title=current_group)
+```
+
+#### Get Summary Info
+##### By Group
+```{r}
+# All scores
+n2_selected_voices %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  group_by(Persona_Group) %>% count(perceived_age) %>%
+  pivot_wider(id_cols=Persona_Group, names_from = perceived_age, values_from = n, values_fill = 0)
+
+```
+
+```{r}
+# Descriptors
+descriptors_byPersona <- n2_selected_voices %>% inner_join(n2_descriptors, ., by=c("Condition", "Voice_Cat", "Voice") ) %>%
+  group_by(Persona_Group, Voice) %>% count(Response, name="n_tokens_byVoice") %>% ungroup() %>%
+  group_by(Persona_Group) %>% add_count(Response, name="n_voices_byPersona") %>% add_count(Response, wt=n_tokens_byVoice, name="n_tokens_byPersona") %>% ungroup() %>%  arrange(Response)
+descriptors_byPersona
+```
+```{r}
+descriptors_byPersona %>%
+  select(Persona_Group, Response, n_voices_byPersona, n_tokens_byPersona) %>%
+  distinct() %>% add_count(Response, wt=n_voices_byPersona, name="n_voices_total") %>% 
+  arrange(-n_voices_total) %>% filter(n_voices_total>3) %>%
+  ggplot() + gg_theme() +
+  geom_col(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona, fill=Persona_Group)) + coord_flip() + labs(title="Descriptors", x= "Responses", y="No. of occurences")
+  
+```
+
+```{r}
+# Plot
+current_persona = "ethAsian1"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "ethAsian2"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msAsian"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msWhite1"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msWhite2"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+
+current_persona = "msWhite3"
+descriptors_byPersona %>% filter(Persona_Group==current_persona) %>% 
+  select(Response, n_voices_byPersona) %>% distinct() %>% filter(n_voices_byPersona>1) %>%
+   ggplot(aes(x=reorder(Response, n_voices_byPersona), y=n_voices_byPersona)) + geom_col() + coord_flip() + labs(title=current_persona, x= "Responses", y="No. of occurences")
+```
+
+
+##### By Voice
+```{r}
+current_voice <- "WAW-4"
+
+# Age
+n2_age_byVoice %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>% select(Condition, Voice, perceived_age) %>% distinct()  %>%
+  filter(Voice==current_voice) 
+
+# Descriptors
+n2_descriptors %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+
+# Activities
+n2_activities %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+
+# Occupation
+n2_occupation %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+```
+
+```{r}
+# Descriptors (more than once)
+n2_descriptors %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice) %>% filter(n>1) %>% ggplot(aes(x=reorder(Response, n), y=n)) + geom_col() + coord_flip() + labs(title="Adjectives", x= "Responses", y="No. of occurences")
+
+# Occupation
+n2_occupation %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice)  %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n)), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="Occupation") 
+
+```
+```{r}
+n2_grewup %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response_Cat) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response_Cat, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="GrewUp") 
+
+n2_grewup %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="GrewUp") 
+
+n2_ethnicity %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  ggplot() +  gg_theme() + scale_fill_viridis(discrete=TRUE) +
+  geom_bar(aes(x=reorder(Response, -n), fill=Response_Cat), alpha=0.7) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  labs(x="Ethnicity") 
+```
+AAW-12 removed for being interpreted almost always as southeast Asian or pacific islander, especially Filipino, and to be from Hawaii and speaking with a Hawaiian accent.
+
+
+```{r}
+n2_speech %>% filter(Voice %in% (n2_selected_voices %>% pull(Voice))) %>%
+  filter(Voice==current_voice) %>% add_count(Response) %>%
+  select(Response, n, Condition, Voice)
+```
+WAW-1 = southern accent x2
+WAW-16 = southern (drawl) accent x1
+WAW-58 = "country accent" x1
+
+```{r}
+n2_responses_selected %>% filter(Question=="Recognize") %>% filter(Response=="Yes")
+
+n2_responses_selected %>% filter(Question=="Recognize") %>% filter(Question_Part=="Text") #%>% filter(Response=="Yes")
+
+```
+
+
+```{r}
+# n2_percepts_general <- 
+#   n2_descriptors %>% group_by(Voice) %>% summarize(sentiment_score=mean(sentiment_score, na.rm=TRUE)) %>%
+#   full_join(
+#     n2_descriptors %>% drop_na(sentiment) %>% add_count(Voice, name="group_n") %>% 
+#   count(Voice, group_n, sentiment) %>% mutate(prop = n/group_n) %>% select(-group_n, -n) %>%
+#   pivot_wider(id_cols=Voice, names_from = sentiment, values_from = prop, values_fill = 0, unused_fn=sum) %>%
+#   rename(positive_prop=positive, negative_prop=negative)
+#   ) %>%
+#   full_join(
+#     n2_age_byVoice %>% select(Voice, perceived_age)
+#   )
+# 
+# # n2_occupation
+# # n2_activities
+# n2_percepts_general
+```
+
+Get persona screening filters per voice, merge into one.
+```{r}
+# n2_percepts_personae <- 
+#   n2_grewup %>% count(Voice, Response_Cat) %>% drop_na(Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, from_asia_prop=Asia, from_us_prop=USA) %>%
+#   full_join(
+#     n2_ethnicity %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, asian_prop=Asian, white_prop=White)
+#   ) %>%
+#   full_join(
+#     n2_speech %>% count(Voice, Response_Cat) %>% add_count(Voice, wt=n) %>% mutate(prop=n/nn) %>%
+#   pivot_wider(id_cols=Voice, names_from = Response_Cat, values_from = prop, values_fill=0) %>% select(Voice, accented_prop=Accented, unaccented_prop=Unaccented)
+#   )
+# n2_percepts_personae
+
+```
+
+### Examine Distinctiveness / Test Differences
+```{r}
+# lm_emms_pairs: Function to get linear model output and pairwise comparisons
+# For more info, see project_functions.R
+
+# Output:
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# (*) not currently sure about the `edf` parameter, currently speifying Inf, narrowing confint unrealistically
+```
+
+For full dataset, data = n2_ratings_vars_pca
+For selected voices dataset, data = n2_selected_voices
+
+#### Americanness 
+(to be contrasted)
+
+American Raised
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, perceived_american_raised ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, perceived_american_raised ~ Persona_Group)
+```
+American Aligned
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, perceived_american_aligned ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, perceived_american_aligned ~ Persona_Group)
+```
+
+Alterative: Dim1
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Dim1 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim1 ~ Persona_Group)
+```
+
+#### Persona-associated Social Perceptions 
+(may be contrasted)
+
+Clear speaker
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, `Clear speaker` ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, `Clear speaker` ~ Persona_Group)
+```
+Slow speaker
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, `Slow speaker` ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, `Slow speaker` ~ Persona_Group)
+```
+Intelligent
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Intelligent ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Intelligent ~ Persona_Group)
+```
+Nerdy
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Nerdy ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Nerdy ~ Persona_Group)
+```
+
+#### Social Perceptions 
+(to be matched; ideally should not contrast)
+
+Confident
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Confident ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Confident ~ Persona_Group)
+```
+Enthusiastic
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Enthusiastic ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Enthusiastic ~ Persona_Group)
+```
+Friendly
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Friendly ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Friendly ~ Persona_Group)
+```
+Likeable
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Likeable ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Likeable ~ Persona_Group)
+```
+Attractive
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Attractive ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Attractive ~ Persona_Group)
+```
+Feminine
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Feminine ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Feminine ~ Persona_Group)
+```
+Casual
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Casual ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Casual ~ Persona_Group)
+```
+Cool
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Cool ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Cool ~ Persona_Group)
+```
+#### Social Dimensions 
+(to be matched; ideally should not contrast)
+
+Dim2: Cool (Confident, Friendly, Likeable)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Dim2 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim2 ~ Persona_Group)
+```
+
+Dim3: Casual (NOT Feminine, NOT Attractive)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Dim3 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim3 ~ Persona_Group)
+```
+Dim4: Nerdy (Intelligent, Slow speaker, NOT Enthusiastic)
+```{r}
+# (1) LM summary, (2) tidy LM, (3) EMMs w/ CIs, (4) Pairwise comp, (5) Effect sizes*, (6) EMM comp plot, (7) EMM CI plot
+# lm_emms_pairs_condition(n2_selected_voices, Dim4 ~ Condition)
+lm_emms_pairs_persona(n2_selected_voices, Dim4 ~ Persona_Group)
+```
