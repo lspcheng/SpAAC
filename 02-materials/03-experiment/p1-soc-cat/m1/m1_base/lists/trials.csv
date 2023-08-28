@@ -1,0 +1,17 @@
+﻿list,item,audio_condition,visual_condition,sound_word,sound_file,sound_filename,pic1_file,pic2_file,pic1_filename,pic2_filename,correct_response
+test,1,1N,EA-EA,dental,S16_1-1-1_dental_M.wav,audio/S16_1-1-1_dental_M.wav,AAW-11-7688196.jpg,AAW-27-11016922.jpg,images/AAW-11-7688196.jpg,images/AAW-27-11016922.jpg,trial_image_top_left
+test,2,1M,EA-MA,dental,S16_1-1-3_dental_N.wav,audio/S16_1-1-3_dental_N.wav,AAW-11-7688196.jpg,AAW-36-7951618.jpg,images/AAW-11-7688196.jpg,images/AAW-36-7951618.jpg,trial_image_top_left
+test,3,4N,EA-MW,coding,S16_4-1-1_coding_M.wav,audio/S16_4-1-1_coding_M.wav,AAW-11-7688196.jpg,WAW-12-10520196.jpg,images/AAW-11-7688196.jpg,images/WAW-12-10520196.jpg,trial_image_top_left
+test,4,4M,EA-MW,coding,S16_4-1-3_coding_N.wav,audio/S16_4-1-3_coding_N.wav,AAW-11-7688196.jpg,WAW-56-8107620.jpg,images/AAW-11-7688196.jpg,images/WAW-56-8107620.jpg,trial_image_top_right
+test,5,6N,EA-MW,candied,S16_6-1-1_candied_M.wav,audio/S16_6-1-1_candied_M.wav,AAW-11-7688196.jpg,WAW-57-7034471.jpg,images/AAW-11-7688196.jpg,images/WAW-57-7034471.jpg,trial_image_top_right
+test,6,6M,EA-MA,candied,S16_6-1-3_candied_N.wav,audio/S16_6-1-3_candied_N.wav,AAW-27-11016922.jpg,AAW-36-7951618.jpg,images/AAW-27-11016922.jpg,images/AAW-36-7951618.jpg,trial_image_top_left
+test,7,8N,EA-MW,coastguard,S16_8-1-3_coastguard_N.wav,audio/S16_8-1-3_coastguard_N.wav,AAW-27-11016922.jpg,WAW-12-10520196.jpg,images/AAW-27-11016922.jpg,images/WAW-12-10520196.jpg,trial_image_top_left
+test,8,8M,EA-MW,fastball,S16_8-2-1_fastball_M.wav,audio/S16_8-2-1_fastball_M.wav,AAW-27-11016922.jpg,WAW-56-8107620.jpg,images/AAW-27-11016922.jpg,images/WAW-56-8107620.jpg,trial_image_top_left
+test,9,1N,EA-MW,dental,S16_1-1-1_dental_M.wav,audio/S16_1-1-1_dental_M.wav,AAW-27-11016922.jpg,WAW-57-7034471.jpg,images/AAW-27-11016922.jpg,images/WAW-57-7034471.jpg,trial_image_top_left
+test,10,1M,MA-MW,dental,S16_1-1-3_dental_N.wav,audio/S16_1-1-3_dental_N.wav,AAW-36-7951618.jpg,WAW-12-10520196.jpg,images/AAW-36-7951618.jpg,images/WAW-12-10520196.jpg,trial_image_top_left
+test,11,4N,MA-MW,coding,S16_4-1-1_coding_M.wav,audio/S16_4-1-1_coding_M.wav,AAW-36-7951618.jpg,WAW-56-8107620.jpg,images/AAW-36-7951618.jpg,images/WAW-56-8107620.jpg,trial_image_top_left
+test,12,4M,MA-MW,coding,S16_4-1-3_coding_N.wav,audio/S16_4-1-3_coding_N.wav,AAW-36-7951618.jpg,WAW-57-7034471.jpg,images/AAW-36-7951618.jpg,images/WAW-57-7034471.jpg,trial_image_top_left
+test,13,6N,MW-MW,candied,S16_6-1-1_candied_M.wav,audio/S16_6-1-1_candied_M.wav,WAW-12-10520196.jpg,WAW-56-8107620.jpg,images/WAW-12-10520196.jpg,images/WAW-56-8107620.jpg,trial_image_top_right
+test,14,6M,MW-MW,candied,S16_6-1-3_candied_N.wav,audio/S16_6-1-3_candied_N.wav,WAW-12-10520196.jpg,WAW-57-7034471.jpg,images/WAW-12-10520196.jpg,images/WAW-57-7034471.jpg,trial_image_top_right
+test,15,8N,MW-MW,coastguard,S16_8-1-3_coastguard_N.wav,audio/S16_8-1-3_coastguard_N.wav,WAW-56-8107620.jpg,WAW-57-7034471.jpg,images/WAW-56-8107620.jpg,images/WAW-57-7034471.jpg,trial_image_top_right
+test,16,8M,EA-EA,fastball,S16_8-2-1_fastball_M.wav,audio/S16_8-2-1_fastball_M.wav,AAW-11-7688196.jpg,AAW-27-11016922.jpg,images/AAW-11-7688196.jpg,images/AAW-27-11016922.jpg,trial_image_top_right

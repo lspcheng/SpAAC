@@ -1,0 +1,7 @@
+﻿list,item,sound_filename,correct_response
+tone,1,audio/toneTest_1.wav,tone_3
+tone,2,audio/toneTest_2.wav,tone_2
+tone,3,audio/toneTest_3.wav,tone_3
+tone,4,audio/toneTest_4.wav,tone_2
+tone,5,audio/toneTest_5.wav,tone_1
+tone,6,audio/toneTest_6.wav,tone_1

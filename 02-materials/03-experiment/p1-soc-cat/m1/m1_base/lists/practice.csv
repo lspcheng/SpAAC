@@ -1,0 +1,3 @@
+﻿list,item,audio_condition,visual_condition,sound_word,sound_file,sound_filename,pic1_file,pic2_file,pic1_filename,pic2_filename,correct_response
+test,1,1N,EA-EA,dental,S16_1-1-1_dental_M.wav,audio/S16_1-1-1_dental_M.wav,AAW-11-7688196.jpg,AAW-27-11016922.jpg,images/AAW-11-7688196.jpg,images/AAW-27-11016922.jpg,trial_image_top_left
+test,2,1M,EA-MA,dental,S16_1-1-3_dental_N.wav,audio/S16_1-1-3_dental_N.wav,AAW-11-7688196.jpg,AAW-36-7951618.jpg,images/AAW-11-7688196.jpg,images/AAW-36-7951618.jpg,trial_image_top_left
