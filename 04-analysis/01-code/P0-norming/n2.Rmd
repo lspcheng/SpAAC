@@ -915,7 +915,7 @@ participant_list
 
 Run the following iteratively to screen participant data. Mainly, check that they seemed to answer the questions in good faith. If not, add notes below. If it's all fine, then accept their submission.
 ```{r}
-current_participant <- "63d228d74dc841d4559ad87d" #participant_list[10] # 
+current_participant <- "63d007388da4ef5b301762f9" #participant_list[10] # 
 
 current_responses <- n2_responses %>% 
   select(PROLIFIC_PID, Question_Number, Question, Question_Part, Voice, Response) %>% 

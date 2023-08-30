@@ -716,6 +716,8 @@ n2_face_byVoice %>%
   pivot_wider(id_cols = c(Voice), names_from = c(Persona_Group), values_from = prop_selected) 
 
 # view by most to least common choice per voice
+n2_face_byVoice %>% slice_max(prop_selected)
+n2_face_byVoice %>% slice_min(prop_selected)
 n2_face_byVoice %>% arrange(Voice, -prop_selected)
 ```
 
@@ -726,22 +728,22 @@ n2_face_byVoice %>% arrange(Voice, -prop_selected)
 n2_face_byVoice %>%
   ggplot(aes(Voice, Persona_Group)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
 
 # filler/non-target
 n2_face_byVoice %>% filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
   ggplot(aes(Voice, Persona_Group)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
 
 # target
 n2_face_byVoice %>% filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
   ggplot(aes(Voice, Persona_Group)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
 ```
 
 ```{r}
