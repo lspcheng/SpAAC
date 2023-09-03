@@ -71,7 +71,7 @@ quick_summarize <- function(df, col, na.rm=FALSE){
 
 # general standardized ggplot theme
 gg_theme <- function() {
-  theme_minimal() +
+  theme_bw() +
     theme(plot.title=element_text(size=25),
           plot.subtitle=element_text(size=15, face="italic"),
           axis.title=element_text(size=20),
@@ -148,7 +148,7 @@ parallel_plot <- function(df, x, y, group, viridis=TRUE, full_scale=FALSE, angle
     ggplot(aes(x=(!!x), y=(!!y), color=(!!group), fill=(!!group), group=(!!group))) +
     stat_summary(fun.data=mean_se, geom="pointrange", position=position_dodge(0), alpha=1) +
     stat_summary(fun.data=mean_se, geom="line", position=position_dodge(0), alpha=1) +
-    theme_minimal()
+    theme_bw()
   
   if(viridis == TRUE){
     plot <- plot +
@@ -180,7 +180,7 @@ parallel_plot_color <- function(df, x, y, group, color_group, full_scale=FALSE, 
     stat_summary(fun.data=mean_se, geom="pointrange", position=position_dodge(0), alpha=1) +
     stat_summary(fun.data=mean_se, geom="line", position=position_dodge(0), alpha=1) +
     scale_color_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
-    theme_minimal()
+    theme_bw()
   
   if (full_scale == TRUE){
     plot <- plot + scale_y_continuous(limits = c(min_y, max_y), breaks = seq(floor(min_y), ceiling(max_y), 1)) 

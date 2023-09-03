@@ -210,7 +210,7 @@ n2_grewup <-
   mutate(Region = case_when(
     Response %in% c("san francisco", "los angeles", "boston", "beverly hills", "san fernando valley", "san gabriel", "las vegas", "bay area", "portland") ~ "USA",
     str_detect(Response, paste0("(?:^|\\W)", paste(tolower(state.name), collapse = '|'), "(?:$|\\W)")) ~ "USA",
-    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west)\\s*coast|(the )*west|(west|east)ern states)(?:$|\\W)|american suburbia|(?:^|\\W)united states(?:$|\\W)|(?:^|\\W)(in|north|northeastern|southwest) (america|us)(?:$|\\W)|(?:^|\\W)in the us$") ~ "USA", 
+    str_detect(Response, "(?:^|\\W)(mid(\\s*|-*)west|pacific northwest|(east|west)\\s*coast|(the )*(west|south|southwest)|(west|east)ern states)(?:$|\\W)|american suburbia|(?:^|\\W)united states(?:$|\\W)|(?:^|\\W)(in|north|northeastern|southwest) (america|us)(?:$|\\W)|(?:^|\\W)in the us$") ~ "USA", 
     str_detect(Response, "(?:^|\\W)usa(?:$|\\W)") ~ "USA", # if USA or <other>, defaults to US
     str_detect(Response,"(?:^|\\W)canada(?:$|\\W)") ~ "Canada",
     str_detect(Response, "(?<!\\w)(asia(n*))(?!\\w)") ~ "Asia",
@@ -259,6 +259,25 @@ All personae categories sometimes identified as USA
 n2_grewup %>%  count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
 ```
+```{r}
+n2_grewup %>% count(Voice, Response_Cat)
+```
+
+```{r}
+# View heatmap of responses per voice
+# all
+n2_grewup %>% count(Voice, Response_Cat) %>% mutate(prop = n/18) %>% 
+  mutate(Response_Cat = ifelse(is.na(Response_Cat), "Other", as.character(Response_Cat))) %>%
+  mutate(Response_Cat = fct_relevel(Response_Cat, "USA", "Canada", "Europe", "Asia", "Other")) %>%
+  ggplot(aes(x=Voice, y=fct_rev(Response_Cat))) + gg_theme() +
+  geom_tile(aes(fill = prop), colour = "white") +
+  geom_text(aes(label = round(prop, 2)), col="white") +
+  scale_fill_gradient(low = "lightgrey", high = "red") + #, limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  labs(title="Free Response", y="Location") + theme_bw()
+
+ggsave(file=file.path(pipeline, "temp", "grewup_heatmap.png"))
+```
+
 
 **Review Comments:**
 
@@ -318,6 +337,22 @@ n2_ethnicity %>% count(Response_Cat, sort=TRUE) %>% add_count(name="n_unique")
 # Check  category of photos per voice
 n2_ethnicity %>% count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 ```
+```{r}
+# View heatmap of responses per voice
+# all
+n2_ethnicity %>% count(Voice, Response_Cat) %>% mutate(prop = n/18) %>% 
+  mutate(Response_Cat = ifelse(is.na(Response_Cat), "Other", as.character(Response_Cat))) %>%
+  mutate(Response_Cat = fct_relevel(Response_Cat, "White", "American", "Asian", "Other")) %>%
+  ggplot(aes(x=Voice, y=fct_rev(Response_Cat))) + gg_theme() +
+  geom_tile(aes(fill = prop), colour = "white") +
+  geom_text(aes(label = round(prop, 2)), col="white") +
+  scale_fill_gradient(low = "lightgrey", high = "red") + #, limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  labs(title="Free Response", y="Ethnicity") + theme_bw()
+
+ggsave(file=file.path(pipeline, "temp", "ethnicity_heatmap.png"))
+```
+
+
 **Review Comments:**
 
 **Selection Criteria:**
@@ -341,6 +376,7 @@ n2_speech <-
     TRUE ~ NA
   )) %>%
   mutate(Accented = case_when(
+    # str_detect(Response, "(?:^|\\W)(different to a|non) native speaker(?:$|\\W)") ~ "Accented",
     str_detect(Response, "(?:^|\\W)(accented|(with|have) a(.*\\s)accent|(broken|poor(-ish)*) english)(?:$|\\W)") ~ "Accented",
     str_detect(Response, "(?:^|\\W)(slight|strong|aapi|hawaiian|asian|foreign|heritage('s)*|chinese) accent(?:$|\\W)") ~ "Accented",
     TRUE ~ NA
@@ -351,7 +387,7 @@ n2_speech <-
     TRUE ~ NA
   )) %>%
 
-  mutate(Response_Cat = coalesce(coalesce(coalesce(OtherAccent, Unaccented), Accented), "Other"), .after=Response) %>% 
+  mutate(Response_Cat = coalesce(coalesce(coalesce(OtherAccent, Accented), Unaccented), "Other"), .after=Response) %>%
   mutate(across(where(is.character), as.factor))
 # n2_speech
 
@@ -366,6 +402,9 @@ n2_speech %>% filter(Response_Cat == "Unaccented") %>% count(Response_Cat, Respo
 n2_speech %>% filter(Response_Cat == "Accented") %>% count(Response_Cat, Response, sort=TRUE)
 n2_speech %>% filter(!(Response_Cat == "Unaccented" | Response_Cat == "Accented")) %>% count(Response_Cat, Response, sort=TRUE)
 ```
+NOTE: Two of the "accented" may be categorized as "unaccented"and I fixed it. Just discuss this rather than show categories either way.
+S01 = accented and non native speaker
+S11 = they speak with an asian accent, different to a native speaker
 
 Accentedness:
 ```{r}
@@ -382,11 +421,29 @@ n2_speech %>% count(Response_Cat, sort=TRUE) %>% add_count(name="n_unique")
 n2_speech %>% count(Voice, Response_Cat, sort=TRUE) %>% pivot_wider(names_from=Response_Cat, values_from = n)
 
 ```
+```{r}
+# View heatmap of responses per voice
+# all
+n2_speech %>% count(Voice, Response_Cat) %>% mutate(prop = n/18) %>% 
+  mutate(Response_Cat = ifelse(is.na(Response_Cat), "Other", as.character(Response_Cat))) %>%
+  mutate(Response_Cat = fct_relevel(Response_Cat, "Other", "Unaccented", "Accented")) %>%
+  ggplot(aes(x=Voice, y=fct_rev(Response_Cat))) + gg_theme() +
+  geom_tile(aes(fill = prop), colour = "white") +
+  geom_text(aes(label = round(prop, 2)), col="white") +
+  scale_fill_gradient(low = "lightgrey", high = "red") + #, limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  labs(title="Free Response", y="Accentedness") + theme_bw()
+
+ggsave(file=file.path(pipeline, "temp", "accentedness_heatmap.png"))
+```
+
 
 ```{r}
 # Check specific photos/labels
 n2_speech %>% mutate(Response=as.character(Response)) %>% 
-  filter(str_detect(Response, "(?:^|\\W)(south)"))
+  filter(Voice == "S11")
+
+# n2_speech %>% mutate(Response=as.character(Response)) %>% 
+#   filter(str_detect(Response, "(?:^|\\W)(south)"))
 ```
 
 
@@ -525,7 +582,9 @@ n2_ratings_releveled <-
   "Feminine", "Clear speaker","Cool", "Casual",  "Nerdy", "Slow speaker"))                         # Style
 
 parallel_plot(n2_ratings_releveled, x=Rating_Scale, y=Rating_Value, group=Voice, angle_axis_labels=TRUE) 
-parallel_plot(n2_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) 
+parallel_plot(n2_ratings_releveled, x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title="Likert Scale", x="Rating Scale", y="Rating (Z-score)")
+
+ggsave(file=file.path(pipeline, "temp", "ratings_parallelplot.png"))
 ```
 
 ```{r}
@@ -539,6 +598,18 @@ n2_ratings_releveled %>%
   parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) 
 
 ```
+```{r}
+# Selected speakers 
+n2_ratings_releveled %>%
+  filter(!Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Rating_Value, group=Voice, angle_axis_labels=TRUE) 
+
+n2_ratings_releveled %>%
+  filter(!Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
+  parallel_plot(x=Rating_Scale, y=Rating_ZScore, group=Voice, angle_axis_labels=TRUE) 
+
+```
+
 
 ```{r}
 # Condition Distribution + Median Violin Plots by Rating_Scale
@@ -647,7 +718,9 @@ n2_likelihood_releveled <-
   "White American", "Asian American","Latin/Hispanic American", "Black American"))                         # RaceEthnicity
 
 parallel_plot(n2_likelihood_releveled, x=Rating_Scale, y=Response, group=Voice, angle_axis_labels=TRUE) 
-parallel_plot(n2_likelihood_releveled, x=Rating_Scale, y=Response_ZScore, group=Voice, angle_axis_labels=TRUE) 
+parallel_plot(n2_likelihood_releveled, x=Rating_Scale, y=Response_ZScore, group=Voice, angle_axis_labels=TRUE) + labs(title="Likert Scale", x="Rating Scale", y="Rating (Z-score)")
+
+ggsave(file=file.path(pipeline, "temp", "likelihood_parallelplot.png"))
 ```
 
 ```{r}
@@ -726,24 +799,30 @@ n2_face_byVoice %>% arrange(Voice, -prop_selected)
 # View heatmap of persona_group selections per voice
 # all
 n2_face_byVoice %>%
-  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  ggplot(aes(x=Voice, y=fct_rev(Persona_Group))) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
   geom_text(aes(label = round(prop_selected, 2)), col="white") +
-  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1)) + 
+  labs(title="Face Selection", y="Persona Group") + theme_bw()
+
+ggsave(file=file.path(pipeline, "temp", "face_heatmap.png"))
+
 
 # filler/non-target
 n2_face_byVoice %>% filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
-  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  ggplot(aes(x=Voice, y=fct_rev(Persona_Group))) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
   geom_text(aes(label = round(prop_selected, 2)), col="white") +
-  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1)) + 
+  labs(title="Face Selection", y="Persona Group") + theme_bw()
 
 # target
 n2_face_byVoice %>% filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
-  ggplot(aes(Voice, Persona_Group)) + gg_theme() +
+  ggplot(aes(x=Voice, y=fct_rev(Persona_Group))) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
   geom_text(aes(label = round(prop_selected, 2)), col="white") +
-  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1))
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.6), breaks=seq(0.1,0.5,0.1)) + 
+  labs(title="Face Selection", y="Persona Group") + theme_bw()
 ```
 
 ```{r}
@@ -772,22 +851,22 @@ n2_face_byVoiceImage %>%
 n2_face_byVoiceImage %>%
   ggplot(aes(Voice, Persona_Image)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.5), breaks=seq(0.1,0.5,0.1))
 
 # filler/non-target
 n2_face_byVoiceImage %>% filter(!(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18"))) %>% 
   ggplot(aes(Voice, Persona_Image)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.5), breaks=seq(0.1,0.5,0.1))
 
 # target
 n2_face_byVoiceImage %>% filter(Voice %in% c("S01", "S03", "S06", "S10", "S16", "S18")) %>% 
   ggplot(aes(Voice, Persona_Image)) + gg_theme() +
   geom_tile(aes(fill = prop_selected), colour = "white") +
-  geom_text(aes(label = round(prop_selected, 1)), col="white") +
-  scale_fill_gradient(low = "white", high = "red")
+  geom_text(aes(label = round(prop_selected, 2)), col="white") +
+  scale_fill_gradient(low = "white", high = "red", limits=c(0,0.5), breaks=seq(0.1,0.5,0.1))
 ```
 
 
