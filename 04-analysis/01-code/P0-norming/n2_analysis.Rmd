@@ -1147,352 +1147,6 @@ get_correlations(n2_ratings_vars_zscore, columns_to_keep=4:last_col())
 The "Culture" Rating_Group, may be highly collinear (>0.8 and >0.9), which will result in a single value. Others are all not highly collinear.
 
 
-### Run PCA
-Notes for PCA Interpretation
-```{r}
-#############################################
-## (1) Checking the number of dimensions
-
-# Parallel Analysis
-# Standard way to decide on the number of factors or components needed in an FA or PCA.
-
-# Eigenvalues & percent variance accounted for
-# One guideline is to only include dimensions that have an eigenvalue of at least 1, but note that...
-# This guideline only applies if using correlation matrix (i.e. scaled units; scale.unit = T)
-# Because we don't want a factor that accounts for less than what a single variable accounts for (single variable=1)
-
-# Scree Plot
-# One guideline is to check starting with the "elbow" value, plus or minus 1
-# Check for where there is an "elbow" where the plot bends, such that subsequent factors don't contribute much
-
-## (2) Interpreting the output factor values
-
-# Factor matrix (raw eigenvectors = the factor score coefficients; sometimes called the factor, but not factor scores)
-# To interpret, focus on the most extreme factor values (or loadings, below)
-# Higher values means that those variables contribute more to the specific dimension/component/factor
-# Dimensions/components/factors can be interpreted based on which variables contribute more
-
-# Factor loadings (eigenvectors scaled by the square root of their associated eigenvalues)
-# Provide similar information about which variables contribute to each dimension/component/factor, but also
-# Can be interpreted as correlations between each variable and the factor
-# One guideline treats all values less than 0.3 as 0, thus drops them from consideration (irrelevant for that factor) 
-
-# Rotated factor matrix
-# Orthogonally rotates factor matrix for ease of interpretation of each dimension
-
-#############################################
-## (3) Checking the individual coordinate scores
-# Individual coordinate scores (principle coordinates)
-# Same as factor scores for each subject and dimension (weighted sum of all of a subjects raw scores, where the weights are the eigenvector values)
-# i.e. values are calculated from the normalized variable scores (Z-scores) multiplied by the eigenvector weights, then summed
-```
-
-#### Select Data
-Select data for PCA.
-```{r}
-# Use Zscores to represent responses without participant bias in scale range 
-#   (e.g., never selecting 1 means their lowest value is represented by 2, but their 2 can be equated to another person's 1)
-# Use Raw scores to represent responses as representing true value 
-#   (e.g., never selecting 1 means the true perceptual range represented by the photos never goes down to 1 for this person, and their 1 is equated to another person's 1)
-
-current_source_data <- n2_ratings_vars_zscore # Alt: n2_ratings_vars_raw
-
-## Maximal set
-Voice_vars_pca <- current_source_data %>% select(-Condition:-Voice)
-Voice_vars_pca
-```
-
-#### Process PCA
-Determine number of components via Parallel analysis.
-```{r }
-## Relevant libraries
-# `PCA` command from `FactoMineR` library (see index for more info)
-# `paran` command from `paran` library
-# `Varimax` command from `GPArotations` library (https://stats.stackexchange.com/questions/59213/how-to-compute-varimax-rotated-principal-components-in-r)
-
-## (1) Run Parallel Analysis with `paran`
-# Standard way to decide on the number of factors or components needed in an FA or PCA.
-# Prints out a scree plot as well, with the randomized line + unadjusted line
-paran(Voice_vars_pca,
-      graph = TRUE, color = TRUE, 
-      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
-      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
-```
-Parallel analysis suggests 2 components retained.
-Scree plots suggest ~3 components, based on the location of the elbow. Could try 2, 3, or 4 components.
-Eigenvalues suggest 2 components, as only the first two comps have a value above 1.
-The _difference in_ eigenvalues suggests 3 components, as up to the third comp has a difference greater than 1. (See: https://stats.stackexchange.com/questions/450752/understanding-how-many-components-to-include-for-pca)
-Interpretability indicates 3 components, such that FrCA serves as its own component (Dim3).
-
-```{r}
-## (2) Run PCA with `FactoMineR`
-# ncp = number of components; adjust after checking the parallel analysis output
-
-# FactoMineR PCA Commands
-#score_PCA        # lists commands
-#score_PCA$var    # variables
-#score_PCA$ind    # individuals
-#score_PCA$call   # summary stats
-
-# Conduct PCA with scaling/standardizing
-score_PCA <- PCA(Voice_vars_pca, scale.unit = T, ncp =4, graph=T)
-
-## Relevant Raw PCA Output
-# Eigenvalues & percent variance accounted for
-eigenvalues <- score_PCA$eig
-as_tibble(eigenvalues, rownames="components")
-
-# Eigenvectors (=Factor matrix, factor score coefficients, principal directions, principal axes; sometimes called the factor, but NOT factor scores; these are called loadings by some but its incorrect).
-eigenvectors <- score_PCA$var$coord
-as_tibble(eigenvectors, rownames="Score")
-
-# Factor scores for each subject and dimension (also: Individual coordinate scores; principle coordinates)
-rawScores <- score_PCA$ind$coord
-as_tibble(rawScores, rownames="Item")
-
-# Factor loadings (=loadings, correlation loadings, or scaled factor coefficients; eigenvectors scaled by the square root of their associated eigenvalues)
-# Calculate factor loadings using the output eigenvectors and eigenvalues (i.e. divide each eigenvector column value by the appropriate eigenvalue square root).
-rawLoadings <- sweep(eigenvectors,MARGIN=2,STATS=sqrt(eigenvalues[1:ncol(eigenvectors),1]),FUN="/") # margin 1=rows, 2=cols
-as_tibble(rawLoadings, rownames="Score")
-```
-
-
-
-
-```{r lbqdata-pca2-3}
-## (3) Conduct rotation on the PCA factor loadings with `GPArotation`
-# Rotations are typically done on the retained component factor loadings, not on all components nor on the eigenvectors
-# Performed for ease of interpretation, maximizing factor loadings
-rotLoadings <- Varimax(rawLoadings, normalize=T)$loadings
-as_tibble(rotLoadings, rownames="Score") 
-
-# Recover Rotation matrix from loadings
-# Because the rotLoadings are calculated from rawLoadings %*% rotMatrix, can recover rotMatrix by rotLoadings "divided" by rawLoadings, which in matrix multiplication is multiplying by the inverse (transpose) 
-# Note: For some reason, can't call Varimax(rawLoadings)$rotmat (just get NULL); this recreates the same matrix from Varimax(rawLoadings)
-rotMatrixL <- t(rawLoadings) %*% rotLoadings
-as_tibble(rotMatrixL, rownames="Dimensions")
-
-# Calculate rotated factor scores
-# The formula simply multiplies the normalized variable scores with the rotation matrix to get rotated factor scores
-# First, z-score the raw scores using base R scale()
-# Then, matrix multiply the matrix of zScores with the rotation matrix
-# Result is a matrix with columns=components and rows=each subject
-zScores <- scale(rawScores)
-rotScores <- zScores %*% rotMatrixL
-as_tibble(rotScores, rownames="Item")
-
-```
-
-```{r}
-# For comparison, a different rotation function. Requires normalization. Still a little different but similar enough. Provides rotmat and SS loadings. 
-## Rotate eigenvectors (not typical, according to Stats notes and StackExchange, but reasonable-looking SS loadings+% variance)
-# stats::varimax(eigenvectors)
-## Rotate factor loadings (typical, but unreasonable(?)-looking SS loadings+% variance)
-stats::varimax(rawLoadings)
-```
-
-#### Factor Loadings
-```{r}
-# Replace all factor loading values under |0.3| with 0 for better readability
-
-# Raw Loadings
-as_tibble(rawLoadings, rownames="Variable") %>% 
-  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
-
-# Rotated Loadings
-as_tibble(rotLoadings, rownames="Variable") %>% 
-  mutate(across(where(is.numeric), ~ ifelse(abs(.x)<0.3, 0, .x)))
-```
-
-#### PCA: Raw Plots
-```{r lbqdata-pca2-4, echo=F}
-## (4) Data Visualization of Raw Scores with `factoextra`
-
-# Plot individual factor scores
-fviz_pca_ind(score_PCA, col.ind = "#00AFBB", repel = TRUE)
-
-# Biplot, including individual scores and factor vectors
-fviz_pca_biplot(score_PCA, label = "all", col.ind = "#00AFBB", col.var="black", ggtheme = theme_minimal())
-```
-
-#### PCA: Rotated Plots
-```{r plbqdata-pca2-5, echo=F}
-## (5) Manual Plots of Rotated Scores with `ggplot`
-
-## Create dataframes of the rotated factor loading and factor score matrices
-
-# Convert rotated factor loadings matrix to data frame; add variable number
-rotLoadingsData <- as.data.frame(rotLoadings)
-rotLoadingsData <- mutate(rotLoadingsData, variable = row.names(rotLoadings))
-rotLoadingsData <- mutate(rotLoadingsData, variable = factor(variable))
-#rotLoadingsData
-
-# Convert rotated factor score matrix to data frame; add subject number
-rotScoreData <- as.data.frame(rotScores)
-rotScoreData <- mutate(rotScoreData, subject = 1:n())
-rotScoreData
-
-## Create base plots
-# Loading plot
-loadingplot <- ggplot(rotLoadingsData, aes(x=Dim.1, y=Dim.2))+
-  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
-  geom_text(data=rotLoadingsData, aes(x=Dim.1*4, y=Dim.2*4, label=variable), color="red",check_overlap=T) +
-  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-2, 3),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Variables - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-loadingplot
-
-
-# Scatter plot of Individual factor scores
-dimplot = ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
-  geom_point(na.rm=TRUE, color="#00AFBB") +
-  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
-  scale_x_continuous(lim=c(-2.5, 2.5),breaks=seq(-3,3,1)) +
-  scale_y_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Individuals - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-dimplot
-
-## Merge loading and score plot = Biplot
-
-# Biplot of factor loadings + ind factor scores
-ggplot(rotScoreData, aes(x=Dim.1, y=Dim.2))+
-  geom_point(na.rm=TRUE, color="#00AFBB") +
-  geom_text(aes(label=subject),hjust=1.5,vjust=1.5, color="#00AFBB", check_overlap=T)+
-  
-  # Overlay loading plot (i.e. arrows)
-  geom_segment(data=rotLoadingsData, mapping=aes(x=0, y=0, xend=Dim.1*4, yend=Dim.2*4), arrow=arrow(), size=0.5, color="black") +
-  geom_text(data=rotLoadingsData, aes(x=Dim.1*4.5, y=Dim.2*4.5, label=variable), color="red",check_overlap=T, nudge_y = 0)+
-
-  # scale_x_continuous(lim=c(-3.5, 3.5),breaks=seq(-3,3,1)) +
-  # scale_y_continuous(lim=c(-4.5, 4.5),breaks=seq(-3,3,1)) +
-  geom_hline(yintercept=0, linetype="dashed") +
-  geom_vline(xintercept=0, linetype="dashed") +
-  labs(title="Biplot - PCA", x="Dim 1", y="Dim 2") +
-  theme_minimal()+
-  theme(plot.title=element_text(size=15),
-        plot.subtitle=element_text(size=15, face="italic"),
-        axis.title=element_text(size=15),
-        axis.text=element_text(size=14),
-        strip.background =element_rect(fill="white"),
-        strip.text = element_text(size=14))+
-  theme(legend.title = element_text(size=16),
-        legend.text=element_text(size=14))
-
-
-```
-~ PILOT NOTES as sample ~
-NOTE: Both ZScore rotated and unrotated are very similar (for pilot data; however, big difference for Raw ratings)
-
-The results of the Zscore rotated PCA with three components retained suggest that:
-* Dim1 is the "culture" or "American" component, with all four of those American-related ratings being highly correlated.
-
-* Dim2 is the "social attractiveness" or "likeability" component, linked to positive traits like Attractive, Likeable (strongest), Friendly, Confident, and Enthusiastic (when rotated), as well as confidence-related stylistic features like Cool and Fast speaker (i.e., non-Slow speaker)
-
-* The other features that act more like their factors rather than a grouped/similar/collinear unit are:
-  * Intelligent
-  * Nerdy (vs Enthusiastic, when not rotated)
-  * Casual
-  * Feminine — definitely seems more like a third dimension
-  
-
-Based on the biplots, where is the best slice to take matched participants from? 
-* Since Dim1 is the relevant distinguishing component, we'd want to take different personae across this dimension — i.e., this should differ significantly across Personae conditions (ethAsian vs. msAsian / msWhite)
-* Since Dim2 (and others) are the "flavor" non-target characteristics to ensure social perceptual similarity on, those should be similar, maybe towards the mean around 0 (i.e., visually, along the horizontal x axis line is where we should pick from).
-
-In addition, use the Ethnicity, GrewUp, and Speech scores to screen for outliers or non-matching aspects. So, we don't want to include even if they might match in ratings but: 
-* e.g., differ in being East Asian vs. Southeast Asian or 
-* e.g., differ in where they are from like always California vs. never California
-
-#### Combine Data
-```{r}
-# Merge PCA factor scores back to Voice number and raw scores
-n2_ratings_vars_pca <-
-  n2_ratings_vars_zscore %>%
-  cbind(
-    as_tibble(rotScores, rownames="Item"), . # alternatively rawScores
-  ) %>%
-relocate(Condition:Voice,
-       Dim1=Dim.1, Dim2=Dim.2, Dim3=Dim.3 , Dim4=Dim.4
-       ) %>% select(-Item)
-n2_ratings_vars_pca
-```
-
-```{r}
-# Summary stats of each PC/Dimension
-quick_summarize(n2_ratings_vars_pca, Dim1)
-quick_summarize(n2_ratings_vars_pca, Dim2)
-quick_summarize(n2_ratings_vars_pca, Dim3)
-quick_summarize(n2_ratings_vars_pca, Dim4)
-```
-
-#### Visualize Data
-```{r}
-# # Get variable names
-# colnames(n2_ratings_vars_pca)
-# 
-# # Double check raw zscore correlations for select variables
-# n2_ratings_vars_pca %>% filter(Condition=="ethAsian") %>%
-#   ggplot(aes(y=American, x=`American-accented`)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-# 
-# n2_ratings_vars_pca %>% filter(Condition=="msAsian") %>%
-#   ggplot(aes(y=American, x=Likeable)) +  geom_point() + geom_smooth(method="lm") + theme_minimal()
-```
-
-```{r}
-# # Double check PCA correlations
-# n2_ratings_vars_pca %>%
-#   ggplot() +
-#   # facet_wrap(~Voice) +
-#   geom_point(aes(y=Dim1, x=American)) +
-#   geom_point(aes(y=Dim1, x=`Native speaker of English`), col="blue", alpha=0.7) +
-#   geom_point(aes(y=Dim1, x=`American-accented`), col="red", alpha=0.7) +
-#   geom_point(aes(y=Dim1, x=`Aligned with American culture`), col="orange", alpha=0.7) +
-#   theme_minimal()
-
-```
-
-Get plot of main Dimensions with the labelled Voices to review the selections below
-```{r}
-# Main Dimensions
-# Specific Voices colored by Condition
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim2, label=Voice, group=Condition, show_points=TRUE)
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim3, label=Voice, group=Condition, show_points=TRUE)
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
-
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim3, label=Voice, group=Condition, show_points=TRUE)
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim2, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
-
-n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Voice, group=Condition, show_points=TRUE)
-
-```
-```{r}
-# Other
-# Specific Voices colored by Condition
-# n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Feminine, label=Voice, group=Condition, show_points=FALSE)
-# n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim1, y=Intelligent, label=Voice, group=Condition, show_points=FALSE)
-```
 
 ### Finalize By-Voice Data
 #### Merge Scores
@@ -1501,10 +1155,6 @@ n2_ratings_vars_pca %>% labeled_scatterplot(x=Dim3, y=Dim4, label=Voice, group=C
 # Without PCA
 n2_byVoice_data <- n2_ratings_vars_zscore %>% full_join(n2_likelihood_vars_zscore) %>% full_join(n2_percepts_personae) %>% full_join(n2_percepts_general) %>%
   distinct()
-
-# # With PCA
-# n2_byVoice_data <-  n2_ratings_vars_pca %>% full_join(n2_percepts_personae) %>% full_join(n2_percepts_general) %>%
-#   distinct()
 
 n2_byVoice_data
 ```
@@ -1530,6 +1180,74 @@ n2_byVoice_data %>%
 # Labelled scatterplot
 n2_byVoice_data %>% labeled_scatterplot(x=perceived_american_raised, y=perceived_american_aligned, label=Voice, group=Voice, show_points=TRUE)
 ```
+
+```{r}
+# Visualize Asian vs. White by Task
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=asian_prop, y=white_prop, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=`Asian American`, y=`White American`, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=`AsianA_prop`, y=`WhiteA_prop`, label=Voice, group=Voice, show_points=TRUE)
+```
+
+```{r}
+# Visualize Asian by Task
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=asian_prop, y=`Asian American`, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=asian_prop, y=`AsianA_prop`, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=`Asian American`, y=`AsianA_prop`, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=asian_prop, y=`AsianC_prop`, label=Voice, group=Voice, show_points=TRUE)
+
+# Labelled scatterplot
+n2_byVoice_data %>% labeled_scatterplot(x=`Asian American`, y=`AsianC_prop`, label=Voice, group=Voice, show_points=TRUE)
+
+# # Labelled scatterplot
+# n2_byVoice_data %>% labeled_scatterplot(x=`AsianA_prop`, y=`AsianC_prop`, label=Voice, group=Voice, show_points=TRUE)
+```
+
+Free Response (`asian_prop`)
+- vs. Slider Scale
+  - Most voices are roughly similar, correlation-wise. Generally higher likelilhood ratings for Asian American than mentioned in free response.
+  - Two with visually/notably higher slider scores for Asian than free response was S10 and S01
+- vs. Face Selection
+  - For AsianA faces, visually/notably higher Asian face selections than free responses was S08, S18, and again S01
+  - For AsianC faces, visually/notably higher Asian face selections  than free responses was ~S03, ~S05, ~S08, ~S18; but mostly S10 and S01 jump out (and S11 is notably low)
+
+Slider Scale (`Asian American`)
+- vs. Face Selection
+  - For AsianA faces, roughly correlated. Some higher might be S08, S18, and S04, while some lower might be S07, S10
+  - For AsianC faces, visually/notably higher Asian face selections than slider ratings was S03, S05, and mostly S10 and S01. Some who look notably lower are S16, S07, and possibly S11.
+
+Face Selection (`AsianA_prop`; `AsianC_prop`)
+
+
+```{r}
+# Asian Impression scores by Task
+# Created selected long byVoice data, scaled/z-scored
+n2_byVoice_sl <- n2_byVoice_data %>% select(Voice, `Asian Free` = asian_prop, `AsAm Rating` = `Asian American`, `AsianA Face` = AsianA_prop, `AsianB Face` = AsianB_prop, `AsianC Face` = AsianC_prop) %>% 
+  mutate(across(is.numeric, scale)) %>% 
+  pivot_longer(cols = 2:last_col(), names_to = "measure", values_to = "value") %>% mutate(measure = fct_relevel(measure, "Asian Free", "AsAm Rating", "AsianA Face", "AsianB Face", "AsianC Face")) 
+  
+n2_byVoice_sl %>% group_by(Voice) %>% summarize(mean_measure=mean(value)) %>% arrange(mean_measure) %>% pull(Voice)
+
+# Scaled scores faceted by voice 
+n2_byVoice_sl %>% mutate(Voice = fct_relevel(Voice, "S06", "S18", "S07", "S05", "S03", "S08", "S04", "S16", "S10", "S01", "S11")) %>%
+  ggplot(aes(x=measure, y=value)) + gg_theme() +
+  geom_point() + geom_col(alpha=0.5) + facet_wrap(~Voice) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0.5)) + 
+  theme(plot.margin = margin(0,0,0,40, unit = "pt")) 
+
+```
+
 
 ```{r}
 # For Reference: Column names

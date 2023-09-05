@@ -239,7 +239,7 @@ labeled_scatterplot <- function(df, x, y, label, group, show_points=TRUE, full_s
     geom_text(alpha=0.9, nudge_x = y_range/30, nudge_y = y_range/30) +
     scale_color_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
     scale_fill_viridis(option="viridis", discrete=TRUE) + # <- UNCOMMENT to get colorblind-friendly palette
-    gg_theme() + theme_minimal()
+    gg_theme() + theme_bw()
   
   if (full_scale == TRUE){
     plot <- plot + scale_y_continuous(limits = c(min_y, max_y), breaks = seq(floor(min_y), ceiling(max_y), 1)) 
